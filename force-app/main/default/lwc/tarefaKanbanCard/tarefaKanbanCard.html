@@ -1,0 +1,22 @@
+<template>
+    <template if:true={tarefa}>
+        <div class="kanban-card">
+            <strong class="task-name">{tarefa.Name}</strong>
+
+            <div class="task-meta">
+                <span class="badge prioridade">
+                    {tarefa.Prioridade__c}
+                </span>
+                <span class="badge tipo">
+                    {tarefa.TipoTarefa__c}
+                </span>
+            </div>
+
+            <template if:true={tarefa.CloseDate__c}>
+                <div class="task-date">
+                     {tarefa.CloseDate__c}
+                </div>
+            </template>
+        </div>
+    </template>
+</template>

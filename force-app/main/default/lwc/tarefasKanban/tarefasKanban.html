@@ -1,0 +1,22 @@
+<template>
+    <div class="kanban">
+        <template for:each={columns} for:item="col">
+            <div key={col.status} class="kanban-column">
+                <h3 class="kanban-title">{col.label}</h3>
+
+                <template if:true={col.tarefas.length}>
+                    <template for:each={col.tarefas} for:item="task">
+                        <c-tarefa-kanban-card
+                            key={task.Id}
+                            tarefa={task}
+                        ></c-tarefa-kanban-card>
+                    </template>
+                </template>
+
+                <template if:false={col.tarefas.length}>
+                    <p class="empty">Sem tarefas</p>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

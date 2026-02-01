@@ -17,14 +17,18 @@ public without sharing class TarefaService {
         }
 
         novaTarefa.UsuarioProprietario__c = UserInfo.getUserId();
-
-
         insert novaTarefa;
-
-        
-
-
     }
+
+
+    public static List<Tarefa__c> buscarTarefasPorUsuario(ID idUser) {
+
+        idUser = idUser == null ? UserInfo.getUserId() : idUser;
+        return TarefaSelector.buscarTarefasPorUsuario(idUser);
+    }
+
+
+
 
 
    

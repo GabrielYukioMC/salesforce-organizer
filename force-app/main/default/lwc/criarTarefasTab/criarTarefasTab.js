@@ -29,7 +29,7 @@ export default class CriarTarefasTab extends LightningElement {
     ];
 
     statusOptions = [
-        { label: 'Não Iniciado', value: 'Não Iniciado' },
+        { label: 'Não Iniciado', value: 'Não iniciado' },
         { label: 'Em andamento', value: 'Em andamento' },
         { label: 'Concluído', value: 'Concluído' },
         { label: 'Em espera', value: 'Em espera' },
@@ -69,18 +69,18 @@ export default class CriarTarefasTab extends LightningElement {
         const diffDias = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
         if (diffMs < 0) {
-            this.prazoMensagem = '⛔ O prazo desta tarefa já expirou.';
+            this.prazoMensagem = ' O prazo desta tarefa já expirou.';
             this.prazoClasse = 'prazo-info prazo-atrasado';
             return;
         }
 
         if (diffHoras < 24) {
-            this.prazoMensagem = `⏰ O prazo da tarefa está prevista para daqui a ${diffHoras} horas).`;
+            this.prazoMensagem = ` O prazo da tarefa está prevista para daqui a ${diffHoras} horas).`;
             this.prazoClasse = 'prazo-info prazo-hoje';
             return;
         }
 
-        this.prazoMensagem = `✅ O prazo da tarefa está prevista para daqui a ${diffDias} dias.`;
+        this.prazoMensagem = ` O prazo da tarefa está prevista para daqui a ${diffDias} dias.`;
         this.prazoClasse = 'prazo-info prazo-ok';
     }
 
