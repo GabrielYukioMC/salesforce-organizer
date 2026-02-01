@@ -1,0 +1,38 @@
+<template>
+    <lightning-card title="Central de Tarefas" icon-name="standard:task">
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button
+                class={tabCriarClass}
+                onclick={abrirCriar}
+            >
+                Criar Task
+            </button>
+
+            <button
+                class={tabVerClass}
+                onclick={abrirVer}
+            >
+                Ver Tasks
+            </button>
+        </div>
+
+        <!-- Conteúdo -->
+        <div class="content">
+
+            <!-- ABA CRIAR -->
+            <template if:true={abaCriar}>
+               <c-criar-tarefas-tab></c-criar-tarefas-tab>
+            </template>
+
+            <!-- ABA VER -->
+            <template if:true={abaVer}>
+                <c-exibir-tarefas-tab></c-exibir-tarefas-tab>
+            
+            </template>
+
+        </div>
+
+    </lightning-card>
+</template>

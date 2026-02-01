@@ -1,0 +1,73 @@
+<template>
+    <lightning-card title="➕ Criar Nova Task"  >
+        <div class="container">
+
+            <lightning-input
+                label="Nome da Task"
+                placeholder="Ex: Ajustar tela de login"
+                value={novaTask.Name}
+                data-field="Name"
+                onchange={handleChange}
+                required
+            ></lightning-input>
+
+            <div class="grid">
+                <lightning-combobox
+                    label="Prioridade"
+                    placeholder="Selecione"
+                    value={novaTask.Prioridade__c}
+                    options={prioridades}
+                    data-field="Prioridade__c"
+                    onchange={handleChange}
+                ></lightning-combobox>
+
+                <lightning-combobox
+                    label="Tipo"
+                    placeholder="Selecione"
+                    value={novaTask.TipoTarefa__c}
+                    options={tipos}
+                    data-field="TipoTarefa__c"
+                    onchange={handleChange}
+                ></lightning-combobox>
+
+                <lightning-combobox
+                    label="Status"
+                    placeholder="Selecione"
+                    value={novaTask.Status__c}
+                    options={statusOptions}
+                    data-field="status__c"
+                    onchange={handleChange}
+                ></lightning-combobox>
+            </div>
+
+            
+           <div class="prazo-wrapper">
+                <lightning-input
+                    type="datetime-local"
+                    label="Prazo de entrega"
+                    placeholder="Selecione a data e hora do prazo"
+                    value={novaTask.prazo}
+                    data-field="CloseDate__c"
+                    onchange={handleChange}
+                ></lightning-input>
+
+                <template if:true={prazoMensagem}>
+                    <span class={prazoClasse}>
+                        {prazoMensagem}
+                    </span>
+                </template>
+            </div>
+
+
+            <div class="actions">
+                <lightning-button
+                    label="Criar Task"
+                    variant="brand"
+                    icon-name="utility:add"
+                    onclick={criarTask}
+                ></lightning-button>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

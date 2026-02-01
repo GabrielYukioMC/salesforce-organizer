@@ -1,0 +1,20 @@
+<template>
+        <template if:true={tasks.length}>
+                    <ul class="task-list">
+                        <template for:each={tasks} for:item="task">
+                            <li key={task.id} class="task-item">
+                                <div>
+                                    <strong>{task.nome}</strong>
+                                    <div class="meta">
+                                        {task.tipo} • {task.prioridade} • {task.prazo}
+                                    </div>
+                                </div>
+                            </li>
+                        </template>
+                    </ul>
+                </template>
+
+                <template if:false={tasks.length}>
+                    <p class="empty">Nenhuma task criada atribuida ao seu perfil.</p>
+                </template>
+</template>
