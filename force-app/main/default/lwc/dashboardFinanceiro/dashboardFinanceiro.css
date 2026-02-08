@@ -1,0 +1,42 @@
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #f4f6f9;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.card h2 {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.saldo-final {
+    background: #e6f2ff;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.saldo-final h1 {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.acoes {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.placeholder {
+    padding: 20px;
+    color: gray;
+}

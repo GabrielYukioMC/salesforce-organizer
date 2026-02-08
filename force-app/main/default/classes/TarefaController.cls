@@ -11,5 +11,11 @@ public without sharing class TarefaController {
         return TarefaService.buscarTarefasPorUsuario(UserInfo.getUserId());
 
     }
+
+    @AuraEnabled
+    public static void atualizarStatusTarefa(Id tarefaId, String novoStatus) {
+        TarefaService.atualizarStatusTarefa(tarefaId, novoStatus);
+
+    }
    
 }

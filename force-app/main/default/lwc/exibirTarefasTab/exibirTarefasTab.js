@@ -4,7 +4,7 @@ import buscarMinhasTarefas from '@salesforce/apex/TarefaController.buscarTarefas
 export default class ExibirTarefasTab extends LightningElement {
 
     @track tarefas = [];
-    @track viewMode = 'list';
+    @track viewMode = 'kanban';
 
     statusOptions = [
         { label: 'Não Iniciado', value: 'Não iniciado' },
@@ -39,14 +39,32 @@ columns = [
         { label: 'Kanban', value: 'kanban' }
     ];
 
-    @wire(buscarMinhasTarefas)
-    wiredTarefas({ data, error }) {
-        if (data) {
-            this.tarefas = data;
-        } else if (error) {
-            console.error(error);
-        }
+   @wire(buscarMinhasTarefas)
+wiredTarefas({ data, error }) {
+    if (data) {
+        this.tarefas = data.map(tarefa => {
+            const status = tarefa.Status__c
+                ? tarefa.Status__c.toLowerCase().replace(/\s+/g, '-')
+                : 'sem-status';
+
+            const prioridade = tarefa.PrioridadeNumber__c != null
+                ? 'prioridade-'+tarefa.PrioridadeNumber__c 
+                : 'sem-prioridade';
+
+            const tipo = tarefa.TipoTarefa__c
+                ? tarefa.TipoTarefa__c.toLowerCase().replace(/\s+/g, '-')
+                : 'sem-tipo';
+
+            return {
+                ...tarefa,
+                classCard: `kanban-card ${status} ${prioridade} ${tipo}`
+            };
+        });
+    } else if (error) {
+        console.error(error);
     }
+}
+
 
     handleViewChange(event) {
         this.viewMode = event.detail.value;

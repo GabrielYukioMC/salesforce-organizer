@@ -12,7 +12,8 @@ export default class CriarTarefasTab extends LightningElement {
         Prioridade__c: '',
         TipoTarefa__c: 'Outros',
         Status__c: 'Não Iniciado',
-        CloseDate__c: ''
+        CloseDate__c: '',
+        Descricao__c: ''
     };
 
     prioridades = [
@@ -35,6 +36,22 @@ export default class CriarTarefasTab extends LightningElement {
         { label: 'Em espera', value: 'Em espera' },
         { label: 'Cancelado', value: 'Cancelado' }
     ];
+
+    formatosPermitidos = [
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'list',
+    'indent',
+    'align',
+    'link',
+    'clean',
+    'font',
+    'size',
+    'color'
+];
+
 
      prazoMensagem;
     prazoClasse;
@@ -100,7 +117,8 @@ export default class CriarTarefasTab extends LightningElement {
                 Prioridade__c: '',
                 TipoTarefa__c: 'Outros',
                 Status__c: 'Não Iniciado',
-                CloseDate__c: ''
+                CloseDate__c: '',
+                Descricao__c: ''
             };
 
             this.prazoMensagem = null;

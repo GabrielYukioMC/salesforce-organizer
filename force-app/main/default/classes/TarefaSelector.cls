@@ -10,6 +10,8 @@ public without sharing class TarefaSelector {
                 Prioridade__c,
                 TipoTarefa__c,
                 CloseDate__c,
+                PrioridadeNumber__c,
+                Descricao__c,
                 CreatedDate
             FROM Tarefa__c
             WHERE UsuarioProprietario__c = :usuarioId

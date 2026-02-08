@@ -1,22 +1,95 @@
 <template>
     <template if:true={tarefa}>
-        <div class="kanban-card">
+        <div
+            class={tarefa.classCard}
+            draggable="true"
+            ondragstart={handleDragStart}
+        >
             <strong class="task-name">{tarefa.Name}</strong>
 
             <div class="task-meta">
-                <span class="badge prioridade">
-                    {tarefa.Prioridade__c}
-                </span>
-                <span class="badge tipo">
-                    {tarefa.TipoTarefa__c}
-                </span>
+                <span class="badge tipo">{tarefa.TipoTarefa__c}</span>
             </div>
 
-            <template if:true={tarefa.CloseDate__c}>
+            <template if:true={dataEntregaFormatada}>
                 <div class="task-date">
-                     {tarefa.CloseDate__c}
+                     {dataEntregaFormatada}
                 </div>
             </template>
+
+
+            <lightning-button-icon
+                icon-name="utility:edit"
+                variant="bare"
+                class="edit-btn"
+                onclick={abrirModal}
+                onmousedown={cancelarDrag}
+                alternative-text="Editar tarefa"
+            ></lightning-button-icon>
         </div>
+
+        <!-- MODAL (igual antes) -->
+        <template if:true={modalAberto}>
+             <section
+                role="dialog"
+                tabindex="-1"
+                class="slds-modal slds-fade-in-open"
+            >
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 class="slds-text-heading_medium">
+                            Editar Tarefa
+                        </h2>
+                    </header>
+
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-input
+                            label="Título"
+                            value={tarefaEditada.Name}
+                            data-field="Name"
+                            onchange={handleChange}
+                        ></lightning-input>
+
+                        <lightning-input-rich-text
+                            label="Descrição"
+                            value={tarefaEditada.Descricao__c}
+                            data-field="Descricao__c"
+                            onchange={handleChange}
+                        ></lightning-input-rich-text>
+
+                        <lightning-combobox
+                            label="Prioridade"
+                            value={tarefaEditada.Prioridade__c}
+                            options={prioridades}
+                            data-field="Prioridade__c"
+                            onchange={handleChange}
+                        ></lightning-combobox>
+
+                        <lightning-combobox
+                            label="Tipo"
+                            value={tarefaEditada.TipoTarefa__c}
+                            options={tipos}
+                            data-field="TipoTarefa__c"
+                            onchange={handleChange}
+                        ></lightning-combobox>
+                    </div>
+
+                    <footer class="slds-modal__footer">
+                        <lightning-button
+                            label="Cancelar"
+                            onclick={fecharModal}
+                        ></lightning-button>
+
+                        <lightning-button
+                            variant="brand"
+                            label="Salvar"
+                            onclick={salvarTarefa}
+                        ></lightning-button>
+                    </footer>
+                </div>
+            </section>
+
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
     </template>
 </template>

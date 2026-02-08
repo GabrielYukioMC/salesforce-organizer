@@ -11,6 +11,17 @@
                 required
             ></lightning-input>
 
+           <!-- Rich Text (negrito, itálico, listas, etc) -->
+            <lightning-input-rich-text
+                label="Descrição"
+                value={novaTask.Descricao__c}
+                data-field="Descricao__c"
+                onchange={handleChange}
+                formats={formatosPermitidos}
+            >
+            </lightning-input-rich-text>
+
+
             <div class="grid">
                 <lightning-combobox
                     label="Prioridade"

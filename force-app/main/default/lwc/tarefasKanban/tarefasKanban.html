@@ -1,7 +1,13 @@
 <template>
     <div class="kanban">
         <template for:each={columns} for:item="col">
-            <div key={col.status} class="kanban-column">
+            <div
+                key={col.status}
+                class="kanban-column"
+                data-status={col.status}
+                ondragover={allowDrop}
+                ondrop={handleDrop}
+            >
                 <h3 class="kanban-title">{col.label}</h3>
 
                 <template if:true={col.tarefas.length}>
@@ -9,6 +15,7 @@
                         <c-tarefa-kanban-card
                             key={task.Id}
                             tarefa={task}
+                             oneditartarefa={handleEditarTarefa}
                         ></c-tarefa-kanban-card>
                     </template>
                 </template>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BancoRelacionado__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Banco relacionado</label>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Transações</relationshipLabel>
+    <relationshipName>Transa_es</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

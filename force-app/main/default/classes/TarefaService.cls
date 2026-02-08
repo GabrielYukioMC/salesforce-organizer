@@ -16,6 +16,11 @@ public without sharing class TarefaService {
             throw new AuraHandledException('A prioridade da tarefa é obrigatória.');
         }
 
+        // descricao maior que 2000 caracteres
+        if(novaTarefa.Descricao__c != null && novaTarefa.Descricao__c.length() > 2000) {
+            throw new AuraHandledException('A descrição da tarefa está muito longa. Utilize descrições mais curtas e diretas.');
+        }
+
         novaTarefa.UsuarioProprietario__c = UserInfo.getUserId();
         insert novaTarefa;
     }
@@ -25,6 +30,21 @@ public without sharing class TarefaService {
 
         idUser = idUser == null ? UserInfo.getUserId() : idUser;
         return TarefaSelector.buscarTarefasPorUsuario(idUser);
+    }
+
+
+    public static void atualizarStatusTarefa(Id tarefaId, String novoStatus) {
+        if(tarefaId == null) {
+            throw new AuraHandledException('O ID da tarefa é obrigatório para atualização.');
+        }
+        if(novoStatus == null || novoStatus.trim() == '') {
+            throw new AuraHandledException('O novo status da tarefa é obrigatório.');
+        }
+
+        Tarefa__c tarefaParaAtualizar = new Tarefa__c(Id = tarefaId);
+
+        tarefaParaAtualizar.Status__c = novoStatus;
+        update tarefaParaAtualizar;
     }
 
 

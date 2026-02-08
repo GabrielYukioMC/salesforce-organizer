@@ -1,0 +1,197 @@
+.app {
+    padding: 20px;
+    background: #f7f9fc;
+    font-family: Arial;
+}
+
+.topo {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.renda {
+    background: #111;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.metricas {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.mcard {
+    background: white;
+    padding: 14px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.metas {
+    margin-top: 20px;
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.barra {
+    margin: 10px 0;
+}
+
+.progress {
+    background: #ddd;
+    height: 8px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.fill {
+    background: #4cafef;
+    height: 100%;
+}
+
+.listas {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.card {
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.linha {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.verde { color: #2ecc71; }
+.vermelho { color: #e74c3c; }
+
+.parcelas {
+    margin-top: 20px;
+    background: white;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.chip {
+    background: #eee;
+    padding: 6px 10px;
+    border-radius: 20px;
+    margin: 4px;
+    display: inline-block;
+}
+.chip.ativo {
+    background: #4cafef;
+    color: white;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #f4f6f9;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.card h2 {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.saldo-final {
+    background: #e6f2ff;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.saldo-final h1 {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.acoes {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.placeholder {
+    padding: 20px;
+    color: gray;
+}
+
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: #f4f6f9;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.card h2 {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.saldo-final {
+    background: #e6f2ff;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.saldo-final h1 {
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.acoes {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.placeholder {
+    padding: 20px;
+    color: gray;
+}
+.topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mes-input {
+    max-width: 160px;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}

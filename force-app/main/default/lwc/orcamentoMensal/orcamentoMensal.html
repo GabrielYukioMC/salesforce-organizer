@@ -1,0 +1,33 @@
+<template>
+    <div class="app">
+
+        <!-- topo -->
+        <header class="topo">
+            <div>
+                <h1>Planejamento Financeiro</h1>
+
+                <lightning-input
+                    type="month"
+                    value={mesReferencia}
+                    onchange={handleMesChange}
+                    variant="label-hidden"
+                    class="mes-input"
+                ></lightning-input>
+            </div>
+
+            <div class="renda">R$ 7.282,00</div>
+        </header>
+
+        <div class="cards">
+            <div class="card">
+                <p>Dinheiro Disponível</p>
+                <h2>R$ {saldoDisponivel}</h2>
+            </div>
+
+            </div>
+            
+
+         
+
+    </div>
+</template>
