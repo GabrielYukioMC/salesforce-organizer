@@ -22,7 +22,7 @@
 }
 .prazo-wrapper {
     display: flex;
-    align-items: center; /* 🔥 centraliza verticalmente */
+    align-items: center; 
 
     gap: 1rem;
 }
@@ -30,7 +30,7 @@
 .prazo-info {
     font-size: 0.85rem;
     height: 100%;
-    white-space: nowrap; /* evita quebrar linha feio */
+    white-space: nowrap;  
 }
 
 .prazo-ok {

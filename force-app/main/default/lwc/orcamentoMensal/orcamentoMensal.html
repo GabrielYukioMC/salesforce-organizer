@@ -15,19 +15,266 @@
                 ></lightning-input>
             </div>
 
-            <div class="renda">R$ 7.282,00</div>
         </header>
 
         <div class="cards">
             <div class="card">
                 <p>Dinheiro Disponível</p>
-                <h2>R$ {saldoDisponivel}</h2>
+                <h2>{valorDisponivelFormatado}</h2>
             </div>
 
+            <div class="card">
+                <p>Total entradas</p>
+                <h2>{valorTotalEntradasFormatado}</h2>
             </div>
-            
 
-         
+            <div class="card">
+                <p>Total Saidas</p>
+                <h2>{valorTotalSaidasFormatado}</h2>
+            </div>
+
+             <div class="card">
+
+                <p>Ações</p>
+                <div class="botoes">
+                    <lightning-button label="Registrar Entrada" onclick={handleAbrirModalEntrada}  ></lightning-button>
+                    <lightning-button label="Registrar Saída" onclick={handleAbrirModalSaida}  ></lightning-button>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="metricas">
+
+            <div class="grafico-card">
+                <h3>Entradas vs Saídas</h3>
+                <canvas class="grafico1"></canvas>
+            </div>
+
+            <div class="grafico-card">
+                <h3>Entradas por categoria</h3>
+                <canvas class="grafico2"></canvas>
+            </div>
+
+            <div class="grafico-card">
+                <h3>Saídas por categoria</h3>
+                <canvas class="grafico3"></canvas>
+            </div>
+
+        </div>
+
 
     </div>
+
+
+    <!-- modais de entra e saida -->
+<template if:true={exibeModalEntrada}>
+    <section class="modal-backdrop">
+
+        <div class="modal-container slds-p-around_medium">
+
+            <h2 class="slds-text-heading_medium slds-m-bottom_medium">
+                Registrar Entrada
+            </h2>
+
+            <div class="slds-grid slds-gutters slds-wrap">
+
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                    <lightning-input
+                        label="Nome da entrada"
+                        value={entradaCad.nomeEntrada}
+                        data-field="nomeEntrada"
+                        data-tipo="entrada"
+                        onchange={handleChange}>
+                    </lightning-input>
+                </div>
+
+                <div class="slds-col slds-size_2-of-3">
+                    <lightning-combobox
+                        label="Tipo da entrada"
+                        value={entradaCad.tipoEntrada}
+                        options={tiposEntrada}
+                        data-field="tipoEntrada"
+                        data-tipo="entrada"
+                        onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+               
+
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                        label="Dia"
+                        value={entradaCad.diaEntrada}
+                        options={listaDias}
+                        data-field="diaEntrada"
+                        data-tipo="entrada"
+                        onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+
+                 <div class="slds-col slds-size_1-of-3">
+                <lightning-input
+                    label="Valor"
+                    type="text"
+                    data-field="valorFormatado"
+                        
+                    data-tipo="entrada"
+                    onchange={handleChange}>
+                </lightning-input>
+
+                <!-- Recorrente -->
+                 <br>
+                <div class=" ">
+                    <lightning-input
+                        type="toggle"
+                        label="Entrada Recorrente"
+                        checked={entradaCad.recorrente}
+                        data-field="recorrente"
+                        data-tipo="entrada"
+                        onchange={handleToggle}>
+                    </lightning-input>
+                </div>
+
+                <template if:true={entradaCad.recorrente}>
+                    <div class=" ">
+                        <lightning-combobox
+                            label="Frequência"
+                            value={entradaCad.frequencia}
+                            options={opcoesFrequencia}
+                            data-field="frequencia"
+                            data-tipo="entrada"
+                            onchange={handleChange}>
+                        </lightning-combobox>
+                    </div>
+                </template>
+
+
+                   
+                </div>
+
+            </div>
+
+            <div class="slds-m-top_large slds-text-align_right">
+                <lightning-button
+                    class="slds-m-right_small"
+                    variant="brand"
+                    label="Salvar"
+                    onclick={handleSalvarEntrada}>
+                </lightning-button>
+
+                <lightning-button
+                    label="Fechar"
+                    onclick={handleFecharModal}>
+                </lightning-button>
+            </div>
+
+        </div>
+
+    </section>
+</template>
+
+
+
+    <template if:true={exibeModalSaida}>
+    <section class="modal-backdrop">
+
+        <div class="modal-container slds-p-around_medium">
+
+            <h2 class="slds-text-heading_medium slds-m-bottom_medium">
+                Registrar Saída
+            </h2>
+
+            <div class="slds-grid slds-gutters slds-wrap">
+
+                <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+                    <lightning-input
+                        label="Nome da saída"
+                        value={saidaCad.nomeSaida}
+                        data-field="nomeSaida"
+                        data-tipo="saida"
+                        onchange={handleChange}>
+                    </lightning-input>
+                </div>
+
+                <div class="slds-col slds-size_2-of-3">
+                    <lightning-combobox
+                        label="Tipo da saída"
+                        value={saidaCad.tipoSaida}
+                        options={tiposSaida}
+                        data-field="tipoSaida"
+                        data-tipo="saida"
+                        onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-combobox
+                        label="Dia"
+                        value={saidaCad.diaSaida}
+                        options={listaDias}
+                        data-field="diaSaida"
+                        data-tipo="saida"
+                        onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-3">
+                    <lightning-input
+                        label="Valor"
+                        type="text"
+                        value={saidaCad.valorFormatado}
+                        data-field="valorFormatado"
+                        data-tipo="saida"
+                        onchange={handleChange}>
+                    </lightning-input>
+                    <br>
+
+                    <div class="  ">
+                <lightning-input
+                    type="toggle"
+                    label="Saída Recorrente"
+                    checked={saidaCad.recorrente}
+                    data-field="recorrente"
+                    data-tipo="saida"
+                    onchange={handleToggle}>
+                </lightning-input>
+            </div>
+
+            <template if:true={saidaCad.recorrente}>
+                <div class=" ">
+                    <lightning-combobox
+                        label="Frequência"
+                        value={saidaCad.frequencia}
+                        options={opcoesFrequencia}
+                        data-field="frequencia"
+                        data-tipo="saida"
+                        onchange={handleChange}>
+                    </lightning-combobox>
+                </div>
+            </template>
+                </div>
+                
+                
+
+            </div>
+
+            <div class="slds-m-top_large slds-text-align_right">
+                <lightning-button
+                    class="slds-m-right_small"
+                    variant="brand"
+                    label="Salvar"
+                    onclick={handleSalvarSaida}>
+                </lightning-button>
+
+                <lightning-button
+                    label="Fechar"
+                    onclick={handleFecharModal}>
+                </lightning-button>
+            </div>
+
+        </div>
+
+    </section>
+</template>
+
+
 </template>

@@ -1,0 +1,155 @@
+<template>
+    <lightning-card>
+        
+        <div class="header">
+
+        <!-- Navegação Centralizada -->
+        <div class="navegacao">
+            <lightning-button-icon 
+                icon-name="utility:chevronleft"
+                alternative-text="Mês anterior"
+                onclick={mesAnterior}
+                variant="bare">
+            </lightning-button-icon>
+
+            <h2 class="titulo-mes">{mesSelecionado}</h2>
+
+            <lightning-button-icon 
+                icon-name="utility:chevronright"
+                alternative-text="Próximo mês"
+                onclick={proximoMes}
+                variant="bare">
+            </lightning-button-icon>
+        </div>
+
+        <!-- Resumo -->
+        <div class="resumo">
+            <div class="card-resumo entrada-box">
+                <span class="label">Entradas</span>
+                <span class="valor">{totalEntradasFormatado}</span>
+            </div>
+
+            <div class="card-resumo saida-box">
+                <span class="label">Saídas</span>
+                <span class="valor">{totalSaidasFormatado}</span>
+            </div>
+
+            <div class={classeSaldo}>
+                <span class="label">Saldo</span>
+                <span class="valor">{saldoFormatado}</span>
+            </div>
+        </div>
+
+    </div>
+
+        <!-- CALENDÁRIO -->
+        <div class="calendar">
+
+            <template for:each={diasSemana} for:item="d">
+                <div key={d} class="weekday">{d}</div>
+            </template>
+
+            <template for:each={getDiasDoMes} for:item="dia">
+               <div key={dia.key} 
+                    class="day"
+                    data-dia={dia.numero}
+                    onclick={abrirModal}>
+
+                    <template if:true={dia.numero}>
+                        <div class={dia.cssClass}>{dia.numero}</div>
+
+                        <template if:true={dia.transacoes}>
+                            <template for:each={dia.transacoes} for:item="t">
+                                <div key={t.Id} class="transacao-wrapper">
+                                    <div class={t.cssClass}>
+                                        {t.valorFormatado}
+                                    </div>
+
+                                    <div class="tooltip">
+                                        <strong>{t.Name}</strong>
+                                        <br/>
+                                        Tipo: {t.Tipo__c}
+                                        <br/>
+                                        Valor: {t.valorFormatado}
+                                    </div>
+
+                                </div>
+                            </template>
+                        </template>
+                    </template>
+
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+
+
+    <template if:true={modalAberto}>
+    <section class="modal-backdrop">
+        <div class="modal">
+
+            <h3>Nova Transação - Dia {diaSelecionado}</h3>
+
+            <!-- Tipo -->
+            <lightning-combobox
+                label="Tipo"
+                value={saidaCad.tipoTransacao}
+                options={opcoesTipo}
+                data-field="tipoTransacao"
+                onchange={handleChange}>
+            </lightning-combobox>
+
+            <lightning-input
+                label="Nome"
+                value={saidaCad.nomeSaida}
+                data-field="nomeSaida"
+                onchange={handleChange}>
+            </lightning-input>
+
+            <lightning-input
+    label="Valor"
+    type="text"
+    value={saidaCad.valorFormatado}
+    data-field="valorFormatado"
+    onchange={handleChange}>
+</lightning-input>
+            <lightning-combobox
+    label="Categoria"
+    value={saidaCad.tipoSaida}
+    options={opcoesCategoria}
+    data-field="tipoSaida"
+    onchange={handleChange}>
+</lightning-combobox>
+
+<!-- Recorrente -->
+<lightning-input
+    type="toggle"
+    label="Transação Recorrente"
+    checked={saidaCad.recorrente}
+    data-field="recorrente"
+    onchange={handleToggle}>
+</lightning-input>
+
+<!-- Frequência aparece apenas se for recorrente -->
+<template if:true={saidaCad.recorrente}>
+    <lightning-combobox
+        label="Frequência"
+        value={saidaCad.frequencia}
+        options={opcoesFrequencia}
+        data-field="frequencia"
+        onchange={handleChange}>
+    </lightning-combobox>
+</template>
+
+            <div class="modal-actions">
+                <lightning-button label="Cancelar" onclick={fecharModal}></lightning-button>
+                <lightning-button variant="brand" label="Salvar" onclick={salvarTransacao}></lightning-button>
+            </div>
+
+        </div>
+    </section>
+</template>
+</template>
+
+

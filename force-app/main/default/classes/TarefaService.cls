@@ -1,5 +1,4 @@
 public without sharing class TarefaService {
-// obj da tarefa Tarefa__c  -- usar a cunstom object criada
 
     public static void criarTarefa(Tarefa__c novaTarefa) {
         System.debug('Criando tarefa: ' + novaTarefa);
@@ -16,7 +15,6 @@ public without sharing class TarefaService {
             throw new AuraHandledException('A prioridade da tarefa é obrigatória.');
         }
 
-        // descricao maior que 2000 caracteres
         if(novaTarefa.Descricao__c != null && novaTarefa.Descricao__c.length() > 2000) {
             throw new AuraHandledException('A descrição da tarefa está muito longa. Utilize descrições mais curtas e diretas.');
         }
