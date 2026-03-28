@@ -1,6 +1,8 @@
 import { LightningElement, api, track } from 'lwc';
 import getTransacoesPorUsuarioEData from '@salesforce/apex/TransferenciaController.getTransacoesPorUsuarioEData';
 import realizarTransferencia from '@salesforce/apex/TransferenciaController.realizarTransferencia';
+import deletarTransacao from '@salesforce/apex/TransferenciaController.deletarTransacao';
+import atualizarTransacao from '@salesforce/apex/TransferenciaController.atualizarTransacao';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 export default class CalendarioFinanceiro extends LightningElement {
@@ -11,8 +13,11 @@ export default class CalendarioFinanceiro extends LightningElement {
     @track totalSaidas = 0;
     diasSemana = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
     @track modalAberto = false;
-    @track diaSelecionado;  
-  
+    @track diaSelecionado;
+    @track modalEdicaoAberto = false;
+    @track transacaoEditando = {};
+    @track salvandoEdicao = false;
+
 
     @track saidaCad = {
     tipoTransacao: 'Saída',
@@ -28,7 +33,7 @@ export default class CalendarioFinanceiro extends LightningElement {
 get opcoesFrequencia() {
     return [
         { label: 'Mensal', value: 'Mensal' },
-        { label: 'Semanal', value: 'Semanal' },
+        { label: 'Semestral', value: 'Semestral' },
         { label: 'Anual', value: 'Anual' }
     ];
 }
@@ -161,6 +166,11 @@ get classeSaldo() {
     })
     .catch(error => {
         console.error(error);
+        this.dispatchEvent(new ShowToastEvent({
+            title: 'Erro',
+            message: error?.body?.message || 'Ocorreu um erro ao salvar a transação.',
+            variant: 'error'
+        }));
     });
 }
 
@@ -245,10 +255,8 @@ calcularResumo(lista) {
 
     salvarTransacao() {
 
-    let data = new Date();
-    data.setFullYear(this.mesReferencia.split('-')[0]);
-    data.setMonth(this.mesReferencia.split('-')[1] - 1);
-    data.setDate(this.saidaCad.diaescolhido);
+    const [ano, mes] = this.mesReferencia.split('-');
+    const data = new Date(Number(ano), Number(mes) - 1, Number(this.saidaCad.diaescolhido));
 
     // const frequencia = this.saidaCad.recorrente ? this.saidaCad.frequencia : 'Única';
 
@@ -332,15 +340,86 @@ realizarTransferencia({ novaTransferencia: novaTransacao })
     }
 
     abrirModal(event) {
-
         const dia = event.currentTarget.dataset.dia;
-
         if(!dia) return;
-
         this.diaSelecionado = dia;
         this.saidaCad.diaescolhido = dia;
-
         this.modalAberto = true;
+    }
+
+    handleAbrirEdicao(event) {
+        event.stopPropagation();
+        const transacaoId = event.currentTarget.dataset.id;
+        let transacaoEncontrada = null;
+        for (const dia of this.diasDoMes) {
+            if (dia.transacoes) {
+                transacaoEncontrada = dia.transacoes.find(t => t.Id === transacaoId);
+                if (transacaoEncontrada) break;
+            }
+        }
+        if (transacaoEncontrada) {
+            this.transacaoEditando = { ...transacaoEncontrada };
+            this.modalEdicaoAberto = true;
+        }
+    }
+
+    fecharModalEdicao() {
+        this.modalEdicaoAberto = false;
+        this.transacaoEditando = {};
+    }
+
+    handleChangeEdicao(event) {
+        const field = event.target.dataset.field;
+        this.transacaoEditando = { ...this.transacaoEditando, [field]: event.target.value };
+    }
+
+    handleChangeEdicaoPago(event) {
+        this.transacaoEditando = { ...this.transacaoEditando, Pago__c: event.target.checked };
+    }
+
+    handleSalvarEdicao() {
+        this.salvandoEdicao = true;
+        const payload = {
+            Id: this.transacaoEditando.Id,
+            Name: this.transacaoEditando.Name,
+            Tipo__c: this.transacaoEditando.Tipo__c,
+            Categoria__c: this.transacaoEditando.Categoria__c,
+            Valor__c: this.transacaoEditando.Valor__c,
+            Data__c: this.transacaoEditando.Data__c,
+            Pago__c: this.transacaoEditando.Pago__c
+        };
+        atualizarTransacao({ transacao: payload })
+            .then(() => {
+                this._toast('Sucesso', 'Transação atualizada!', 'success');
+                this.fecharModalEdicao();
+                this.buscarTransacoes();
+            })
+            .catch(err => { this._toast('Erro', err?.body?.message || 'Erro ao salvar.', 'error'); })
+            .finally(() => { this.salvandoEdicao = false; });
+    }
+
+    handleDeletar(event) {
+        event.stopPropagation();
+        const transacaoId = event.currentTarget.dataset.id;
+        deletarTransacao({ transacaoId })
+            .then(() => {
+                this._toast('Sucesso', 'Transação excluída.', 'success');
+                this.buscarTransacoes();
+            })
+            .catch(err => { this._toast('Erro', err?.body?.message || 'Erro ao excluir.', 'error'); });
+    }
+
+    handleTogglePago(event) {
+        event.stopPropagation();
+        const transacaoId = event.currentTarget.dataset.id;
+        const pago = event.target.checked;
+        atualizarTransacao({ transacao: { Id: transacaoId, Pago__c: pago } })
+            .then(() => { this.buscarTransacoes(); })
+            .catch(err => { this._toast('Erro', err?.body?.message || 'Erro ao atualizar.', 'error'); });
+    }
+
+    _toast(title, message, variant) {
+        this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
     }
 
 

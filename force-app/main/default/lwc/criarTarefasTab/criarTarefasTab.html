@@ -30,6 +30,7 @@
                     options={prioridades}
                     data-field="Prioridade__c"
                     onchange={handleChange}
+                    required
                 ></lightning-combobox>
 
                 <lightning-combobox
@@ -57,7 +58,7 @@
                     type="datetime-local"
                     label="Prazo de entrega"
                     placeholder="Selecione a data e hora do prazo"
-                    value={novaTask.prazo}
+                    value={novaTask.CloseDate__c}
                     data-field="CloseDate__c"
                     onchange={handleChange}
                 ></lightning-input>
@@ -70,7 +71,32 @@
             </div>
 
 
+            <div class="recorrencia-wrapper">
+                <lightning-input
+                    type="toggle"
+                    label="Tarefa Recorrente"
+                    checked={novaTask.Recorrente__c}
+                    onchange={handleToggleRecorrente}
+                ></lightning-input>
+
+                <template if:true={novaTask.Recorrente__c}>
+                    <lightning-combobox
+                        label="Frequência"
+                        value={novaTask.FrequenciaTarefa__c}
+                        options={opcoesFrequencia}
+                        data-field="FrequenciaTarefa__c"
+                        onchange={handleChange}
+                    ></lightning-combobox>
+                </template>
+            </div>
+
             <div class="actions">
+                <lightning-button
+                    label="Limpar"
+                    variant="neutral"
+                    icon-name="utility:clear"
+                    onclick={limparFormulario}
+                ></lightning-button>
                 <lightning-button
                     label="Criar Task"
                     variant="brand"

@@ -1,0 +1,71 @@
+<template>
+    <div class="resumo-container">
+        <h2 class="resumo-titulo">Resumo dos Últimos 6 Meses</h2>
+
+        <template if:true={carregando}>
+            <lightning-spinner alternative-text="Carregando..." size="medium"></lightning-spinner>
+        </template>
+
+        <!-- Cards de métricas -->
+        <div class="cards-metricas">
+            <div class="mcard">
+                <p class="mcard-label">Média Entradas</p>
+                <p class="mcard-valor verde">{mediaEntradas}</p>
+            </div>
+            <div class="mcard">
+                <p class="mcard-label">Média Saídas</p>
+                <p class="mcard-valor vermelho">{mediaSaidas}</p>
+            </div>
+            <div class="mcard">
+                <p class="mcard-label">Taxa Poupança Média</p>
+                <p class="mcard-valor azul">{mediaTaxaPoupanca}</p>
+            </div>
+            <div class="mcard">
+                <p class="mcard-label">Saldo Acumulado</p>
+                <p class="mcard-valor">{saldoAcumulado}</p>
+            </div>
+            <div class="mcard">
+                <p class="mcard-label">Projeção próx. mês</p>
+                <p class="mcard-valor azul">{projecaoSaldo}</p>
+            </div>
+        </div>
+
+        <!-- Gráficos -->
+        <div class="graficos">
+            <div class="grafico-card">
+                <h3>Entradas vs Saídas por Mês</h3>
+                <canvas class="grafico-barras"></canvas>
+            </div>
+            <div class="grafico-card">
+                <h3>Evolução do Saldo</h3>
+                <canvas class="grafico-saldo"></canvas>
+            </div>
+        </div>
+
+        <!-- Tabela mensal -->
+        <div class="tabela-resumo">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mês</th>
+                        <th>Entradas</th>
+                        <th>Saídas</th>
+                        <th>Saldo</th>
+                        <th>Poupança</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template for:each={dados} for:item="d">
+                        <tr key={d.mes}>
+                            <td>{d.mesLabel}</td>
+                            <td class="verde">{d.totalEntradasFmt}</td>
+                            <td class="vermelho">{d.totalSaidasFmt}</td>
+                            <td>{d.saldoFmt}</td>
+                            <td>{d.taxaPoupancaFmt}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</template>

@@ -1,45 +1,57 @@
 <template>
     <template if:true={tarefa}>
         <div
-            class={tarefa.classCard}
+            class={cardClass}
             draggable="true"
             ondragstart={handleDragStart}
         >
-            <strong class="task-name">{tarefa.Name}</strong>
+            <strong class="task-name slds-show slds-text-color_default">{tarefa.Name}</strong>
 
-            <div class="task-meta">
+            <div class="task-meta slds-grid slds-wrap slds-m-bottom_xx-small">
                 <span class="badge tipo">{tarefa.TipoTarefa__c}</span>
+                <span class="badge prioridade">{tarefa.Prioridade__c}</span>
             </div>
 
             <template if:true={dataEntregaFormatada}>
-                <div class="task-date">
-                     {dataEntregaFormatada}
+                <div class="task-date slds-grid slds-grid_vertical-align-center slds-m-top_xx-small">
+                    <lightning-icon icon-name="utility:clock" size="xx-small"></lightning-icon>
+                    {dataEntregaFormatada}
                 </div>
             </template>
 
+            <template if:true={isAtrasada}>
+                <span class="badge atrasada-badge slds-show_inline-block slds-m-top_xx-small">Atrasada</span>
+            </template>
+
+            <template if:true={checklistProgressoCard}>
+                <div class="checklist-progresso slds-m-top_xx-small">
+                    <lightning-icon icon-name="utility:check" size="xx-small"></lightning-icon>
+                    {checklistProgressoCard}
+                </div>
+            </template>
 
             <lightning-button-icon
                 icon-name="utility:edit"
                 variant="bare"
-                class="edit-btn"
+                class="edit-btn slds-is-absolute"
                 onclick={abrirModal}
                 onmousedown={cancelarDrag}
                 alternative-text="Editar tarefa"
             ></lightning-button-icon>
         </div>
 
-        <!-- MODAL (igual antes) -->
         <template if:true={modalAberto}>
-             <section
-                role="dialog"
-                tabindex="-1"
-                class="slds-modal slds-fade-in-open"
-            >
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
                 <div class="slds-modal__container">
                     <header class="slds-modal__header">
-                        <h2 class="slds-text-heading_medium">
-                            Editar Tarefa
-                        </h2>
+                        <lightning-button-icon
+                            icon-name="utility:close"
+                            variant="bare-inverse"
+                            class="slds-modal__close"
+                            onclick={fecharModal}
+                            alternative-text="Fechar"
+                        ></lightning-button-icon>
+                        <h2 class="slds-text-heading_medium">Editar Tarefa</h2>
                     </header>
 
                     <div class="slds-modal__content slds-p-around_medium">
@@ -50,6 +62,40 @@
                             onchange={handleChange}
                         ></lightning-input>
 
+                        <div class="modal-grid">
+                            <lightning-combobox
+                                label="Status"
+                                value={tarefaEditada.Status__c}
+                                options={statusOptions}
+                                data-field="Status__c"
+                                onchange={handleChange}
+                            ></lightning-combobox>
+
+                            <lightning-combobox
+                                label="Prioridade"
+                                value={tarefaEditada.Prioridade__c}
+                                options={prioridades}
+                                data-field="Prioridade__c"
+                                onchange={handleChange}
+                            ></lightning-combobox>
+
+                            <lightning-combobox
+                                label="Tipo"
+                                value={tarefaEditada.TipoTarefa__c}
+                                options={tipos}
+                                data-field="TipoTarefa__c"
+                                onchange={handleChange}
+                            ></lightning-combobox>
+                        </div>
+
+                        <lightning-input
+                            type="datetime-local"
+                            label="Prazo de entrega"
+                            value={tarefaEditada.CloseDate__c}
+                            data-field="CloseDate__c"
+                            onchange={handleChange}
+                        ></lightning-input>
+
                         <lightning-input-rich-text
                             label="Descrição"
                             value={tarefaEditada.Descricao__c}
@@ -57,38 +103,58 @@
                             onchange={handleChange}
                         ></lightning-input-rich-text>
 
-                        <lightning-combobox
-                            label="Prioridade"
-                            value={tarefaEditada.Prioridade__c}
-                            options={prioridades}
-                            data-field="Prioridade__c"
-                            onchange={handleChange}
-                        ></lightning-combobox>
+                        <!-- Checklist -->
+                        <div class="checklist-section">
+                            <h3 class="checklist-titulo">Checklist {checklistProgresso}</h3>
 
-                        <lightning-combobox
-                            label="Tipo"
-                            value={tarefaEditada.TipoTarefa__c}
-                            options={tipos}
-                            data-field="TipoTarefa__c"
-                            onchange={handleChange}
-                        ></lightning-combobox>
+                            <template for:each={checklist} for:item="item">
+                                <div key={item.id} class="checklist-item">
+                                    <lightning-input
+                                        type="checkbox"
+                                        label={item.texto}
+                                        checked={item.feito}
+                                        data-id={item.id}
+                                        onchange={handleToggleItem}
+                                    ></lightning-input>
+                                    <lightning-button-icon
+                                        icon-name="utility:close"
+                                        variant="bare"
+                                        size="x-small"
+                                        alternative-text="Remover"
+                                        data-id={item.id}
+                                        onclick={handleRemoveItem}
+                                    ></lightning-button-icon>
+                                </div>
+                            </template>
+
+                            <div class="checklist-add">
+                                <lightning-input
+                                    label="Novo item"
+                                    placeholder="Adicionar item..."
+                                    value={novoItemChecklist}
+                                    variant="label-hidden"
+                                    onchange={handleNovoItemChange}
+                                ></lightning-input>
+                                <lightning-button
+                                    label="Adicionar"
+                                    icon-name="utility:add"
+                                    onclick={handleAddItem}
+                                ></lightning-button>
+                            </div>
+                        </div>
                     </div>
 
                     <footer class="slds-modal__footer">
-                        <lightning-button
-                            label="Cancelar"
-                            onclick={fecharModal}
-                        ></lightning-button>
-
+                        <lightning-button label="Cancelar" onclick={fecharModal}></lightning-button>
                         <lightning-button
                             variant="brand"
                             label="Salvar"
+                            disabled={salvando}
                             onclick={salvarTarefa}
                         ></lightning-button>
                     </footer>
                 </div>
             </section>
-
             <div class="slds-backdrop slds-backdrop_open"></div>
         </template>
     </template>

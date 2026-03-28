@@ -11,10 +11,18 @@ export default class CriarTarefasTab extends LightningElement {
         Name: '',
         Prioridade__c: '',
         TipoTarefa__c: 'Outros',
-        Status__c: 'Não Iniciado',
+        Status__c: 'Não iniciado',
         CloseDate__c: '',
-        Descricao__c: ''
+        Descricao__c: '',
+        Recorrente__c: false,
+        FrequenciaTarefa__c: 'Semanal'
     };
+
+    opcoesFrequencia = [
+        { label: 'Semanal', value: 'Semanal' },
+        { label: 'Quinzenal', value: 'Quinzenal' },
+        { label: 'Mensal', value: 'Mensal' }
+    ];
 
     prioridades = [
         { label: 'Alta', value: 'Alta' },
@@ -56,6 +64,10 @@ export default class CriarTarefasTab extends LightningElement {
      prazoMensagem;
     prazoClasse;
 
+    handleToggleRecorrente(event) {
+        this.novaTask = { ...this.novaTask, Recorrente__c: event.target.checked };
+    }
+
      handleChange(event) {
         const field = event.target.dataset.field;
         console.log(field);
@@ -92,7 +104,7 @@ export default class CriarTarefasTab extends LightningElement {
         }
 
         if (diffHoras < 24) {
-            this.prazoMensagem = ` O prazo da tarefa está prevista para daqui a ${diffHoras} horas).`;
+            this.prazoMensagem = ` O prazo da tarefa está prevista para daqui a ${diffHoras} horas.`;
             this.prazoClasse = 'prazo-info prazo-hoje';
             return;
         }
@@ -102,6 +114,14 @@ export default class CriarTarefasTab extends LightningElement {
     }
 
   criarTask() {
+    if (!this.novaTask.Name || !this.novaTask.Name.trim()) {
+        this.showToast('Campo obrigatório', 'Informe o Nome da Task.', 'error');
+        return;
+    }
+    if (!this.novaTask.Prioridade__c) {
+        this.showToast('Campo obrigatório', 'Selecione a Prioridade.', 'error');
+        return;
+    }
 
     criarTarefa({ novaTarefa: this.novaTask })
         .then(() => {
@@ -111,17 +131,8 @@ export default class CriarTarefasTab extends LightningElement {
                 'success'
             );
 
-            // Limpa formulário
-            this.novaTask = {
-                Name: '',
-                Prioridade__c: '',
-                TipoTarefa__c: 'Outros',
-                Status__c: 'Não Iniciado',
-                CloseDate__c: '',
-                Descricao__c: ''
-            };
-
-            this.prazoMensagem = null;
+            this.limparFormulario();
+            this.dispatchEvent(new CustomEvent('tarefacriada', { bubbles: true, composed: true }));
         })
         .catch(error => {
             console.error('Erro ao criar tarefa: ', error);
@@ -138,6 +149,20 @@ export default class CriarTarefasTab extends LightningElement {
 }
 
 
+
+    limparFormulario() {
+        this.novaTask = {
+            Name: '',
+            Prioridade__c: '',
+            TipoTarefa__c: 'Outros',
+            Status__c: 'Não iniciado',
+            CloseDate__c: '',
+            Descricao__c: '',
+            Recorrente__c: false,
+            FrequenciaTarefa__c: 'Semanal'
+        };
+        this.prazoMensagem = null;
+    }
 
     showToast(title, message, variant) {
     this.dispatchEvent(

@@ -1,5 +1,14 @@
 import { LightningElement, api } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import atualizarStatusTarefa from '@salesforce/apex/TarefaController.atualizarStatusTarefa';
+
+const STATUS_CSS = {
+    'Não iniciado': 'nao-iniciado',
+    'Em andamento': 'em-andamento',
+    'Concluído':    'concluido',
+    'Em espera':    'em-espera',
+    'Cancelado':    'cancelado'
+};
 
 export default class TarefasKanban extends LightningElement {
     @api tarefas = [];
@@ -7,77 +16,46 @@ export default class TarefasKanban extends LightningElement {
 
     allowDrop(event) {
         event.preventDefault();
+        event.currentTarget.classList.add('drag-over');
+    }
+
+    handleDragLeave(event) {
+        event.currentTarget.classList.remove('drag-over');
     }
 
     handleDrop(event) {
         event.preventDefault();
+        event.currentTarget.classList.remove('drag-over');
 
         const tarefaId = event.dataTransfer.getData('tarefaId');
         const novoStatus = event.currentTarget.dataset.status;
-
         const tarefa = this.tarefas.find(t => t.Id === tarefaId);
-        if (tarefa.Status__c === novoStatus) {
-            return;  
-        }
-        this.atualizarStatusTarefa(tarefaId, novoStatus);
 
-       
-    }
+        if (!tarefa || tarefa.Status__c === novoStatus) return;
 
-    get columns() {
-        return this.statusOptions.map(status => ({
-            status: status.value,
-            label: status.label,
-            tarefas: this.tarefas.filter(
-                tarefa => tarefa.Status__c === status.value
-            )
-        }));
-    }
-
-    handleEditarTarefa(event) {
-    const tarefaAtualizada = event.detail;
-
-    const status = tarefaAtualizada.Status__c
-                ? tarefaAtualizada.Status__c.toLowerCase().replace(/\s+/g, '-')
-                : 'sem-status';
-
-            const prioridade = tarefaAtualizada.PrioridadeNumber__c != null
-                ? 'prioridade-'+tarefaAtualizada.PrioridadeNumber__c 
-                : 'sem-prioridade';
-
-            const tipo = tarefaAtualizada.TipoTarefa__c
-                ? tarefaAtualizada.TipoTarefa__c.toLowerCase().replace(/\s+/g, '-')
-                : 'sem-tipo';
-
-
-    console.log('chamou chamou');
-    console.log('tarefa para atualizar: ', tarefaAtualizada);
-    
-    tarefaAtualizada.classCard = `kanban-card ${status} ${prioridade} ${tipo}`;
-
-    this.tarefas = this.tarefas.map(t =>
-        t.Id === tarefaAtualizada.Id ? tarefaAtualizada : t
-    );
-}
-
-
-    atualizarStatusTarefa(tarefaId, novoStatus) {
         atualizarStatusTarefa({ tarefaId, novoStatus })
             .then(() => {
-                console.log('Status da tarefa atualizado com sucesso.');
-                 this.tarefas = this.tarefas.map(tarefa => {
-                    if (tarefa.Id === tarefaId) {
-                        return {
-                            ...tarefa,
-                            Status__c: novoStatus
-                        };
-                    }
-                    return tarefa;
-                });
+                this.dispatchEvent(new CustomEvent('tarefasatualizada', { bubbles: true, composed: true }));
             })
             .catch(error => {
-                console.error('Erro ao atualizar o status da tarefa: ', error);
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Erro',
+                    message: error?.body?.message || 'Erro ao mover tarefa.',
+                    variant: 'error'
+                }));
             });
     }
 
+    get columns() {
+        return this.statusOptions.map(status => {
+            const tarefas = this.tarefas.filter(t => t.Status__c === status.value);
+            return {
+                status: status.value,
+                label: status.label,
+                tarefas,
+                count: tarefas.length,
+                columnClass: `kanban-column col-${STATUS_CSS[status.value] || 'default'}`
+            };
+        });
+    }
 }

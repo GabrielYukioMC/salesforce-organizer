@@ -3,26 +3,31 @@
         <template for:each={columns} for:item="col">
             <div
                 key={col.status}
-                class="kanban-column"
+                class={col.columnClass}
                 data-status={col.status}
                 ondragover={allowDrop}
+                ondragleave={handleDragLeave}
                 ondrop={handleDrop}
             >
-                <h3 class="kanban-title">{col.label}</h3>
+                <div class="kanban-col-header">
+                    <span class="col-label">{col.label}</span>
+                    <span class="col-count">{col.count}</span>
+                </div>
 
-                <template if:true={col.tarefas.length}>
-                    <template for:each={col.tarefas} for:item="task">
-                        <c-tarefa-kanban-card
-                            key={task.Id}
-                            tarefa={task}
-                             oneditartarefa={handleEditarTarefa}
-                        ></c-tarefa-kanban-card>
+                <div class="kanban-col-body">
+                    <template if:true={col.tarefas.length}>
+                        <template for:each={col.tarefas} for:item="task">
+                            <c-tarefa-kanban-card
+                                key={task.Id}
+                                tarefa={task}
+                            ></c-tarefa-kanban-card>
+                        </template>
                     </template>
-                </template>
 
-                <template if:false={col.tarefas.length}>
-                    <p class="empty">Sem tarefas</p>
-                </template>
+                    <template if:false={col.tarefas.length}>
+                        <p class="empty">Nenhuma tarefa</p>
+                    </template>
+                </div>
             </div>
         </template>
     </div>

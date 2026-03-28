@@ -62,17 +62,36 @@
                             <template for:each={dia.transacoes} for:item="t">
                                 <div key={t.Id} class="transacao-wrapper">
                                     <div class={t.cssClass}>
-                                        {t.valorFormatado}
+                                        <span class="t-nome">{t.Name}</span>
+                                        <span class="t-valor">{t.valorFormatado}</span>
+                                        <div class="t-acoes">
+                                            <lightning-input
+                                                type="checkbox"
+                                                label="Pago"
+                                                checked={t.Pago__c}
+                                                data-id={t.Id}
+                                                onchange={handleTogglePago}
+                                                variant="label-hidden"
+                                                class="t-pago"
+                                            ></lightning-input>
+                                            <lightning-button-icon
+                                                icon-name="utility:edit"
+                                                variant="bare"
+                                                size="x-small"
+                                                alternative-text="Editar"
+                                                data-id={t.Id}
+                                                onclick={handleAbrirEdicao}
+                                            ></lightning-button-icon>
+                                            <lightning-button-icon
+                                                icon-name="utility:delete"
+                                                variant="bare"
+                                                size="x-small"
+                                                alternative-text="Excluir"
+                                                data-id={t.Id}
+                                                onclick={handleDeletar}
+                                            ></lightning-button-icon>
+                                        </div>
                                     </div>
-
-                                    <div class="tooltip">
-                                        <strong>{t.Name}</strong>
-                                        <br/>
-                                        Tipo: {t.Tipo__c}
-                                        <br/>
-                                        Valor: {t.valorFormatado}
-                                    </div>
-
                                 </div>
                             </template>
                         </template>
@@ -84,6 +103,59 @@
         </div>
     </lightning-card>
 
+
+    <!-- Modal edição -->
+    <template if:true={modalEdicaoAberto}>
+    <section class="modal-backdrop">
+        <div class="modal">
+            <h3>Editar Transação</h3>
+
+            <lightning-input
+                label="Nome"
+                value={transacaoEditando.Name}
+                data-field="Name"
+                onchange={handleChangeEdicao}>
+            </lightning-input>
+
+            <lightning-combobox
+                label="Tipo"
+                value={transacaoEditando.Tipo__c}
+                options={opcoesTipo}
+                data-field="Tipo__c"
+                onchange={handleChangeEdicao}>
+            </lightning-combobox>
+
+            <lightning-combobox
+                label="Categoria"
+                value={transacaoEditando.Categoria__c}
+                options={opcoesCategoria}
+                data-field="Categoria__c"
+                onchange={handleChangeEdicao}>
+            </lightning-combobox>
+
+            <lightning-input
+                label="Valor"
+                type="number"
+                value={transacaoEditando.Valor__c}
+                data-field="Valor__c"
+                onchange={handleChangeEdicao}>
+            </lightning-input>
+
+            <lightning-input
+                type="toggle"
+                label="Pago"
+                checked={transacaoEditando.Pago__c}
+                data-field="Pago__c"
+                onchange={handleChangeEdicaoPago}>
+            </lightning-input>
+
+            <div class="modal-actions">
+                <lightning-button label="Cancelar" onclick={fecharModalEdicao}></lightning-button>
+                <lightning-button variant="brand" label="Salvar" disabled={salvandoEdicao} onclick={handleSalvarEdicao}></lightning-button>
+            </div>
+        </div>
+    </section>
+    </template>
 
     <template if:true={modalAberto}>
     <section class="modal-backdrop">

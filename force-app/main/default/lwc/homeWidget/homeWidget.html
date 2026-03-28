@@ -1,0 +1,55 @@
+<template>
+    <div class="widget-grid">
+
+        <!-- Tarefas para hoje -->
+        <div class="widget-card">
+            <h3 class="widget-titulo">Tarefas para Hoje</h3>
+            <template if:true={semTarefasHoje}>
+                <p class="vazio">Nenhuma tarefa com prazo hoje.</p>
+            </template>
+            <template for:each={tarefasHoje} for:item="t">
+                <div key={t.Id} class="tarefa-row">
+                    <span class="tarefa-nome">{t.Name}</span>
+                    <span class="tarefa-status">{t.Status__c}</span>
+                </div>
+            </template>
+        </div>
+
+        <!-- Movimentações de hoje -->
+        <div class="widget-card">
+            <h3 class="widget-titulo">Movimentações Hoje</h3>
+            <template if:true={semMovimentacoesHoje}>
+                <p class="vazio">Nenhuma movimentação registrada hoje.</p>
+            </template>
+            <template for:each={entradasHoje} for:item="t">
+                <div key={t.Id} class="mov-row verde">
+                    <span>{t.Name}</span>
+                    <span>+{t.valorFmt}</span>
+                </div>
+            </template>
+            <template for:each={saidasHoje} for:item="t">
+                <div key={t.Id} class="mov-row vermelho">
+                    <span>{t.Name}</span>
+                    <span>-{t.valorFmt}</span>
+                </div>
+            </template>
+        </div>
+
+        <!-- Metas -->
+        <div class="widget-card">
+            <h3 class="widget-titulo">Metas — Status</h3>
+            <template if:false={temMeta}>
+                <p class="vazio">Nenhuma meta ativa.</p>
+            </template>
+            <template if:true={temMeta}>
+                <template for:each={categoriasMeta} for:item="cat">
+                    <div key={cat.key} class="meta-row">
+                        <span class="meta-nome">{cat.nome}</span>
+                        <span class="meta-pct">{cat.percentual}%</span>
+                    </div>
+                </template>
+            </template>
+        </div>
+
+    </div>
+</template>

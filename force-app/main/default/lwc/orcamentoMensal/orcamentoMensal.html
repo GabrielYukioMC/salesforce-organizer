@@ -37,8 +37,9 @@
 
                 <p>Ações</p>
                 <div class="botoes">
-                    <lightning-button label="Registrar Entrada" onclick={handleAbrirModalEntrada}  ></lightning-button>
-                    <lightning-button label="Registrar Saída" onclick={handleAbrirModalSaida}  ></lightning-button>
+                    <lightning-button label="Registrar Entrada" onclick={handleAbrirModalEntrada}></lightning-button>
+                    <lightning-button label="Registrar Saída" onclick={handleAbrirModalSaida}></lightning-button>
+                    <lightning-button label="Exportar CSV" icon-name="utility:download" onclick={handleExportarCSV}></lightning-button>
                 </div>
             </div>
 
@@ -64,6 +65,36 @@
 
         </div>
 
+        <!-- DISTRIBUIÇÃO POR METAS -->
+        <div class="distribuicao-metas">
+            <h3>Distribuição por Metas — {mesSelecionado}</h3>
+
+            <template if:true={temMetaAtiva}>
+                <template for:each={distribuicaoPorCategoria} for:item="cat">
+                    <div key={cat.key} class="dist-row">
+                        <div class="dist-header">
+                            <span class="dist-nome">{cat.nome}</span>
+                            <span class="dist-valores">
+                                {cat.percentualMeta}% previsto · Real: {cat.valorRealFormatado} / {cat.valorEsperadoFormatado}
+                            </span>
+                            <template if:true={cat.alerta}>
+                                <span class="dist-badge-alerta">Atenção!</span>
+                            </template>
+                            <template if:true={cat.excedeu}>
+                                <span class="dist-badge-excedeu">Excedeu!</span>
+                            </template>
+                        </div>
+                        <div class="dist-track">
+                            <div class={cat.cssBarraFill} style={cat.cssBarraStyle}></div>
+                        </div>
+                    </div>
+                </template>
+            </template>
+
+            <template if:false={temMetaAtiva}>
+                <p class="dist-sem-meta">Nenhuma meta ativa. Configure suas metas na aba <strong>Metas</strong>.</p>
+            </template>
+        </div>
 
     </div>
 

@@ -265,3 +265,91 @@ canvas {
     max-width: 280px;
     height: auto !important;
 }
+
+/* DISTRIBUIÇÃO POR METAS */
+.distribuicao-metas {
+    margin-top: 28px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.distribuicao-metas h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0 0 18px;
+}
+
+.dist-row {
+    margin-bottom: 14px;
+}
+
+.dist-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+    flex-wrap: wrap;
+}
+
+.dist-nome {
+    font-size: 13px;
+    font-weight: 700;
+    color: #333;
+    min-width: 160px;
+}
+
+.dist-valores {
+    font-size: 12px;
+    color: #666;
+    flex: 1;
+}
+
+.dist-badge-excedeu {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: #e74c3c;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+.dist-track {
+    background: #e8edf3;
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.dist-fill {
+    background: linear-gradient(90deg, #27ae60, #2ecc71);
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+}
+
+.dist-fill-alerta {
+    background: linear-gradient(90deg, #e67e22, #f39c12);
+}
+
+.dist-fill-excedeu {
+    background: linear-gradient(90deg, #c0392b, #e74c3c);
+}
+
+.dist-badge-alerta {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    background: #e67e22;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+.dist-sem-meta {
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+    padding: 12px 0;
+}

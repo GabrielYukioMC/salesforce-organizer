@@ -1,0 +1,257 @@
+.metas-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* SEÇÃO META ATIVA */
+.secao-meta-ativa,
+.secao-lista {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.secao-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.secao-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+.clicavel {
+    cursor: pointer;
+    user-select: none;
+}
+
+.meta-ativa-nome {
+    font-size: 15px;
+    font-weight: 600;
+    color: #444;
+    margin: 0 0 4px;
+}
+
+.meta-ativa-descricao {
+    font-size: 13px;
+    color: #888;
+    margin: 0 0 16px;
+}
+
+/* BARRAS */
+.barras-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.barra-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.barra-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.barra-nome {
+    font-weight: 600;
+    color: #333;
+}
+
+.barra-pct {
+    color: #555;
+}
+
+.barra-track {
+    background: #e8edf3;
+    border-radius: 6px;
+    height: 10px;
+    overflow: hidden;
+}
+
+.barra-fill {
+    background: linear-gradient(90deg, #1f77b4, #4fa3e0);
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.4s ease;
+}
+
+/* SEM META */
+.sem-meta {
+    text-align: center;
+    padding: 24px 0;
+    color: #888;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+/* LISTA DE METAS */
+.lista-acoes {
+    margin-bottom: 16px;
+}
+
+.cards-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.meta-card {
+    border: 1px solid #e0e6ef;
+    border-radius: 12px;
+    padding: 16px;
+    background: #fafbfc;
+}
+
+.meta-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.meta-card-nome {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.badge-ativa {
+    background: #2ecc71;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+}
+
+.meta-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.chip {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    color: #fff;
+}
+
+.chip-gf  { background: #e74c3c; }
+.chip-re  { background: #e67e22; }
+.chip-inv { background: #27ae60; }
+.chip-qv  { background: #2980b9; }
+.chip-dp  { background: #8e44ad; }
+.chip-obj { background: #16a085; }
+
+.meta-card-acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.sem-itens {
+    color: #aaa;
+    text-align: center;
+    padding: 16px 0;
+}
+
+/* MODAL */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+}
+
+.modal-container {
+    background: #fff;
+    border-radius: 16px;
+    padding: 28px;
+    width: 560px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+.modal-titulo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin: 0;
+}
+
+.percentuais-titulo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+}
+
+.percentuais-titulo h3 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+    color: #333;
+}
+
+.percentuais-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.pct-campo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pct-hint {
+    font-size: 11px;
+    color: #999;
+    margin: 0;
+}
+
+.soma-total {
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.soma-valida   { background: #d4edda; color: #155724; }
+.soma-invalida { background: #f8d7da; color: #721c24; }
+
+.modal-acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 4px;
+}

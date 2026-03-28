@@ -1,0 +1,66 @@
+.widget-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 16px;
+}
+
+.widget-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.widget-titulo {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 8px;
+}
+
+.vazio {
+    color: #aaa;
+    font-size: 12px;
+    text-align: center;
+    padding: 12px 0;
+}
+
+.tarefa-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: 13px;
+}
+
+.tarefa-nome { font-weight: 500; }
+
+.tarefa-status {
+    font-size: 11px;
+    color: #666;
+}
+
+.mov-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.verde { color: #15803d; }
+.vermelho { color: #b91c1c; }
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.meta-nome { color: #333; }
+.meta-pct { font-weight: 700; color: #1d4ed8; }

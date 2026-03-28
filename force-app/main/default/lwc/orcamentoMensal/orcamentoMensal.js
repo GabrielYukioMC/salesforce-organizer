@@ -1,9 +1,26 @@
 import { LightningElement } from 'lwc';
 import realizarTransferencia from '@salesforce/apex/TransferenciaController.realizarTransferencia';
 import getTransacoesPorUsuarioEData from '@salesforce/apex/TransferenciaController.getTransacoesPorUsuarioEData';
+import buscarMetaAtiva from '@salesforce/apex/MetaController.buscarMetaAtiva';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import chartjs from '@salesforce/resourceUrl/chart';
 import { loadScript } from 'lightning/platformResourceLoader';
+
+const CATEGORIA_META_MAP = {
+    'Fixa':                 'GastosFixos__c',
+    'Aluguel':              'GastosFixos__c',
+    'Cartão de credito':    'GastosFixos__c',
+    'Mercado':              'GastosFixos__c',
+    'Reserva de Emergencia':'ReservaEmergencia__c',
+    'Economia':             'ReservaEmergencia__c',
+    'Investimento':         'Investimentos__c',
+    'Liberdade financeira': 'Investimentos__c',
+    'Diario':               'QualidadeDeVida__c',
+    'Conforto':             'QualidadeDeVida__c',
+    'Prazeres':             'QualidadeDeVida__c',
+    'Conhecimento':         'DesenvolvimentoPessoal__c',
+    'Objetivos':            'Objetivos__c'
+};
 
 export default class OrcamentoMensal extends LightningElement {
 
@@ -57,6 +74,7 @@ saidaCad = {
     listaEntradas = [];
     listaSaidas = [];
     listaTransacoes = [];
+    metaAtiva = null;
 
 
     get listaDias() {
@@ -108,7 +126,14 @@ saidaCad = {
  
 
     connectedCallback() {
-       this.pegarMesAtual();
+        this.pegarMesAtual();
+        this.carregarMetaAtiva();
+    }
+
+    carregarMetaAtiva() {
+        buscarMetaAtiva()
+            .then(meta => { this.metaAtiva = meta; })
+            .catch(error => { console.error('Erro ao buscar meta ativa:', error); });
     }
     chartInicializado = false;
 
@@ -156,7 +181,9 @@ saidaCad = {
             tipoEntrada: '',
             valorEntrada: 0,
             valorFormatado: 'R$ 0,00',
-            diaEntrada: '1'
+            diaEntrada: '1',
+            recorrente: false,
+            frequencia: 'Mensal'
         };
 
         this.saidaCad = {
@@ -164,7 +191,9 @@ saidaCad = {
             tipoSaida: '',
             valorSaida: 0,
             valorFormatado: 'R$ 0,00',
-            diaSaida: '1'
+            diaSaida: '1',
+            recorrente: false,
+            frequencia: 'Mensal'
         };
     }
 
@@ -230,10 +259,8 @@ saidaCad = {
     handleSalvarEntrada() {
         console.log('Entrada cadastrada:' +JSON.stringify(this.entradaCad));
 
-        let data = new Date();
-        data.setFullYear(this.mesReferencia.split('-')[0]);
-        data.setMonth(this.mesReferencia.split('-')[1] - 1);
-        data.setDate(this.entradaCad.diaEntrada  );
+        const [anoE, mesE] = this.mesReferencia.split('-');
+        const data = new Date(Number(anoE), Number(mesE) - 1, Number(this.entradaCad.diaEntrada));
 
         let obj = {
             Name : this.entradaCad.nomeEntrada,
@@ -252,10 +279,8 @@ saidaCad = {
     handleSalvarSaida() {
         console.log('Saída cadastrada:' +JSON.stringify(this.saidaCad));
 
-        let data = new Date();
-        data.setFullYear(this.mesReferencia.split('-')[0]);
-        data.setMonth(this.mesReferencia.split('-')[1] - 1);
-        data.setDate(this.saidaCad.diaSaida  );
+        const [anoS, mesS] = this.mesReferencia.split('-');
+        const data = new Date(Number(anoS), Number(mesS) - 1, Number(this.saidaCad.diaSaida));
 
         let obj = {
             Name : this.saidaCad.nomeSaida,
@@ -296,14 +321,9 @@ saidaCad = {
             this.handleFecharModal();
         })
         .catch(error => {
-            if (error instanceof AuraHandledException) {
-                console.error('Erro do cliente: ', error.message);
-                this.showToast('Erro', error.message, 'error');
-            } else {
-                console.error('Erro inesperado: ', error);
-                this.showToast('Erro', 'Ocorreu um erro inesperado. Tente novamente.', 'error');
-            }
             console.error('Erro ao realizar transferência: ', error);
+            const msg = error?.body?.message || 'Ocorreu um erro inesperado. Tente novamente.';
+            this.showToast('Erro', msg, 'error');
         });
     }
 
@@ -339,16 +359,90 @@ saidaCad = {
     }
 
     agruparPorCategoria(lista) {
-    const mapa = {};
+        const mapa = {};
+        lista.forEach(item => {
+            const cat = item.Categoria__c || 'Outros';
+            mapa[cat] = (mapa[cat] || 0) + item.Valor__c;
+        });
+        return mapa;
+    }
 
-    lista.forEach(item => {
-        const cat = item.Categoria__c || 'Outros';
-        mapa[cat] = (mapa[cat] || 0) + item.Valor__c;
-    });
+    get distribuicaoPorCategoria() {
+        if (!this.metaAtiva) return [];
 
-    return mapa;
-}
+        const realPorCategoria = {
+            GastosFixos__c: 0,
+            ReservaEmergencia__c: 0,
+            Investimentos__c: 0,
+            QualidadeDeVida__c: 0,
+            DesenvolvimentoPessoal__c: 0,
+            Objetivos__c: 0
+        };
 
+        this.listaSaidas.forEach(saida => {
+            const campo = CATEGORIA_META_MAP[saida.Categoria__c];
+            if (campo) realPorCategoria[campo] += saida.Valor__c;
+        });
+
+        const totalEntradas = this.valorTotalEntradas;
+
+        return [
+            { key: 'gf',  campo: 'GastosFixos__c',           nome: 'Gastos Fixos' },
+            { key: 're',  campo: 'ReservaEmergencia__c',      nome: 'Reserva de Emergência' },
+            { key: 'inv', campo: 'Investimentos__c',          nome: 'Investimentos' },
+            { key: 'qv',  campo: 'QualidadeDeVida__c',        nome: 'Qualidade de Vida' },
+            { key: 'dp',  campo: 'DesenvolvimentoPessoal__c', nome: 'Desenvolvimento Pessoal' },
+            { key: 'obj', campo: 'Objetivos__c',             nome: 'Objetivos' }
+        ].map(cat => {
+            const percentualMeta  = this.metaAtiva[cat.campo] || 0;
+            const valorEsperado   = (percentualMeta / 100) * totalEntradas;
+            const valorReal       = realPorCategoria[cat.campo];
+            const excedeu         = valorEsperado > 0 && valorReal > valorEsperado;
+            const progresso       = valorEsperado > 0
+                ? Math.min((valorReal / valorEsperado) * 100, 100)
+                : (valorReal > 0 ? 100 : 0);
+
+            const alerta = progresso >= 80 && !excedeu;
+            return {
+                key:           cat.key,
+                nome:          cat.nome,
+                percentualMeta,
+                valorEsperadoFormatado: this.formatarValor(valorEsperado),
+                valorRealFormatado:     this.formatarValor(valorReal),
+                excedeu,
+                alerta,
+                cssBarraStyle: 'width:' + progresso + '%',
+                cssBarraFill:  excedeu ? 'dist-fill dist-fill-excedeu' : (alerta ? 'dist-fill dist-fill-alerta' : 'dist-fill')
+            };
+        });
+    }
+
+    get temMetaAtiva() {
+        return this.metaAtiva != null;
+    }
+
+
+    handleExportarCSV() {
+        const header = ['Data', 'Nome', 'Tipo', 'Categoria', 'Valor', 'Pago'];
+        const linhas = this.listaTransacoes.map(t => {
+            const data = t.Data__c ? new Date(t.Data__c).toLocaleDateString('pt-BR') : '';
+            const valor = t.Valor__c != null ? t.Valor__c.toString().replace('.', ',') : '0';
+            const pago = t.Pago__c ? 'Sim' : 'Não';
+            return [data, t.Name || '', t.Tipo__c || '', t.Categoria__c || '', valor, pago]
+                .map(v => `"${String(v).replace(/"/g, '""')}"`)
+                .join(';');
+        });
+        const csv = [header.join(';'), ...linhas].join('\n');
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `transacoes_${this.mesReferencia}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
 
     showToast(title, message, variant) {
         this.dispatchEvent(

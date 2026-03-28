@@ -7,14 +7,17 @@
 
 .grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 1rem;
 }
 
 .actions {
     display: flex;
     justify-content: flex-end;
+    gap: 0.5rem;
     margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e5e5;
 }
 .campo-data {
     width: 70%;
@@ -22,15 +25,12 @@
 }
 .prazo-wrapper {
     display: flex;
-    align-items: center; 
-
-    gap: 1rem;
+    flex-direction: column;
+    gap: 0.35rem;
 }
 
 .prazo-info {
     font-size: 0.85rem;
-    height: 100%;
-    white-space: nowrap;  
 }
 
 .prazo-ok {

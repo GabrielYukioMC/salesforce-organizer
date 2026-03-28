@@ -1,35 +1,191 @@
 <template>
-    <!-- Botões -->
-    <div class="view-toggle">
-        <lightning-button-group>
-            <lightning-button
-                label="Lista"
-                variant={listVariant}
-                onclick={showList}
-            ></lightning-button>
+    <div class="exibir-container">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <lightning-button-group>
+                <lightning-button
+                    label="Lista"
+                    icon-name="utility:list"
+                    variant={listVariant}
+                    onclick={showList}
+                ></lightning-button>
+                <lightning-button
+                    label="Kanban"
+                    icon-name="utility:kanban"
+                    variant={kanbanVariant}
+                    onclick={showKanban}
+                ></lightning-button>
+            </lightning-button-group>
 
             <lightning-button
-                label="Kanban"
-                variant={kanbanVariant}
-                onclick={showKanban}
+                label="Limpar antigas"
+                icon-name="utility:delete"
+                variant="destructive-text"
+                title="Remove tarefas Concluídas e Canceladas há mais de 20 dias"
+                disabled={limpando}
+                onclick={handleLimparAntigas}
             ></lightning-button>
-        </lightning-button-group>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filtros">
+            <lightning-input
+                type="search"
+                label="Buscar"
+                placeholder="Buscar por título..."
+                value={filtroBusca}
+                data-field="filtroBusca"
+                onchange={handleFiltroChange}
+                variant="label-hidden"
+                class="filtro-busca"
+            ></lightning-input>
+            <lightning-combobox
+                label="Tipo"
+                placeholder="Todos os tipos"
+                value={filtroTipo}
+                options={tipos}
+                data-field="filtroTipo"
+                onchange={handleFiltroChange}
+                variant="label-hidden"
+                class="filtro-select"
+            ></lightning-combobox>
+            <lightning-combobox
+                label="Prioridade"
+                placeholder="Todas as prioridades"
+                value={filtroPrioridade}
+                options={prioridades}
+                data-field="filtroPrioridade"
+                onchange={handleFiltroChange}
+                variant="label-hidden"
+                class="filtro-select"
+            ></lightning-combobox>
+            <template if:true={temFiltroAtivo}>
+                <lightning-button
+                    label="Limpar filtros"
+                    icon-name="utility:close"
+                    variant="neutral"
+                    onclick={handleLimparFiltros}
+                ></lightning-button>
+            </template>
+        </div>
+
+        <!-- LISTA -->
+        <template if:true={isListView}>
+            <lightning-datatable
+                key-field="Id"
+                data={tarefasFiltradas}
+                columns={columns}
+                onrowaction={handleRowAction}
+                hide-checkbox-column
+                wrap-text-max-lines="2"
+            ></lightning-datatable>
+        </template>
+
+        <!-- KANBAN -->
+        <template if:true={isKanbanView}>
+            <c-tarefas-kanban
+                tarefas={tarefasFiltradas}
+                status-options={statusOptions}
+                ontarefasalva={handleTarefaSalva}
+                ontarefasatualizada={handleTarefaSalva}
+            ></c-tarefas-kanban>
+        </template>
+
+        <!-- Histórico -->
+        <div class="historico-toggle">
+            <lightning-button
+                label={labelHistorico}
+                icon-name="utility:routing_offline"
+                variant="neutral"
+                onclick={handleToggleHistorico}
+            ></lightning-button>
+        </div>
+
+        <template if:true={exibeHistorico}>
+            <div class="historico-section">
+                <h3 class="historico-title">Histórico de Tarefas Arquivadas</h3>
+                <lightning-datatable
+                    key-field="Id"
+                    data={tarefasArquivadas}
+                    columns={columns}
+                    hide-checkbox-column
+                    wrap-text-max-lines="2"
+                ></lightning-datatable>
+            </div>
+        </template>
+
     </div>
 
-    <!-- LISTA -->
-    <template if:true={isListView}>
-        <lightning-datatable
-            key-field="Id"
-            data={tarefas}
-            columns={columns}
-        ></lightning-datatable>
-    </template>
+    <!-- Modal editar (lista) -->
+    <template if:true={modalEditarAberto}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        variant="bare-inverse"
+                        class="slds-modal__close"
+                        onclick={fecharModal}
+                        alternative-text="Fechar"
+                    ></lightning-button-icon>
+                    <h2 class="slds-text-heading_medium">Editar Tarefa</h2>
+                </header>
 
-    <!-- KANBAN -->
-    <template if:true={isKanbanView}>
-        <c-tarefas-kanban
-            tarefas={tarefas}
-            status-options={statusOptions}
-        ></c-tarefas-kanban>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-input
+                        label="Título"
+                        value={tarefaEditada.Name}
+                        data-field="Name"
+                        onchange={handleChangeEdit}
+                    ></lightning-input>
+
+                    <div class="modal-grid">
+                        <lightning-combobox
+                            label="Status"
+                            value={tarefaEditada.Status__c}
+                            options={statusOptions}
+                            data-field="Status__c"
+                            onchange={handleChangeEdit}
+                        ></lightning-combobox>
+
+                        <lightning-combobox
+                            label="Prioridade"
+                            value={tarefaEditada.Prioridade__c}
+                            options={prioridades}
+                            data-field="Prioridade__c"
+                            onchange={handleChangeEdit}
+                        ></lightning-combobox>
+
+                        <lightning-combobox
+                            label="Tipo"
+                            value={tarefaEditada.TipoTarefa__c}
+                            options={tipos}
+                            data-field="TipoTarefa__c"
+                            onchange={handleChangeEdit}
+                        ></lightning-combobox>
+                    </div>
+
+                    <lightning-input
+                        type="datetime-local"
+                        label="Prazo de entrega"
+                        value={tarefaEditada.CloseDate__c}
+                        data-field="CloseDate__c"
+                        onchange={handleChangeEdit}
+                    ></lightning-input>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancelar" onclick={fecharModal}></lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Salvar"
+                        disabled={salvando}
+                        onclick={salvarEdicao}
+                    ></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
 </template>

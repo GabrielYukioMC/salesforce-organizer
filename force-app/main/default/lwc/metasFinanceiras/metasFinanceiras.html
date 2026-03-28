@@ -1,0 +1,272 @@
+<template>
+    <div class="metas-container">
+
+        <!-- SEÇÃO: META ATIVA -->
+        <div class="secao-meta-ativa">
+            <div class="secao-header">
+                <h2 class="secao-titulo">Meta Ativa</h2>
+                <template if:true={temMetaAtiva}>
+                    <lightning-button
+                        label="Editar Meta Ativa"
+                        icon-name="utility:edit"
+                        onclick={handleAbrirModalEditarAtiva}>
+                    </lightning-button>
+                </template>
+            </div>
+
+            <template if:true={temMetaAtiva}>
+                <p class="meta-ativa-nome">{metaAtiva.Name}</p>
+                <template if:true={metaAtiva.Descricao__c}>
+                    <p class="meta-ativa-descricao">{metaAtiva.Descricao__c}</p>
+                </template>
+
+                <div class="barras-container">
+                    <template for:each={categoriasBarra} for:item="cat">
+                        <div key={cat.key} class="barra-row">
+                            <div class="barra-label">
+                                <span class="barra-nome">{cat.nome}</span>
+                                <span class="barra-pct">{cat.percentual}%</span>
+                            </div>
+                            <div class="barra-track">
+                                <div class="barra-fill" style={cat.cssWidth}></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:false={temMetaAtiva}>
+                <div class="sem-meta">
+                    <p>Nenhuma meta configurada. Crie uma meta abaixo e ative-a.</p>
+                    <lightning-button
+                        variant="brand"
+                        label="Criar Primeira Meta"
+                        onclick={handleAbrirModalNova}>
+                    </lightning-button>
+                </div>
+            </template>
+        </div>
+
+        <!-- SEÇÃO: GERENCIAR METAS (colapsável) -->
+        <div class="secao-lista">
+            <div class="secao-header clicavel" onclick={handleToggleListaMetas}>
+                <h2 class="secao-titulo">Todas as Metas</h2>
+                <lightning-icon
+                    icon-name={iconeToggleLista}
+                    size="x-small">
+                </lightning-icon>
+            </div>
+
+            <template if:true={exibeListaMetas}>
+                <div class="lista-acoes">
+                    <lightning-button
+                        variant="brand"
+                        label="Nova Meta"
+                        icon-name="utility:add"
+                        onclick={handleAbrirModalNova}>
+                    </lightning-button>
+                </div>
+
+                <template if:true={listaMetas.length}>
+                    <div class="cards-lista">
+                        <template for:each={listaMetas} for:item="meta">
+                            <div key={meta.Id} class="meta-card">
+                                <div class="meta-card-header">
+                                    <span class="meta-card-nome">{meta.Name}</span>
+                                    <template if:true={meta.Ativa__c}>
+                                        <span class="badge-ativa">Ativa</span>
+                                    </template>
+                                </div>
+
+                                <div class="meta-chips">
+                                    <span class="chip chip-gf">Gastos Fixos: {meta.GastosFixos__c}%</span>
+                                    <span class="chip chip-re">Reserva: {meta.ReservaEmergencia__c}%</span>
+                                    <span class="chip chip-inv">Invest.: {meta.Investimentos__c}%</span>
+                                    <span class="chip chip-qv">Qual. Vida: {meta.QualidadeDeVida__c}%</span>
+                                    <span class="chip chip-dp">Desenv.: {meta.DesenvolvimentoPessoal__c}%</span>
+                                    <span class="chip chip-obj">Objetivos: {meta.Objetivos__c}%</span>
+                                </div>
+
+                                <div class="meta-card-acoes">
+                                    <template if:false={meta.Ativa__c}>
+                                        <lightning-button
+                                            label="Ativar"
+                                            variant="success"
+                                            data-id={meta.Id}
+                                            onclick={handleAtivar}>
+                                        </lightning-button>
+                                    </template>
+                                    <lightning-button
+                                        label="Editar"
+                                        data-id={meta.Id}
+                                        onclick={handleAbrirModalEditar}>
+                                    </lightning-button>
+                                    <lightning-button
+                                        label="Excluir"
+                                        variant="destructive"
+                                        data-id={meta.Id}
+                                        onclick={handleDeletar}>
+                                    </lightning-button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <template if:false={listaMetas.length}>
+                    <p class="sem-itens">Nenhuma meta criada ainda.</p>
+                </template>
+            </template>
+        </div>
+
+    </div>
+
+    <!-- MODAL: CRIAR / EDITAR META -->
+    <template if:true={exibeModal}>
+        <section class="modal-backdrop">
+            <div class="modal-container">
+
+                <h2 class="modal-titulo">{tituloModal}</h2>
+
+                <lightning-input
+                    label="Nome da Meta"
+                    value={metaCad.Name}
+                    data-field="Name"
+                    onchange={handleChange}>
+                </lightning-input>
+
+                <lightning-textarea
+                    label="Descrição (opcional)"
+                    value={metaCad.Descricao__c}
+                    data-field="Descricao__c"
+                    max-length="1000"
+                    onchange={handleChange}>
+                </lightning-textarea>
+
+                <div class="percentuais-titulo">
+                    <h3>Distribuição do Orçamento</h3>
+                    <lightning-button
+                        label="Distribuir igualmente"
+                        variant="neutral"
+                        onclick={handleDistribuirIgualmente}>
+                    </lightning-button>
+                </div>
+
+                <div class="percentuais-grid">
+
+                    <div class="pct-campo">
+                        <lightning-input
+                            label="Gastos Fixos (%)"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={metaCad.GastosFixos__c}
+                            data-field="GastosFixos__c"
+                            onchange={handleChange}>
+                        </lightning-input>
+                        <p class="pct-hint">Aluguel, mercado, contas fixas, cartão</p>
+                    </div>
+
+                    <div class="pct-campo">
+                        <lightning-input
+                            label="Reserva de Emergência (%)"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={metaCad.ReservaEmergencia__c}
+                            data-field="ReservaEmergencia__c"
+                            onchange={handleChange}>
+                        </lightning-input>
+                        <p class="pct-hint">Reserva de emergência e poupança</p>
+                    </div>
+
+                    <div class="pct-campo">
+                        <lightning-input
+                            label="Investimentos (%)"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={metaCad.Investimentos__c}
+                            data-field="Investimentos__c"
+                            onchange={handleChange}>
+                        </lightning-input>
+                        <p class="pct-hint">Renda variável, liberdade financeira</p>
+                    </div>
+
+                    <div class="pct-campo">
+                        <lightning-input
+                            label="Qualidade de Vida (%)"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={metaCad.QualidadeDeVida__c}
+                            data-field="QualidadeDeVida__c"
+                            onchange={handleChange}>
+                        </lightning-input>
+                        <p class="pct-hint">Lazer, conforto, prazeres, diário</p>
+                    </div>
+
+                    <div class="pct-campo">
+                        <lightning-input
+                            label="Desenvolvimento Pessoal (%)"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={metaCad.DesenvolvimentoPessoal__c}
+                            data-field="DesenvolvimentoPessoal__c"
+                            onchange={handleChange}>
+                        </lightning-input>
+                        <p class="pct-hint">Cursos, livros, conhecimento</p>
+                    </div>
+
+                    <div class="pct-campo">
+                        <lightning-input
+                            label="Objetivos (%)"
+                            type="number"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            value={metaCad.Objetivos__c}
+                            data-field="Objetivos__c"
+                            onchange={handleChange}>
+                        </lightning-input>
+                        <p class="pct-hint">Metas específicas, viagens, projetos</p>
+                    </div>
+
+                </div>
+
+                <div class={classeSomaTotal}>
+                    Total: {somaTotalPercentuais}%
+                    <template if:false={somaValida}>
+                        — deve somar exatamente 100%
+                    </template>
+                </div>
+
+                <lightning-input
+                    type="toggle"
+                    label="Ativar esta meta imediatamente"
+                    checked={metaCad.Ativa__c}
+                    data-field="Ativa__c"
+                    onchange={handleChange}>
+                </lightning-input>
+
+                <div class="modal-acoes">
+                    <lightning-button label="Cancelar" onclick={handleFecharModal}></lightning-button>
+                    <lightning-button
+                        variant="brand"
+                        label="Salvar"
+                        disabled={somaInvalida}
+                        onclick={handleSalvar}>
+                    </lightning-button>
+                </div>
+
+            </div>
+        </section>
+    </template>
+
+</template>

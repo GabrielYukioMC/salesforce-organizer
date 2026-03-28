@@ -1,0 +1,91 @@
+<template>
+    <div class="contas-container">
+        <h2 class="contas-titulo">Contas a Pagar</h2>
+
+        <template if:true={carregando}>
+            <lightning-spinner alternative-text="Carregando..." size="small"></lightning-spinner>
+        </template>
+
+        <template if:true={semContas}>
+            <p class="sem-contas">Nenhuma conta pendente nos próximos 60 dias.</p>
+        </template>
+
+        <!-- Vencendo hoje -->
+        <template if:true={temHoje}>
+            <div class="grupo">
+                <div class="grupo-header grupo-hoje">
+                    <span>Vencendo Hoje</span>
+                    <span>{totalHoje}</span>
+                </div>
+                <template for:each={hoje} for:item="c">
+                    <div key={c.Id} class="conta-row">
+                        <div class="conta-info">
+                            <span class="conta-nome">{c.Name}</span>
+                            <span class="conta-cat">{c.Categoria__c}</span>
+                        </div>
+                        <span class="conta-valor vermelho">{c.valorFormatado}</span>
+                        <lightning-button
+                            label="Pagar"
+                            variant="brand"
+                            size="small"
+                            data-id={c.Id}
+                            onclick={handleMarcarPago}
+                        ></lightning-button>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <!-- Próximos 7 dias -->
+        <template if:true={temSemana}>
+            <div class="grupo">
+                <div class="grupo-header grupo-semana">
+                    <span>Próximos 7 dias</span>
+                    <span>{totalSemana}</span>
+                </div>
+                <template for:each={semana} for:item="c">
+                    <div key={c.Id} class="conta-row">
+                        <div class="conta-info">
+                            <span class="conta-nome">{c.Name}</span>
+                            <span class="conta-cat">{c.Categoria__c}</span>
+                        </div>
+                        <span class="conta-valor">{c.valorFormatado}</span>
+                        <lightning-button
+                            label="Pagar"
+                            variant="neutral"
+                            size="small"
+                            data-id={c.Id}
+                            onclick={handleMarcarPago}
+                        ></lightning-button>
+                    </div>
+                </template>
+            </div>
+        </template>
+
+        <!-- Futuras -->
+        <template if:true={temFuturas}>
+            <div class="grupo">
+                <div class="grupo-header grupo-futuras">
+                    <span>Futuras</span>
+                    <span>{totalFuturas}</span>
+                </div>
+                <template for:each={futuras} for:item="c">
+                    <div key={c.Id} class="conta-row">
+                        <div class="conta-info">
+                            <span class="conta-nome">{c.Name}</span>
+                            <span class="conta-cat">{c.Categoria__c}</span>
+                        </div>
+                        <span class="conta-valor">{c.valorFormatado}</span>
+                        <lightning-button
+                            label="Pagar"
+                            variant="neutral"
+                            size="small"
+                            data-id={c.Id}
+                            onclick={handleMarcarPago}
+                        ></lightning-button>
+                    </div>
+                </template>
+            </div>
+        </template>
+    </div>
+</template>

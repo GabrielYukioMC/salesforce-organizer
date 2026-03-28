@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "/Users/gabrielyukio/Organizacao/salesforce-organizer"
+    }
+  ],
+  "settings": {
+    "eslint.workingDirectories": [
+      "/Users/gabrielyukio/Organizacao/salesforce-organizer"
+    ],
+    "eslint.validate": [
+      "javascript",
+      "typescript"
+    ],
+    "eslint.options": {
+      "overrideConfigFile": "/Users/gabrielyukio/Organizacao/salesforce-organizer/.eslintrc.json"
+    }
+  }
+}
