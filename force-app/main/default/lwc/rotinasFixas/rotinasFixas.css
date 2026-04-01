@@ -1,0 +1,116 @@
+.rotinas-container {
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+
+.rotinas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.rotinas-titulo {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #3c4043;
+}
+
+.btn-nova {
+    background: #1a73e8;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.btn-nova:hover { background: #1558b0; }
+.btn-nova:disabled { opacity: 0.5; cursor: default; }
+
+.form-rotina {
+    background: #fff;
+    border: 1px solid #dadce0;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.form-row {
+    margin-bottom: 12px;
+}
+
+.form-row-inline {
+    display: flex;
+    gap: 16px;
+}
+.form-row-inline > * {
+    flex: 1;
+}
+
+.form-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.rotinas-loading {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+}
+
+.rotinas-vazio {
+    color: #80868b;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 8px 0;
+}
+
+.rotinas-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.rotinas-tabela th,
+.rotinas-tabela td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+}
+
+.rotinas-tabela th {
+    color: #5f6368;
+    font-weight: 600;
+    background: #f1f3f4;
+}
+
+.rotinas-acoes {
+    white-space: nowrap;
+    display: flex;
+    gap: 6px;
+}
+
+.btn-acao {
+    border: none;
+    border-radius: 3px;
+    padding: 3px 8px;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.btn-editar {
+    background: #e8f0fe;
+    color: #1a73e8;
+}
+.btn-editar:hover { background: #c5d8f9; }
+
+.btn-excluir {
+    background: #fce8e6;
+    color: #d93025;
+}
+.btn-excluir:hover { background: #f5c6c3; }

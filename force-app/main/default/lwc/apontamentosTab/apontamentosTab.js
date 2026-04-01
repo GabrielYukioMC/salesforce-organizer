@@ -1,20 +1,23 @@
 import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import buscarPorSemana from '@salesforce/apex/ApontamentoController.buscarPorSemana';
+import buscarPorSemana          from '@salesforce/apex/ApontamentoController.buscarPorSemana';
+import gerarApontamentosSemana  from '@salesforce/apex/ApontamentoFixoController.gerarApontamentosSemana';
 
 const PX_POR_HORA = 80;
 const HORA_INICIO  = 9;
 const HORA_FIM     = 18;
-const DIAS_NOMES   = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+const DIAS_NOMES   = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 export default class ApontamentosTab extends LightningElement {
 
-    @track carregando = false;
-    @track apontamentos = [];
+    @track carregando     = false;
+    @track gerandoSemana  = false;
+    @track mostrarRotinas = false;
+    @track apontamentos   = [];
     semanaInicio; // Date (segunda-feira da semana atual)
 
     connectedCallback() {
-        this.semanaInicio = this._getSegunda(new Date());
+        this.semanaInicio = this._getDomingo(new Date());
         this._carregar();
     }
 
@@ -35,8 +38,33 @@ export default class ApontamentosTab extends LightningElement {
     }
 
     irParaHoje() {
-        this.semanaInicio = this._getSegunda(new Date());
+        this.semanaInicio = this._getDomingo(new Date());
         this._carregar();
+    }
+
+    gerarSemana() {
+        this.gerandoSemana = true;
+        gerarApontamentosSemana({ semanaInicioISO: this._toDateStr(this.semanaInicio) })
+            .then(() => {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Sucesso',
+                    message: 'Apontamentos gerados com sucesso.',
+                    variant: 'success'
+                }));
+                this._carregar();
+            })
+            .catch(err => {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Erro',
+                    message: err.body?.message || 'Não foi possível gerar os apontamentos.',
+                    variant: 'error'
+                }));
+            })
+            .finally(() => { this.gerandoSemana = false; });
+    }
+
+    toggleRotinas() {
+        this.mostrarRotinas = !this.mostrarRotinas;
     }
 
     // ── Getters de apresentação ──────────────────────────────────
@@ -181,13 +209,11 @@ const horaDecFim = Math.min(HORA_FIM, segFim.getHours() + segFim.getMinutes() / 
         };
     }
 
-    _getSegunda(d) {
-        const dia  = d.getDay(); // 0=Dom … 6=Sáb
-        const diff = dia === 0 ? -6 : 1 - dia;
-        const seg  = new Date(d);
-        seg.setDate(d.getDate() + diff);
-        seg.setHours(0, 0, 0, 0);
-        return seg;
+    _getDomingo(d) {
+        const dom = new Date(d);
+        dom.setDate(d.getDate() - d.getDay()); // getDay() 0=Dom … 6=Sáb
+        dom.setHours(0, 0, 0, 0);
+        return dom;
     }
 
     _toDateStr(d) {

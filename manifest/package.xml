@@ -5,6 +5,10 @@
         <members>ApontamentoBuilder</members>
         <members>ApontamentoSelector</members>
         <members>ApontamentoController</members>
+        <members>ApontamentoFixoSelector</members>
+        <members>ApontamentoFixoService</members>
+        <members>ApontamentoFixoController</members>
+        <members>ApontamentoFixoServiceTest</members>
         <members>TarefaTriggerHandler</members>
         <members>TarefaController</members>
         <members>TarefaService</members>
@@ -34,6 +38,7 @@
         <members>resumoMensal</members>
         <members>homeWidget</members>
         <members>apontamentosTab</members>
+        <members>rotinasFixas</members>
         <name>LightningComponentBundle</name>
     </types>
     <types>
@@ -45,6 +50,7 @@
         <members>Meta__c</members>
         <members>Tarefa__c</members>
         <members>ApontamentoDeHoras__c</members>
+        <members>ApontamentoFixo__c</members>
         <name>CustomObject</name>
     </types>
     <types>
@@ -87,6 +93,11 @@
         <members>ApontamentoDeHoras__c.HoraInicio__c</members>
         <members>ApontamentoDeHoras__c.MesAno__c</members>
         <members>ApontamentoDeHoras__c.DescricaoPerfilDeAlocacao__c</members>
+        <members>ApontamentoFixo__c.DiaDaSemana__c</members>
+        <members>ApontamentoFixo__c.HoraInicio__c</members>
+        <members>ApontamentoFixo__c.HoraFim__c</members>
+        <members>ApontamentoFixo__c.Projeto__c</members>
+        <members>ApontamentoFixo__c.PerfilDeAlocacao__c</members>
         <name>CustomField</name>
     </types>
     <version>59.0</version>

@@ -1,0 +1,130 @@
+<template>
+    <div class="rotinas-container">
+        <div class="rotinas-header">
+            <span class="rotinas-titulo">Rotinas Fixas</span>
+            <button class="btn-nova" onclick={abrirNovaRotina} disabled={carregando}>
+                + Nova Rotina
+            </button>
+        </div>
+
+        <!-- Formulário de criação/edição -->
+        <template if:true={mostrarForm}>
+            <div class="form-rotina">
+                <div class="form-row">
+                    <lightning-input
+                        label="Nome"
+                        value={rotinaEditando.Name}
+                        data-field="Name"
+                        onchange={handleFieldChange}
+                        required
+                    ></lightning-input>
+                </div>
+                <div class="form-row">
+                    <lightning-checkbox-group
+                        label="Dias da Semana"
+                        options={diasOptions}
+                        value={diasSelecionados}
+                        onchange={handleDiaChange}
+                        required
+                    ></lightning-checkbox-group>
+                </div>
+                <div class="form-row form-row-inline">
+                    <lightning-input
+                        label="Hora Início"
+                        type="time"
+                        value={rotinaEditando.HoraInicio__c}
+                        data-field="HoraInicio__c"
+                        onchange={handleFieldChange}
+                        required
+                    ></lightning-input>
+                    <lightning-input
+                        label="Hora Fim"
+                        type="time"
+                        value={rotinaEditando.HoraFim__c}
+                        data-field="HoraFim__c"
+                        onchange={handleFieldChange}
+                        required
+                    ></lightning-input>
+                </div>
+                <div class="form-row form-row-inline">
+                    <lightning-input
+                        label="Projeto"
+                        value={rotinaEditando.Projeto__c}
+                        data-field="Projeto__c"
+                        onchange={handleFieldChange}
+                        placeholder="Opcional"
+                    ></lightning-input>
+                    <lightning-input
+                        label="Perfil de Alocação"
+                        value={rotinaEditando.PerfilDeAlocacao__c}
+                        data-field="PerfilDeAlocacao__c"
+                        onchange={handleFieldChange}
+                        placeholder="Opcional"
+                    ></lightning-input>
+                </div>
+                <div class="form-actions">
+                    <lightning-button
+                        label="Salvar"
+                        variant="brand"
+                        onclick={salvar}
+                        disabled={salvando}
+                    ></lightning-button>
+                    <lightning-button
+                        label="Cancelar"
+                        variant="neutral"
+                        onclick={cancelar}
+                    ></lightning-button>
+                </div>
+            </div>
+        </template>
+
+        <!-- Loading -->
+        <template if:true={carregando}>
+            <div class="rotinas-loading">
+                <lightning-spinner size="small" alternative-text="Carregando..."></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Lista de rotinas -->
+        <template if:false={carregando}>
+            <template if:true={semRotinas}>
+                <p class="rotinas-vazio">Nenhuma rotina cadastrada.</p>
+            </template>
+            <template if:false={semRotinas}>
+                <table class="rotinas-tabela">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Dias</th>
+                            <th>Horário</th>
+                            <th>Projeto</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template for:each={rotinas} for:item="r">
+                            <tr key={r.Id}>
+                                <td>{r.Name}</td>
+                                <td>{r.DiaDaSemana__c}</td>
+                                <td>{r.HoraInicio__c} – {r.HoraFim__c}</td>
+                                <td>{r.Projeto__c}</td>
+                                <td class="rotinas-acoes">
+                                    <button
+                                        class="btn-acao btn-editar"
+                                        data-id={r.Id}
+                                        onclick={editarRotina}
+                                    >Editar</button>
+                                    <button
+                                        class="btn-acao btn-excluir"
+                                        data-id={r.Id}
+                                        onclick={excluirRotina}
+                                    >Excluir</button>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+        </template>
+    </div>
+</template>

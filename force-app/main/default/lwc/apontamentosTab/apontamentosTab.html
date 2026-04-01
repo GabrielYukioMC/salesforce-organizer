@@ -26,8 +26,28 @@
                 onclick={irParaHoje}
             ></lightning-button>
 
+            <lightning-button
+                label="Gerar Semana"
+                variant="brand"
+                class="btn-gerar"
+                disabled={gerandoSemana}
+                onclick={gerarSemana}
+            ></lightning-button>
+
+            <lightning-button
+                label="Rotinas"
+                variant="neutral"
+                class="btn-rotinas"
+                onclick={toggleRotinas}
+            ></lightning-button>
+
             <span class="total-semana">{totalHorasSemana}h na semana</span>
         </div>
+
+        <!-- Painel de rotinas fixas -->
+        <template if:true={mostrarRotinas}>
+            <c-rotinas-fixas></c-rotinas-fixas>
+        </template>
 
         <!-- Loading -->
         <template if:true={carregando}>
