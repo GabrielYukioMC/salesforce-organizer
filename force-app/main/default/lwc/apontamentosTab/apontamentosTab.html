@@ -1,0 +1,95 @@
+<template>
+    <div class="ap-container">
+
+        <!-- Navegação de semana -->
+        <div class="semana-nav">
+            <lightning-button-icon
+                icon-name="utility:chevronleft"
+                variant="bare"
+                alternative-text="Semana anterior"
+                onclick={semanaAnterior}
+            ></lightning-button-icon>
+
+            <span class="semana-label">{labelSemana}</span>
+
+            <lightning-button-icon
+                icon-name="utility:chevronright"
+                variant="bare"
+                alternative-text="Próxima semana"
+                onclick={proximaSemana}
+            ></lightning-button-icon>
+
+            <lightning-button
+                label="Hoje"
+                variant="neutral"
+                class="btn-hoje"
+                onclick={irParaHoje}
+            ></lightning-button>
+
+            <span class="total-semana">{totalHorasSemana}h na semana</span>
+        </div>
+
+        <!-- Loading -->
+        <template if:true={carregando}>
+            <div class="loading">
+                <lightning-spinner alternative-text="Carregando..." size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Grade semanal -->
+        <template if:false={carregando}>
+            <div class="semana-grid-wrapper">
+                <div class="semana-grid">
+
+                    <!-- Eixo de horas -->
+                    <div class="hora-eixo">
+                        <div class="dia-header-placeholder"></div>
+                        <div class="hora-slots">
+                            <template for:each={horasEixo} for:item="h">
+                                <div key={h.key} class="hora-slot" style={h.lineStyle}>
+                                    <span class="hora-slot-label">{h.label}</span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Colunas dos dias -->
+                    <template for:each={diasDaSemana} for:item="dia">
+                        <div key={dia.key} class={dia.colClass}>
+                            <div class="dia-header">
+                                <span class="dia-nome">{dia.diaNome}</span>
+                                <span class="dia-data">{dia.dataFormatada}</span>
+                                <template if:true={dia.totalHoras}>
+                                    <span class="dia-total">{dia.totalHoras}h</span>
+                                </template>
+                            </div>
+                            <div class="dia-body">
+                                <!-- Linhas de hora de fundo -->
+                                <template for:each={horasEixo} for:item="h">
+                                    <div key={h.key} class="hora-linha" style={h.lineStyle}></div>
+                                </template>
+
+                                <!-- Blocos de apontamento -->
+                                <template for:each={dia.apontamentos} for:item="ap">
+                                    <div key={ap.segKey} class="ap-block" style={ap.style}>
+                                        <span class="ap-hora">{ap.horaInicio}–{ap.horaFim}</span>
+                                        <span class="ap-nome">{ap.Name}</span>
+                                        <template if:true={ap.Projeto__c}>
+                                            <span class="ap-projeto">{ap.Projeto__c}</span>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <template if:false={dia.temApontamentos}>
+                                    <p class="dia-vazio">—</p>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                </div>
+            </div>
+        </template>
+
+    </div>
+</template>

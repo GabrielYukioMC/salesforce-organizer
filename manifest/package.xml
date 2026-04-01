@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
+        <members>ApontamentoDTO</members>
+        <members>ApontamentoBuilder</members>
+        <members>ApontamentoSelector</members>
+        <members>ApontamentoController</members>
+        <members>TarefaTriggerHandler</members>
         <members>TarefaController</members>
         <members>TarefaService</members>
         <members>TarefaSelector</members>
@@ -28,12 +33,18 @@
         <members>contasPagar</members>
         <members>resumoMensal</members>
         <members>homeWidget</members>
+        <members>apontamentosTab</members>
         <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>TarefaTrigger</members>
+        <name>ApexTrigger</name>
     </types>
     <types>
         <members>Transacao__c</members>
         <members>Meta__c</members>
         <members>Tarefa__c</members>
+        <members>ApontamentoDeHoras__c</members>
         <name>CustomObject</name>
     </types>
     <types>
@@ -53,10 +64,29 @@
         <members>Meta__c.Objetivos__c</members>
         <members>Meta__c.Ativa__c</members>
         <members>Meta__c.Descricao__c</members>
+        <members>Tarefa__c.InicioTarefa__c</members>
+        <members>Tarefa__c.FimTarefa__c</members>
+        <members>Tarefa__c.Status__c</members>
+        <members>Tarefa__c.Prioridade__c</members>
+        <members>Tarefa__c.TipoTarefa__c</members>
+        <members>Tarefa__c.CloseDate__c</members>
+        <members>Tarefa__c.Descricao__c</members>
+        <members>Tarefa__c.UsuarioProprietario__c</members>
         <members>Tarefa__c.Arquivada__c</members>
         <members>Tarefa__c.Checklist__c</members>
         <members>Tarefa__c.Recorrente__c</members>
         <members>Tarefa__c.FrequenciaTarefa__c</members>
+        <members>ApontamentoDeHoras__c.Inicio__c</members>
+        <members>ApontamentoDeHoras__c.Fim__c</members>
+        <members>ApontamentoDeHoras__c.Observacoes__c</members>
+        <members>ApontamentoDeHoras__c.Projeto__c</members>
+        <members>ApontamentoDeHoras__c.PerfilDeAlocacao__c</members>
+        <members>ApontamentoDeHoras__c.Data_Inicio__c</members>
+        <members>ApontamentoDeHoras__c.DuracaoHoras__c</members>
+        <members>ApontamentoDeHoras__c.TempoMinutos__c</members>
+        <members>ApontamentoDeHoras__c.HoraInicio__c</members>
+        <members>ApontamentoDeHoras__c.MesAno__c</members>
+        <members>ApontamentoDeHoras__c.DescricaoPerfilDeAlocacao__c</members>
         <name>CustomField</name>
     </types>
     <version>59.0</version>

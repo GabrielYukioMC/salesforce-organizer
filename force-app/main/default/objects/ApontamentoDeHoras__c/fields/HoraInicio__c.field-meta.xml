@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>HoraInicio__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(HOUR(TIMEVALUE(Inicio__c)) &lt; 10, &quot;0&quot;, &quot;&quot;) &amp; TEXT(HOUR(TIMEVALUE(Inicio__c))) &amp; &quot;:&quot; &amp; IF(MINUTE(TIMEVALUE(Inicio__c)) &lt; 10, &quot;0&quot;, &quot;&quot;) &amp; TEXT(MINUTE(TIMEVALUE(Inicio__c)))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Hora Início</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

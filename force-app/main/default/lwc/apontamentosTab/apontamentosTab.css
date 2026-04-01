@@ -1,0 +1,203 @@
+/* ── Container principal ─────────────────────────────────── */
+.ap-container {
+    padding: 12px;
+    font-family: var(--lwc-fontFamily, 'Salesforce Sans', Arial, sans-serif);
+}
+
+/* ── Navegação de semana ─────────────────────────────────── */
+.semana-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.semana-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c2c2c;
+    min-width: 160px;
+    text-align: center;
+}
+
+.btn-hoje {
+    margin-left: 4px;
+}
+
+.total-semana {
+    margin-left: auto;
+    font-size: 13px;
+    color: #5a5a5a;
+    font-weight: 500;
+}
+
+/* ── Loading ─────────────────────────────────────────────── */
+.loading {
+    display: flex;
+    justify-content: center;
+    padding: 40px;
+}
+
+/* ── Grade semanal ───────────────────────────────────────── */
+.semana-grid-wrapper {
+    overflow-x: auto;
+}
+
+.semana-grid {
+    display: flex;
+    min-width: 760px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* ── Eixo de horas (coluna esquerda) ────────────────────── */
+.hora-eixo {
+    width: 52px;
+    flex-shrink: 0;
+    background: #fafafa;
+    border-right: 1px solid #e0e0e0;
+}
+
+.dia-header-placeholder {
+    height: 56px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.hora-slots {
+    position: relative;
+    height: 720px; /* 9 horas × 80px */
+}
+
+.hora-slot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding-top: 4px;
+    padding-left: 4px;
+}
+
+.hora-slot-label {
+    font-size: 10px;
+    color: #888;
+}
+
+/* ── Colunas dos dias ────────────────────────────────────── */
+.dia-col {
+    flex: 1;
+    min-width: 100px;
+    border-left: 1px solid #e0e0e0;
+}
+
+.dia-hoje > .dia-header {
+    background: #e8f0fe;
+}
+
+.dia-header {
+    height: 56px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 6px 4px 4px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.dia-nome {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.dia-data {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.dia-hoje .dia-data {
+    color: #1a73e8;
+}
+
+.dia-total {
+    font-size: 10px;
+    color: #1a73e8;
+    font-weight: 600;
+}
+
+/* ── Corpo do dia (grid de tempo) ────────────────────────── */
+.dia-body {
+    position: relative;
+    /* 9 horas × 80px = 720px (09:00 até 18:00) */
+    height: 720px;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 79px,
+        #ebebeb 79px,
+        #ebebeb 80px
+    );
+}
+
+.hora-linha {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #e0e0e0;
+}
+
+.dia-vazio {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    text-align: center;
+    color: #ccc;
+    font-size: 18px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+/* ── Bloco de apontamento ────────────────────────────────── */
+.ap-block {
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    background: #1a73e8;
+    color: #fff;
+    border-radius: 4px;
+    padding: 3px 5px;
+    overflow: hidden;
+    cursor: default;
+    box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.ap-hora {
+    font-size: 10px;
+    opacity: .85;
+    white-space: nowrap;
+}
+
+.ap-nome {
+    font-size: 11px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ap-projeto {
+    font-size: 10px;
+    opacity: .75;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

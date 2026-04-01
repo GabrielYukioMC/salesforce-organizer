@@ -19,6 +19,13 @@
                 </div>
             </template>
 
+            <template if:true={periodoApontamento}>
+                <div class="task-date slds-grid slds-grid_vertical-align-center slds-m-top_xx-small">
+                    <lightning-icon icon-name="utility:date_time" size="xx-small"></lightning-icon>
+                    {periodoApontamento}
+                </div>
+            </template>
+
             <template if:true={isAtrasada}>
                 <span class="badge atrasada-badge slds-show_inline-block slds-m-top_xx-small">Atrasada</span>
             </template>
@@ -95,6 +102,46 @@
                             data-field="CloseDate__c"
                             onchange={handleChange}
                         ></lightning-input>
+
+                        <div class="apontamento-section">
+                            <p class="apontamento-label">Início da Tarefa</p>
+                            <div class="modal-grid">
+                                <lightning-input
+                                    type="date"
+                                    label="Data"
+                                    value={inicioDataStr}
+                                    data-field="InicioTarefa__c"
+                                    onchange={handleDataChange}
+                                ></lightning-input>
+                                <lightning-combobox
+                                    label="Hora"
+                                    value={inicioHoraStr}
+                                    options={horasOptions}
+                                    placeholder="Selecione..."
+                                    data-field="InicioTarefa__c"
+                                    onchange={handleHoraChange}
+                                ></lightning-combobox>
+                            </div>
+
+                            <p class="apontamento-label">Fim da Tarefa</p>
+                            <div class="modal-grid">
+                                <lightning-input
+                                    type="date"
+                                    label="Data"
+                                    value={fimDataStr}
+                                    data-field="FimTarefa__c"
+                                    onchange={handleDataChange}
+                                ></lightning-input>
+                                <lightning-combobox
+                                    label="Hora"
+                                    value={fimHoraStr}
+                                    options={horasOptions}
+                                    placeholder="Selecione..."
+                                    data-field="FimTarefa__c"
+                                    onchange={handleHoraChange}
+                                ></lightning-combobox>
+                            </div>
+                        </div>
 
                         <lightning-input-rich-text
                             label="Descrição"

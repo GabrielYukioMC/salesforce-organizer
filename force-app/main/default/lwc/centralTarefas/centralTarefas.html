@@ -16,6 +16,13 @@
             >
                 Ver Tasks
             </button>
+
+            <button
+                class={tabApontamentosClass}
+                onclick={abrirApontamentos}
+            >
+                Apontamentos
+            </button>
         </div>
 
         <!-- Conteúdo -->
@@ -29,7 +36,11 @@
             <!-- ABA VER -->
             <template if:true={abaVer}>
                 <c-exibir-tarefas-tab></c-exibir-tarefas-tab>
-            
+            </template>
+
+            <!-- ABA APONTAMENTOS -->
+            <template if:true={abaApontamentos}>
+                <c-apontamentos-tab></c-apontamentos-tab>
             </template>
 
         </div>

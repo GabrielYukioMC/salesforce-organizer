@@ -11,6 +11,12 @@ export default class TarefaKanbanCard extends LightningElement {
     @track salvando = false;
     @track novoItemChecklist = '';
 
+    // Partes separadas de data e hora para InicioTarefa__c e FimTarefa__c
+    @track inicioDataStr = '';
+    @track inicioHoraStr = '';
+    @track fimDataStr = '';
+    @track fimHoraStr = '';
+
     prioridades = [
         { label: 'Alta', value: 'Alta' },
         { label: 'Média', value: 'Média' },
@@ -31,6 +37,45 @@ export default class TarefaKanbanCard extends LightningElement {
         { label: 'Em espera', value: 'Em espera' },
         { label: 'Cancelado', value: 'Cancelado' }
     ];
+
+    // Opções de horário de 09:00 até 18:00 em intervalos de 30 min
+    get horasOptions() {
+        const options = [];
+        for (let h = 9; h <= 18; h++) {
+            const hh = String(h).padStart(2, '0');
+            options.push({ label: `${hh}:00`, value: `${hh}:00` });
+            if (h < 18) {
+                options.push({ label: `${hh}:30`, value: `${hh}:30` });
+            }
+        }
+        return options;
+    }
+
+    // Extrai "YYYY-MM-DD" (data local) de um campo DateTime ISO
+    _extrairData(isoStr) {
+        if (!isoStr) return '';
+        const d = new Date(isoStr);
+        const yyyy = d.getFullYear();
+        const mm   = String(d.getMonth() + 1).padStart(2, '0');
+        const dd   = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Extrai "HH:MM" (horário local) de um campo DateTime ISO
+    _extrairHora(isoStr) {
+        if (!isoStr) return '';
+        const d = new Date(isoStr);
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+    }
+
+    // Combina "YYYY-MM-DD" + "HH:MM" em um ISO string usando horário local
+    _combinarDatetime(dataStr, horaStr) {
+        if (!dataStr || !horaStr) return null;
+        const [h, m] = horaStr.split(':').map(Number);
+        const d = new Date(`${dataStr}T00:00:00`);
+        d.setHours(h, m, 0, 0);
+        return d.toISOString();
+    }
 
     get checklist() {
         try {
@@ -93,6 +138,23 @@ export default class TarefaKanbanCard extends LightningElement {
         return formatarDataHora(this.tarefa?.CloseDate__c);
     }
 
+    // Exibe "DD/MM · HH:MM – HH:MM" no card (Fim omitido se ainda não preenchido)
+    get periodoApontamento() {
+        const inicio = this.tarefa?.InicioTarefa__c;
+        if (!inicio) return null;
+
+        const dInicio  = new Date(inicio);
+        const data     = dInicio.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const hInicio  = `${String(dInicio.getHours()).padStart(2, '0')}:${String(dInicio.getMinutes()).padStart(2, '0')}`;
+
+        const fim = this.tarefa?.FimTarefa__c;
+        if (!fim) return `${data} · ${hInicio}`;
+
+        const dFim = new Date(fim);
+        const hFim = `${String(dFim.getHours()).padStart(2, '0')}:${String(dFim.getMinutes()).padStart(2, '0')}`;
+        return `${data} · ${hInicio} – ${hFim}`;
+    }
+
     get isAtrasada() {
         if (!this.tarefa?.CloseDate__c) return false;
         const s = this.tarefa.Status__c;
@@ -106,7 +168,11 @@ export default class TarefaKanbanCard extends LightningElement {
 
     abrirModal() {
         this.tarefaEditada = { ...this.tarefa };
-        this.modalAberto = true;
+        this.inicioDataStr = this._extrairData(this.tarefa.InicioTarefa__c);
+        this.inicioHoraStr = this._extrairHora(this.tarefa.InicioTarefa__c);
+        this.fimDataStr    = this._extrairData(this.tarefa.FimTarefa__c);
+        this.fimHoraStr    = this._extrairHora(this.tarefa.FimTarefa__c);
+        this.modalAberto   = true;
     }
 
     fecharModal() {
@@ -116,6 +182,30 @@ export default class TarefaKanbanCard extends LightningElement {
     handleChange(event) {
         const field = event.target.dataset.field;
         this.tarefaEditada = { ...this.tarefaEditada, [field]: event.target.value };
+    }
+
+    handleDataChange(event) {
+        const field   = event.target.dataset.field;
+        const novaData = event.target.value;
+        if (field === 'InicioTarefa__c') {
+            this.inicioDataStr = novaData;
+            this.tarefaEditada = { ...this.tarefaEditada, InicioTarefa__c: this._combinarDatetime(this.inicioDataStr, this.inicioHoraStr) };
+        } else {
+            this.fimDataStr = novaData;
+            this.tarefaEditada = { ...this.tarefaEditada, FimTarefa__c: this._combinarDatetime(this.fimDataStr, this.fimHoraStr) };
+        }
+    }
+
+    handleHoraChange(event) {
+        const field    = event.target.dataset.field;
+        const novaHora = event.target.value;
+        if (field === 'InicioTarefa__c') {
+            this.inicioHoraStr = novaHora;
+            this.tarefaEditada = { ...this.tarefaEditada, InicioTarefa__c: this._combinarDatetime(this.inicioDataStr, this.inicioHoraStr) };
+        } else {
+            this.fimHoraStr = novaHora;
+            this.tarefaEditada = { ...this.tarefaEditada, FimTarefa__c: this._combinarDatetime(this.fimDataStr, this.fimHoraStr) };
+        }
     }
 
     salvarTarefa() {

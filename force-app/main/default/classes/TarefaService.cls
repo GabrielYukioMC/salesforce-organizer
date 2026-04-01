@@ -91,9 +91,11 @@ public without sharing class TarefaService {
             Descricao__c  = tarefa.Descricao__c,
             Prioridade__c = tarefa.Prioridade__c,
             TipoTarefa__c = tarefa.TipoTarefa__c,
-            Status__c     = tarefa.Status__c,
-            CloseDate__c  = tarefa.CloseDate__c,
-            Checklist__c  = tarefa.Checklist__c
+            Status__c        = tarefa.Status__c,
+            CloseDate__c     = tarefa.CloseDate__c,
+            Checklist__c     = tarefa.Checklist__c,
+            InicioTarefa__c  = tarefa.InicioTarefa__c,
+            FimTarefa__c     = tarefa.FimTarefa__c
         );
         update atualizar;
     }
