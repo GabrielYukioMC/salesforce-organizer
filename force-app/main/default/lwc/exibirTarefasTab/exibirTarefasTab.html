@@ -60,6 +60,16 @@
                 variant="label-hidden"
                 class="filtro-select"
             ></lightning-combobox>
+            <lightning-combobox
+                label="Projeto"
+                placeholder="Todos os projetos"
+                value={filtroProjeto}
+                options={projetosOptions}
+                data-field="filtroProjeto"
+                onchange={handleFiltroChange}
+                variant="label-hidden"
+                class="filtro-select"
+            ></lightning-combobox>
             <template if:true={temFiltroAtivo}>
                 <lightning-button
                     label="Limpar filtros"

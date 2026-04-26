@@ -41,6 +41,21 @@
                 onclick={toggleRotinas}
             ></lightning-button>
 
+            <lightning-button
+                label={labelDestacar}
+                variant={variantDestacar}
+                class="btn-destacar"
+                onclick={toggleDestacar}
+            ></lightning-button>
+
+            <lightning-button
+                label="Enviar para Elera"
+                variant="success"
+                class="btn-enviar"
+                disabled={enviando}
+                onclick={enviarParaElera}
+            ></lightning-button>
+
             <span class="total-semana">{totalHorasSemana}h na semana</span>
         </div>
 

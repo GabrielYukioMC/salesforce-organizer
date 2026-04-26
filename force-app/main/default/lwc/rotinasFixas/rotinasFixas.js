@@ -4,6 +4,7 @@ import { refreshApex } from '@salesforce/apex';
 import buscarRotinas from '@salesforce/apex/ApontamentoFixoController.buscarRotinas';
 import salvarRotina  from '@salesforce/apex/ApontamentoFixoController.salvarRotina';
 import deletarRotina from '@salesforce/apex/ApontamentoFixoController.deletarRotina';
+import buscarProjetos from '@salesforce/apex/ProjetoController.buscarProjetos';
 
 const DIAS_OPTIONS = [
     { label: 'Seg', value: 'Seg' },
@@ -19,6 +20,7 @@ export default class RotinasFixas extends LightningElement {
     @track salvando   = false;
     @track mostrarForm = false;
     @track rotinaEditando = {};
+    @track projetos = [];
 
     diasOptions = DIAS_OPTIONS;
     _wiredResult;
@@ -31,6 +33,18 @@ export default class RotinasFixas extends LightningElement {
         }
     }
 
+    @wire(buscarProjetos)
+    wiredProjetos({ data }) {
+        if (data) this.projetos = data;
+    }
+
+    get projetosOptions() {
+        return [
+            { label: '— Nenhum —', value: '' },
+            ...this.projetos.map(p => ({ label: p.Name, value: p.Name }))
+        ];
+    }
+
     get semRotinas() {
         return !this.carregando && (!this.rotinas || this.rotinas.length === 0);
     }
@@ -38,6 +52,10 @@ export default class RotinasFixas extends LightningElement {
     get diasSelecionados() {
         const val = this.rotinaEditando.DiaDaSemana__c;
         return val ? val.split(';') : [];
+    }
+
+    get perfilReadOnly() {
+        return !!this.rotinaEditando.Projeto__c;
     }
 
     abrirNovaRotina() {
@@ -64,6 +82,16 @@ export default class RotinasFixas extends LightningElement {
         this.rotinaEditando = {
             ...this.rotinaEditando,
             [campo]: event.target.value
+        };
+    }
+
+    handleProjetoChange(event) {
+        const projetoNome = event.target.value;
+        const projeto = this.projetos.find(p => p.Name === projetoNome);
+        this.rotinaEditando = {
+            ...this.rotinaEditando,
+            Projeto__c: projetoNome || null,
+            PerfilDeAlocacao__c: projeto ? projeto.Perfil_Alocacao__c : ''
         };
     }
 

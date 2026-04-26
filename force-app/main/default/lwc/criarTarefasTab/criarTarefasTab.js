@@ -1,11 +1,26 @@
-import { LightningElement, track } from 'lwc';
+import { LightningElement, track, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
-import criarTarefa from '@salesforce/apex/TarefaController.criarTarefa';
+import criarTarefa    from '@salesforce/apex/TarefaController.criarTarefa';
+import buscarProjetos from '@salesforce/apex/ProjetoController.buscarProjetos';
 
 export default class CriarTarefasTab extends LightningElement {
 
-    @track tasks = [];
+    @track tasks    = [];
+    @track projetos = [];
+
+    @wire(buscarProjetos)
+    wiredProjetos({ data }) {
+        if (data) this.projetos = data;
+    }
+
+    get projetosOptions() {
+        return this.projetos.map(p => ({ label: p.Name, value: p.Id }));
+    }
+
+    get isTipoTrabalho() {
+        return this.novaTask.TipoTarefa__c === 'Trabalho';
+    }
 
     @track novaTask = {
         Name: '',
@@ -74,10 +89,14 @@ export default class CriarTarefasTab extends LightningElement {
         console.log('valor: ', event.target.value);
         
         
-        this.novaTask = {
-            ...this.novaTask,
-            [field]: event.target.value
-        };
+        const novaTask = { ...this.novaTask, [field]: event.target.value };
+
+        // Ao mudar tipo para não-Trabalho, limpa o projeto
+        if (field === 'TipoTarefa__c' && event.target.value !== 'Trabalho') {
+            novaTask.Projeto__c = null;
+        }
+
+        this.novaTask = novaTask;
 
         if (field === 'CloseDate__c') {
             this.calcularPrazo();
@@ -159,7 +178,8 @@ export default class CriarTarefasTab extends LightningElement {
             CloseDate__c: '',
             Descricao__c: '',
             Recorrente__c: false,
-            FrequenciaTarefa__c: 'Semanal'
+            FrequenciaTarefa__c: 'Semanal',
+            Projeto__c: null
         };
         this.prazoMensagem = null;
     }

@@ -1,104 +1,51 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
+
     <types>
-        <members>ApontamentoDTO</members>
         <members>ApontamentoBuilder</members>
         <members>ApontamentoSelector</members>
-        <members>ApontamentoController</members>
-        <members>ApontamentoFixoSelector</members>
-        <members>ApontamentoFixoService</members>
-        <members>ApontamentoFixoController</members>
-        <members>ApontamentoFixoServiceTest</members>
-        <members>TarefaTriggerHandler</members>
-        <members>TarefaController</members>
-        <members>TarefaService</members>
+        <members>EnvioApontamentoController</members>
+        <members>EnvioApontamentoService</members>
+        <members>ProjetoController</members>
+        <members>ProjetoSelector</members>
         <members>TarefaSelector</members>
-        <members>TarefaServiceTest</members>
-        <members>TransferenciaController</members>
-        <members>TransferenciaService</members>
-        <members>TransferenciaSelector</members>
-        <members>TransferenciaServiceTest</members>
-        <members>MetaController</members>
-        <members>MetaService</members>
-        <members>MetaSelector</members>
-        <members>MetaServiceTest</members>
+        <members>TarefaService</members>
+        <members>TarefaTriggerHandler</members>
         <name>ApexClass</name>
     </types>
     <types>
-        <members>centralTarefas</members>
-        <members>criarTarefasTab</members>
-        <members>exibirTarefasTab</members>
-        <members>tarefasKanban</members>
-        <members>tarefaKanbanCard</members>
-        <members>calendarioFinanceiro</members>
-        <members>orcamentoMensal</members>
-        <members>dashboardFinanceiro</members>
-        <members>metasFinanceiras</members>
-        <members>contasPagar</members>
-        <members>resumoMensal</members>
-        <members>homeWidget</members>
-        <members>apontamentosTab</members>
-        <members>rotinasFixas</members>
-        <name>LightningComponentBundle</name>
+        <members>ApontamentoDeHoras__c.JaEnviado__c</members>
+        <members>ApontamentoDeHoras__c.ProjetoLookup__c</members>
+        <members>IntegracaoElera__c.Endpoint__c</members>
+        <members>IntegracaoElera__c.Token1__c</members>
+        <members>IntegracaoElera__c.Token2__c</members>
+        <members>Projeto__c.Id_Elera__c</members>
+        <members>Projeto__c.Id_Perfil_Alocacao_Elera__c</members>
+        <members>Projeto__c.Perfil_Alocacao__c</members>
+        <members>Tarefa__c.Projeto__c</members>
+        <name>CustomField</name>
     </types>
     <types>
-        <members>TarefaTrigger</members>
-        <name>ApexTrigger</name>
-    </types>
-    <types>
-        <members>Transacao__c</members>
-        <members>Meta__c</members>
-        <members>Tarefa__c</members>
-        <members>ApontamentoDeHoras__c</members>
-        <members>ApontamentoFixo__c</members>
+        <members>IntegracaoElera__c</members>
+        <members>Projeto__c</members>
         <name>CustomObject</name>
     </types>
     <types>
-        <members>Transacao__c.Categoria__c</members>
-        <members>Transacao__c.Data__c</members>
-        <members>Transacao__c.Tipo__c</members>
-        <members>Transacao__c.Valor__c</members>
-        <members>Transacao__c.Pago__c</members>
-        <members>Transacao__c.Recorrente__c</members>
-        <members>Transacao__c.Frequencia__c</members>
-        <members>Meta__c.UsuarioProprietario__c</members>
-        <members>Meta__c.GastosFixos__c</members>
-        <members>Meta__c.ReservaEmergencia__c</members>
-        <members>Meta__c.Investimentos__c</members>
-        <members>Meta__c.QualidadeDeVida__c</members>
-        <members>Meta__c.DesenvolvimentoPessoal__c</members>
-        <members>Meta__c.Objetivos__c</members>
-        <members>Meta__c.Ativa__c</members>
-        <members>Meta__c.Descricao__c</members>
-        <members>Tarefa__c.InicioTarefa__c</members>
-        <members>Tarefa__c.FimTarefa__c</members>
-        <members>Tarefa__c.Status__c</members>
-        <members>Tarefa__c.Prioridade__c</members>
-        <members>Tarefa__c.TipoTarefa__c</members>
-        <members>Tarefa__c.CloseDate__c</members>
-        <members>Tarefa__c.Descricao__c</members>
-        <members>Tarefa__c.UsuarioProprietario__c</members>
-        <members>Tarefa__c.Arquivada__c</members>
-        <members>Tarefa__c.Checklist__c</members>
-        <members>Tarefa__c.Recorrente__c</members>
-        <members>Tarefa__c.FrequenciaTarefa__c</members>
-        <members>ApontamentoDeHoras__c.Inicio__c</members>
-        <members>ApontamentoDeHoras__c.Fim__c</members>
-        <members>ApontamentoDeHoras__c.Observacoes__c</members>
-        <members>ApontamentoDeHoras__c.Projeto__c</members>
-        <members>ApontamentoDeHoras__c.PerfilDeAlocacao__c</members>
-        <members>ApontamentoDeHoras__c.Data_Inicio__c</members>
-        <members>ApontamentoDeHoras__c.DuracaoHoras__c</members>
-        <members>ApontamentoDeHoras__c.TempoMinutos__c</members>
-        <members>ApontamentoDeHoras__c.HoraInicio__c</members>
-        <members>ApontamentoDeHoras__c.MesAno__c</members>
-        <members>ApontamentoDeHoras__c.DescricaoPerfilDeAlocacao__c</members>
-        <members>ApontamentoFixo__c.DiaDaSemana__c</members>
-        <members>ApontamentoFixo__c.HoraInicio__c</members>
-        <members>ApontamentoFixo__c.HoraFim__c</members>
-        <members>ApontamentoFixo__c.Projeto__c</members>
-        <members>ApontamentoFixo__c.PerfilDeAlocacao__c</members>
-        <name>CustomField</name>
+        <members>criar_taks_de_visita</members>
+        <name>Flow</name>
     </types>
+    <types>
+        <members>apontamentosTab</members>
+        <members>criarTarefasTab</members>
+        <members>exibirTarefasTab</members>
+        <members>rotinasFixas</members>
+        <members>tarefaKanbanCard</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>Elera_Org</members>
+        <name>RemoteSiteSetting</name>
+    </types>
+
     <version>59.0</version>
 </Package>

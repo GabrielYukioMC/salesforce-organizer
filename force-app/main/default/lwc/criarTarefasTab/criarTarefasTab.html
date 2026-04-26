@@ -53,6 +53,17 @@
             </div>
 
             
+            <template if:true={isTipoTrabalho}>
+                <lightning-combobox
+                    label="Projeto"
+                    placeholder="Selecione o projeto"
+                    value={novaTask.Projeto__c}
+                    options={projetosOptions}
+                    data-field="Projeto__c"
+                    onchange={handleChange}
+                ></lightning-combobox>
+            </template>
+
            <div class="prazo-wrapper">
                 <lightning-input
                     type="datetime-local"

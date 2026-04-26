@@ -168,7 +168,7 @@
     position: absolute;
     left: 3px;
     right: 3px;
-    background: #1a73e8;
+    background: #1a73e8; /* sobrescrito por inline style quando destacar ativo */
     color: #fff;
     border-radius: 4px;
     padding: 3px 5px;

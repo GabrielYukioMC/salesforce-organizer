@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Perfil_Alocacao__c</fullName>
+    <label>Perfil de Alocação</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>false</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Dev</fullName>
+                <label>Dev</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>Tech Lead</fullName>
+                <label>Tech Lead</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>QA</fullName>
+                <label>QA</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>Design</fullName>
+                <label>Design</label>
+                <default>false</default>
+            </value>
+            <value>
+                <fullName>Outro</fullName>
+                <label>Outro</label>
+                <default>false</default>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

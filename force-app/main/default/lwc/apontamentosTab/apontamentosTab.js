@@ -2,17 +2,43 @@ import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import buscarPorSemana          from '@salesforce/apex/ApontamentoController.buscarPorSemana';
 import gerarApontamentosSemana  from '@salesforce/apex/ApontamentoFixoController.gerarApontamentosSemana';
+import enviarSemana             from '@salesforce/apex/EnvioApontamentoController.enviarSemana';
 
 const PX_POR_HORA = 80;
 const HORA_INICIO  = 9;
 const HORA_FIM     = 18;
 const DIAS_NOMES   = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
+// ── Paleta "Ocean & Forest" ──────────────────────────────────
+// Degradê de verdes e azuis, sem vermelhos nem roxos.
+const COR_PADRAO   = '#3b82f6';  // azul moderno (padrão desativado)
+const COR_ESPECIAL = '#3b82f6';  // âmbar — COE, Almoço, COE Gestão
+const NOMES_CINZA  = new Set(['COE', 'Almoço', 'COE Gestão']);
+const CORES_DESTAQUE = [
+    '#166534', // verde floresta
+    '#15803d', // verde médio
+    '#16a34a', // verde vibrante
+    '#22c55e', // verde claro vivo — ainda legível em fundo escuro
+    '#0f766e', // teal escuro
+    '#0d9488', // teal médio
+    '#0891b2', // ciano profundo
+    '#0284c7', // azul céu
+    '#0369a1', // azul médio
+    '#1d4ed8', // azul royal
+    '#1e40af', // azul escuro
+    '#155e75', // azul petróleo
+    '#164e63', // azul petróleo escuro
+    '#065f46', // esmeralda escuro
+    '#064e3b', // verde profundo
+];
+
 export default class ApontamentosTab extends LightningElement {
 
     @track carregando     = false;
     @track gerandoSemana  = false;
     @track mostrarRotinas = false;
+    @track destacar       = false;
+    @track enviando       = false;
     @track apontamentos   = [];
     semanaInicio; // Date (segunda-feira da semana atual)
 
@@ -65,6 +91,41 @@ export default class ApontamentosTab extends LightningElement {
 
     toggleRotinas() {
         this.mostrarRotinas = !this.mostrarRotinas;
+    }
+
+    enviarParaElera() {
+        this.enviando = true;
+        enviarSemana({ semanaInicioISO: this._toDateStr(this.semanaInicio) })
+            .then(res => {
+                const msg = res.erros > 0
+                    ? `${res.enviados} enviados, ${res.erros} com erro.`
+                    : ` apontamentos enviados com sucesso.`;
+                this.dispatchEvent(new ShowToastEvent({
+                    title: res.erros > 0 ? 'Envio parcial' : 'Sucesso',
+                    message: msg,
+                    variant: res.erros > 0 ? 'warning' : 'success'
+                }));
+            })
+            .catch(err => {
+                this.dispatchEvent(new ShowToastEvent({
+                    title: 'Erro ao enviar',
+                    message: err.body?.message || 'Não foi possível enviar os apontamentos.',
+                    variant: 'error'
+                }));
+            })
+            .finally(() => { this.enviando = false; });
+    }
+
+    toggleDestacar() {
+        this.destacar = !this.destacar;
+    }
+
+    get labelDestacar() {
+        return this.destacar ? 'Destacar: ON' : 'Destacar';
+    }
+
+    get variantDestacar() {
+        return this.destacar ? 'brand' : 'neutral';
     }
 
     // ── Getters de apresentação ──────────────────────────────────
@@ -125,7 +186,8 @@ export default class ApontamentosTab extends LightningElement {
                     const apFim = a.Fim__c ? new Date(a.Fim__c) : new Date(apIni.getTime() + 3600000);
                     return apIni <= diaFim && apFim > diaInicio;
                 })
-                .map(a => this._mapApontamentoPorDia(a, d, chave));
+                .map(a => this._mapApontamentoPorDia(a, d, chave))
+                .filter(ap => ap !== null);
 
             // Total de horas: conta apenas apontamentos que COMEÇAM neste dia
             const totalHoras = this.apontamentos
@@ -199,14 +261,30 @@ const horaDecFim = Math.min(HORA_FIM, segFim.getHours() + segFim.getMinutes() / 
         const labelIni = isInicioNesteDia ? this._formatarHora(apInicio) : '↑';
         const labelFim = isFimNesteDia    ? this._formatarHora(apFim)    : '↓';
 
+        const bgColor = this._corApontamento(a.Name);
+
         return {
             ...a,
             segKey:     `${a.Id}_${chave}`,   // chave única por segmento de dia
             horaInicio: labelIni,
             horaFim:    labelFim,
-            style:      `top: ${top}px; height: ${height}px;`,
+            style:      `top: ${top}px; height: ${height}px; background: ${bgColor};`,
             isMultiDia: !isInicioNesteDia || !isFimNesteDia
         };
+    }
+
+    _corApontamento(nome) {
+        if (!this.destacar) return COR_PADRAO;
+        if (NOMES_CINZA.has(nome)) return COR_ESPECIAL;
+        return CORES_DESTAQUE[this._hashNome(nome)];
+    }
+
+    _hashNome(nome) {
+        let hash = 0;
+        for (let i = 0; i < nome.length; i++) {
+            hash = (hash * 31 + nome.codePointAt(i)) & 0x7fffffff;
+        }
+        return hash % CORES_DESTAQUE.length;
     }
 
     _getDomingo(d) {

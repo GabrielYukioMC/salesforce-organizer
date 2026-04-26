@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -E \"\\\\.\\(cls|trigger\\)$\")"
+      "Bash(grep -E \"\\\\.\\(cls|trigger\\)$\")",
+      "Bash(mkdir -p /tmp/sf-destructive)",
+      "Bash(/tmp/sf-destructive/destructiveChanges.xml:*)",
+      "Bash(/tmp/sf-destructive/package.xml:*)",
+      "Bash(sf sobject:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(f['name']\\) for f in d['result']['fields'] if 'nviado' in f['name'] or 'nviado' in f.get\\('label',''\\)]\")"
     ]
   }
 }

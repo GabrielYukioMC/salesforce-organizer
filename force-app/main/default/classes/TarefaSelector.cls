@@ -14,6 +14,8 @@ public without sharing class TarefaSelector {
                 Checklist__c,
                 InicioTarefa__c,
                 FimTarefa__c,
+                Projeto__c,
+                Projeto__r.Name,
                 CreatedDate
             FROM Tarefa__c
             WHERE UsuarioProprietario__c = :usuarioId
@@ -35,6 +37,8 @@ public without sharing class TarefaSelector {
                 TipoTarefa__c,
                 CloseDate__c,
                 Descricao__c,
+                Projeto__c,
+                Projeto__r.Name,
                 LastModifiedDate
             FROM Tarefa__c
             WHERE UsuarioProprietario__c = :usuarioId

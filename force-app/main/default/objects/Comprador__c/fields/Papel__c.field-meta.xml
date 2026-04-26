@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Papel__c</fullName>
+    <label>Papel</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Comprador</fullName>
+                <default>true</default>
+                <label>Comprador</label>
+            </value>
+            <value>
+                <fullName>Co-comprador</fullName>
+                <default>false</default>
+                <label>Co-comprador</label>
+            </value>
+            <value>
+                <fullName>Fiador</fullName>
+                <default>false</default>
+                <label>Fiador</label>
+            </value>
+            <value>
+                <fullName>Cônjuge</fullName>
+                <default>false</default>
+                <label>Cônjuge</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,29 @@
+<template>
+    <lightning-card title="Contas da Oportunidade" icon-name="standard:account">
+        <div class="slds-m-around_medium">
+            <p><strong>Record ID:</strong> {recordId}</p>
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Carregando..." size="small"></lightning-spinner>
+            </template>
+
+            <template if:false={isLoading}>
+                <template if:true={semContas}>
+                    <p class="slds-text-color_weak slds-m-top_small">
+                        Nenhuma conta vinculada a esta oportunidade.
+                    </p>
+                </template>
+
+                <template if:false={semContas}>
+                    <lightning-datatable
+                        key-field="id"
+                        data={contas}
+                        columns={columns}
+                        draft-values={draftValues}
+                        onsave={handleSave}
+                        hide-checkbox-column
+                    ></lightning-datatable>
+                </template>
+            </template>
+        </div>
+    </lightning-card>
+</template>

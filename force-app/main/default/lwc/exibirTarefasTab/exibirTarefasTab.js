@@ -1,17 +1,19 @@
 import { LightningElement, wire, track, api } from 'lwc';
 import { refreshApex } from '@salesforce/apex';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
-import buscarMinhasTarefas from '@salesforce/apex/TarefaController.buscarTarefasPorUsuarioKanban';
+import buscarMinhasTarefas     from '@salesforce/apex/TarefaController.buscarTarefasPorUsuarioKanban';
 import buscarTarefasArquivadas from '@salesforce/apex/TarefaController.buscarTarefasArquivadas';
-import apagarTarefasAntigas from '@salesforce/apex/TarefaController.apagarTarefasAntigas';
-import atualizarTarefa from '@salesforce/apex/TarefaController.atualizarTarefa';
-import deletarTarefa from '@salesforce/apex/TarefaController.deletarTarefa';
+import apagarTarefasAntigas    from '@salesforce/apex/TarefaController.apagarTarefasAntigas';
+import atualizarTarefa         from '@salesforce/apex/TarefaController.atualizarTarefa';
+import deletarTarefa           from '@salesforce/apex/TarefaController.deletarTarefa';
+import buscarProjetos          from '@salesforce/apex/ProjetoController.buscarProjetos';
 
 const COLUMNS = [
     { label: 'Título', fieldName: 'Name', type: 'text', sortable: true, wrapText: true },
     { label: 'Status', fieldName: 'Status__c', type: 'text', sortable: true },
     { label: 'Prioridade', fieldName: 'Prioridade__c', type: 'text', sortable: true },
     { label: 'Tipo', fieldName: 'TipoTarefa__c', type: 'text' },
+    { label: 'Projeto', fieldName: 'projetoNome', type: 'text' },
     {
         label: 'Prazo',
         fieldName: 'CloseDate__c',
@@ -37,9 +39,11 @@ export default class ExibirTarefasTab extends LightningElement {
     @track modalEditarAberto = false;
     @track tarefaEditada = {};
     @track salvando = false;
-    @track filtroBusca = '';
-    @track filtroTipo = '';
+    @track filtroBusca    = '';
+    @track filtroTipo     = '';
     @track filtroPrioridade = '';
+    @track filtroProjeto  = '';
+    @track projetos       = [];
     @track exibeHistorico = false;
     @track tarefasArquivadas = [];
     _wiredTarefasResult;
@@ -67,6 +71,18 @@ export default class ExibirTarefasTab extends LightningElement {
         { label: 'Outros', value: 'Outros' }
     ];
 
+    @wire(buscarProjetos)
+    wiredProjetos({ data }) {
+        if (data) this.projetos = data;
+    }
+
+    get projetosOptions() {
+        return [
+            { label: 'Todos', value: '' },
+            ...this.projetos.map(p => ({ label: p.Name, value: p.Id }))
+        ];
+    }
+
     @wire(buscarMinhasTarefas)
     wiredTarefas(result) {
         this._wiredTarefasResult = result;
@@ -74,6 +90,7 @@ export default class ExibirTarefasTab extends LightningElement {
         if (data) {
             this.tarefas = data.map(tarefa => ({
                 ...tarefa,
+                projetoNome: tarefa.Projeto__r ? tarefa.Projeto__r.Name : '',
                 classCard: this._buildClassCard(tarefa)
             }));
         } else if (error) {
@@ -107,7 +124,7 @@ export default class ExibirTarefasTab extends LightningElement {
     get listVariant() { return this.viewMode === 'list' ? 'brand' : 'neutral'; }
     get kanbanVariant() { return this.viewMode === 'kanban' ? 'brand' : 'neutral'; }
     get labelHistorico() { return this.exibeHistorico ? 'Ocultar Histórico' : 'Ver Histórico'; }
-    get temFiltroAtivo() { return !!(this.filtroBusca || this.filtroTipo || this.filtroPrioridade); }
+    get temFiltroAtivo() { return !!(this.filtroBusca || this.filtroTipo || this.filtroPrioridade || this.filtroProjeto); }
 
     get tarefasFiltradas() {
         let lista = this.tarefas;
@@ -121,6 +138,9 @@ export default class ExibirTarefasTab extends LightningElement {
         if (this.filtroPrioridade) {
             lista = lista.filter(t => t.Prioridade__c === this.filtroPrioridade);
         }
+        if (this.filtroProjeto) {
+            lista = lista.filter(t => t.Projeto__c === this.filtroProjeto);
+        }
         return lista;
     }
 
@@ -130,9 +150,10 @@ export default class ExibirTarefasTab extends LightningElement {
     }
 
     handleLimparFiltros() {
-        this.filtroBusca = '';
-        this.filtroTipo = '';
+        this.filtroBusca    = '';
+        this.filtroTipo     = '';
         this.filtroPrioridade = '';
+        this.filtroProjeto  = '';
     }
 
     handleToggleHistorico() {

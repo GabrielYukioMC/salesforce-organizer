@@ -47,19 +47,20 @@
                     ></lightning-input>
                 </div>
                 <div class="form-row form-row-inline">
-                    <lightning-input
+                    <lightning-combobox
                         label="Projeto"
                         value={rotinaEditando.Projeto__c}
-                        data-field="Projeto__c"
-                        onchange={handleFieldChange}
+                        options={projetosOptions}
                         placeholder="Opcional"
-                    ></lightning-input>
+                        onchange={handleProjetoChange}
+                    ></lightning-combobox>
                     <lightning-input
                         label="Perfil de Alocação"
                         value={rotinaEditando.PerfilDeAlocacao__c}
                         data-field="PerfilDeAlocacao__c"
                         onchange={handleFieldChange}
-                        placeholder="Opcional"
+                        placeholder="Auto preenchido pelo projeto"
+                        disabled={perfilReadOnly}
                     ></lightning-input>
                 </div>
                 <div class="form-actions">

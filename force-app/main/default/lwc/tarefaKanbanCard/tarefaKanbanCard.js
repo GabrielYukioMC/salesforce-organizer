@@ -1,7 +1,8 @@
-import { LightningElement, api, track } from 'lwc';
+import { LightningElement, api, track, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { formatarDataHora } from 'c/utils';
 import atualizarTarefa from '@salesforce/apex/TarefaController.atualizarTarefa';
+import buscarProjetos  from '@salesforce/apex/ProjetoController.buscarProjetos';
 
 export default class TarefaKanbanCard extends LightningElement {
     @api tarefa;
@@ -16,6 +17,21 @@ export default class TarefaKanbanCard extends LightningElement {
     @track inicioHoraStr = '';
     @track fimDataStr = '';
     @track fimHoraStr = '';
+
+    @track projetos = [];
+
+    @wire(buscarProjetos)
+    wiredProjetos({ data }) {
+        if (data) this.projetos = data;
+    }
+
+    get projetosOptions() {
+        return this.projetos.map(p => ({ label: p.Name, value: p.Id }));
+    }
+
+    get isTipoTrabalho() {
+        return this.tarefaEditada.TipoTarefa__c === 'Trabalho';
+    }
 
     prioridades = [
         { label: 'Alta', value: 'Alta' },
@@ -181,7 +197,12 @@ export default class TarefaKanbanCard extends LightningElement {
 
     handleChange(event) {
         const field = event.target.dataset.field;
-        this.tarefaEditada = { ...this.tarefaEditada, [field]: event.target.value };
+        const novaEditada = { ...this.tarefaEditada, [field]: event.target.value };
+        // Ao mudar tipo para não-Trabalho, limpa o projeto
+        if (field === 'TipoTarefa__c' && event.target.value !== 'Trabalho') {
+            novaEditada.Projeto__c = null;
+        }
+        this.tarefaEditada = novaEditada;
     }
 
     handleDataChange(event) {
