@@ -97,6 +97,10 @@ public without sharing class TransferenciaService {
         return resultado;
     }
 
+    public static Map<String, Decimal> getTotaisPatrimonioAtual() {
+        return TransferenciaSelector.buscarTotaisPatrimonioAtual();
+    }
+
     public static  List<Transacao__c> getTransacoesPorUsuarioEData(String data) {
         List<String> partesData = data.split('-');
         Integer ano = Integer.valueOf(partesData[0]);

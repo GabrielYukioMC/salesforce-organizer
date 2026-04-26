@@ -2,49 +2,15 @@
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
 
     <types>
-        <members>ApontamentoBuilder</members>
-        <members>ApontamentoSelector</members>
-        <members>EnvioApontamentoController</members>
-        <members>EnvioApontamentoService</members>
-        <members>ProjetoController</members>
-        <members>ProjetoSelector</members>
-        <members>TarefaSelector</members>
-        <members>TarefaService</members>
-        <members>TarefaTriggerHandler</members>
+        <members>TransferenciaController</members>
+        <members>TransferenciaSelector</members>
+        <members>TransferenciaService</members>
         <name>ApexClass</name>
     </types>
     <types>
-        <members>ApontamentoDeHoras__c.JaEnviado__c</members>
-        <members>ApontamentoDeHoras__c.ProjetoLookup__c</members>
-        <members>IntegracaoElera__c.Endpoint__c</members>
-        <members>IntegracaoElera__c.Token1__c</members>
-        <members>IntegracaoElera__c.Token2__c</members>
-        <members>Projeto__c.Id_Elera__c</members>
-        <members>Projeto__c.Id_Perfil_Alocacao_Elera__c</members>
-        <members>Projeto__c.Perfil_Alocacao__c</members>
-        <members>Tarefa__c.Projeto__c</members>
-        <name>CustomField</name>
-    </types>
-    <types>
-        <members>IntegracaoElera__c</members>
-        <members>Projeto__c</members>
-        <name>CustomObject</name>
-    </types>
-    <types>
-        <members>criar_taks_de_visita</members>
-        <name>Flow</name>
-    </types>
-    <types>
-        <members>apontamentosTab</members>
-        <members>criarTarefasTab</members>
-        <members>exibirTarefasTab</members>
-        <members>rotinasFixas</members>
-        <members>tarefaKanbanCard</members>
+        <members>dashboardFinanceiro</members>
+        <members>simuladorFinanceiro</members>
         <name>LightningComponentBundle</name>
-    </types>
-    <types>
-        <members>Elera_Org</members>
-        <name>RemoteSiteSetting</name>
     </types>
 
     <version>59.0</version>

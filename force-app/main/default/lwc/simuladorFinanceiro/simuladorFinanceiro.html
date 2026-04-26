@@ -1,0 +1,171 @@
+<template>
+    <div class="simulador-container">
+
+        <div class="painel-topo">
+
+            <!-- Parâmetros -->
+            <div class="card-parametros">
+                <h3 class="card-titulo">Parâmetros</h3>
+
+                <div class="campo-grupo">
+                    <label class="campo-label">Renda mensal líquida (R$)</label>
+                    <lightning-input
+                        type="number"
+                        value={rendaMensal}
+                        onchange={handleRendaChange}
+                        variant="label-hidden"
+                        step="100"
+                        min="0"
+                    ></lightning-input>
+                </div>
+
+                <div class="campo-grupo">
+                    <label class="campo-label">Horizonte temporal</label>
+                    <lightning-combobox
+                        value={horizonteMesesString}
+                        options={opcoesHorizonte}
+                        onchange={handleHorizonteChange}
+                        variant="label-hidden"
+                    ></lightning-combobox>
+                </div>
+
+                <div class="campo-grupo">
+                    <label class="campo-label">Rendimento investimentos (% a.m.)</label>
+                    <lightning-input
+                        type="number"
+                        value={rendimentoMensalPercentual}
+                        onchange={handleRendimentoChange}
+                        variant="label-hidden"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                    ></lightning-input>
+                </div>
+
+                <div class="campo-grupo">
+                    <label class="campo-label">Inflação estimada (% a.m.)</label>
+                    <lightning-input
+                        type="number"
+                        value={inflacaoMensalPercentual}
+                        onchange={handleInflacaoChange}
+                        variant="label-hidden"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                    ></lightning-input>
+                </div>
+
+                <div class="campo-grupo">
+                    <lightning-input
+                        type="checkbox"
+                        label="Usar médias históricas (6 meses)"
+                        checked={usarMediasHistoricas}
+                        onchange={handleUsarMediasHistoricas}
+                    ></lightning-input>
+                </div>
+
+                <template if:true={temSaldoReal}>
+                    <div class="patrimonio-atual">
+                        <p class="patrimonio-titulo">Patrimônio Atual</p>
+                        <div class="patrimonio-grid">
+                            <div class="patrimonio-item">
+                                <span class="patrimonio-label">Reserva</span>
+                                <span class="patrimonio-valor patrimonio-azul">{saldoRealReservaFormatado}</span>
+                            </div>
+                            <div class="patrimonio-item">
+                                <span class="patrimonio-label">Investido</span>
+                                <span class="patrimonio-valor patrimonio-verde">{saldoRealInvestidoFormatado}</span>
+                            </div>
+                        </div>
+                        <lightning-input
+                            type="checkbox"
+                            label="Usar como ponto de partida da simulação"
+                            checked={usarSaldoReal}
+                            onchange={handleUsarSaldoReal}
+                        ></lightning-input>
+                    </div>
+                </template>
+
+                <div class="acoes">
+                    <button class="botao-simular" onclick={handleSimular}>Simular</button>
+                </div>
+            </div>
+
+            <!-- Distribuição + Marcos -->
+            <div class="card-distribuicao">
+                <h3 class="card-titulo">Distribuição Mensal</h3>
+
+                <template if:true={temDistribuicao}>
+                    <div class="lista-categorias">
+                        <template for:each={distribuicaoCategoria} for:item="categoria">
+                            <div key={categoria.chave} class="linha-categoria">
+                                <div class="categoria-cabecalho">
+                                    <span class="categoria-nome">{categoria.rotulo}</span>
+                                    <span class="categoria-percentual">{categoria.percentualFormatado}</span>
+                                    <span class="categoria-valor">{categoria.valorFormatado}</span>
+                                </div>
+                                <div class="barra-container">
+                                    <div class="barra-preenchimento" style={categoria.estilosBarra}></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </template>
+
+                <template if:true={simulacaoRealizada}>
+                    <div class="separador"></div>
+                    <h4 class="subtitulo">Marcos Financeiros</h4>
+                    <template if:true={temMarcos}>
+                        <div class="lista-marcos">
+                            <template for:each={marcosFinanceiros} for:item="marco">
+                                <div key={marco.rotulo} class="linha-marco">
+                                    <span class="marco-icone">✓</span>
+                                    <div class="marco-info">
+                                        <span class="marco-rotulo">{marco.rotulo}</span>
+                                        <span class="marco-periodo">{marco.mensagemMeses}</span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    <template if:false={temMarcos}>
+                        <p class="texto-vazio">Nenhum marco atingido no horizonte definido.</p>
+                    </template>
+                </template>
+            </div>
+        </div>
+
+        <template if:true={simulacaoRealizada}>
+
+            <!-- Gráfico -->
+            <div class="card-grafico">
+                <h3 class="card-titulo">Evolução Patrimonial</h3>
+                <div class="grafico-wrapper">
+                    <canvas class="grafico-evolucao"></canvas>
+                </div>
+            </div>
+
+            <!-- Totais -->
+            <div class="cards-totais">
+                <div class="card-total">
+                    <p class="total-label">Saldo Investimentos</p>
+                    <p class="total-valor">{totalInvestidoFormatado}</p>
+                </div>
+                <div class="card-total">
+                    <p class="total-label">Saldo Reserva</p>
+                    <p class="total-valor total-azul">{totalReservaFormatado}</p>
+                </div>
+                <div class="card-total">
+                    <p class="total-label">Rendimento Acumulado</p>
+                    <p class="total-valor total-verde">{rendimentoAcumuladoFormatado}</p>
+                </div>
+                <div class="card-total">
+                    <p class="total-label">Patrimônio Final</p>
+                    <p class="total-valor total-roxo">{economiaTotalFormatado}</p>
+                </div>
+            </div>
+
+        </template>
+
+    </div>
+</template>

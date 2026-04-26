@@ -54,6 +54,17 @@ public without sharing class TransferenciaController {
         }
     }
 
+    @AuraEnabled(cacheable=true)
+    public static Map<String, Decimal> getTotaisPatrimonioAtual() {
+        try {
+            return TransferenciaService.getTotaisPatrimonioAtual();
+        } catch (AuraHandledException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
+
     @AuraEnabled
     public static List<Transacao__c> getTransacoesPorUsuarioEData(String data) {
         try {
