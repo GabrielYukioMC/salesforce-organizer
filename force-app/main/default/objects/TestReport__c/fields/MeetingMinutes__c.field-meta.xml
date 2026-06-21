@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>MeetingMinutes__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Meeting Minutes</label>
+    <referenceTo>MeetingMinutes__c</referenceTo>
+    <relationshipLabel>Test Reports</relationshipLabel>
+    <relationshipName>Test_Reports</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

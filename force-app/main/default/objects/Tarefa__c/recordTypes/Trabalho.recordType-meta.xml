@@ -4,6 +4,21 @@
     <active>true</active>
     <label>Trabalho</label>
     <picklistValues>
+        <picklist>FrequenciaTarefa__c</picklist>
+        <values>
+            <fullName>Mensal</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Quinzenal</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Semanal</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Prioridade__c</picklist>
         <values>
             <fullName>Alta</fullName>

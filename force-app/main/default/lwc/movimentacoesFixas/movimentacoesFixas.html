@@ -1,0 +1,51 @@
+<template>
+    <lightning-card title="Movimentações Fixas" icon-name="custom:custom63">
+        <div class="container">
+
+            <lightning-input
+                label="Descrição"
+                value={descricao}
+                onchange={handleDescricao}>
+            </lightning-input>
+
+            <lightning-input
+                type="number"
+                label="Valor"
+                step="0.01"
+                onchange={handleValor}>
+            </lightning-input>
+
+            <lightning-combobox
+                label="Tipo"
+                value={tipo}
+                options={tipoOptions}
+                onchange={handleTipo}>
+            </lightning-combobox>
+
+            <lightning-combobox
+                label="Recorrência"
+                value={recorrencia}
+                options={recorrenciaOptions}
+                onchange={handleRecorrencia}>
+            </lightning-combobox>
+
+            <template if:true={mostrarMesInicio}>
+                <lightning-input
+                    type="month"
+                    label="Mês inicial"
+                    value={mesInicio}
+                    onchange={handleMesInicio}>
+                </lightning-input>
+            </template>
+
+            <div class="actions">
+                <lightning-button
+                    variant="brand"
+                    label="Salvar fixo"
+                    onclick={salvarFixo}>
+                </lightning-button>
+            </div>
+
+        </div>
+    </lightning-card>
+</template>

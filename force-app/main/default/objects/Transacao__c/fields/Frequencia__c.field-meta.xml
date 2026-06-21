@@ -24,6 +24,18 @@
                 <default>false</default>
                 <label>Anual</label>
             </value>
+            <value>
+                <fullName>Semanal</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Semanal</label>
+            </value>
+            <value>
+                <fullName>Unica</fullName>
+                <default>false</default>
+                <isActive>false</isActive>
+                <label>Unica</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
 </CustomField>

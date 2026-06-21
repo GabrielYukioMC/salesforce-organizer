@@ -3,7 +3,6 @@
     <fullName>Descricao__c</fullName>
     <label>Descrição</label>
     <length>1000</length>
-    <required>false</required>
     <trackTrending>false</trackTrending>
     <type>LongTextArea</type>
     <visibleLines>3</visibleLines>

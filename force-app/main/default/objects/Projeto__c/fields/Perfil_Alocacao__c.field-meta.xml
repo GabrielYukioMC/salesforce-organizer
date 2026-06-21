@@ -6,33 +6,32 @@
     <trackTrending>false</trackTrending>
     <type>Picklist</type>
     <valueSet>
-        <restricted>false</restricted>
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Dev</fullName>
-                <label>Dev</label>
+                <fullName>Desenvolvedor</fullName>
                 <default>false</default>
+                <label>Dev</label>
             </value>
             <value>
                 <fullName>Tech Lead</fullName>
-                <label>Tech Lead</label>
                 <default>false</default>
+                <label>Tech Lead</label>
             </value>
             <value>
                 <fullName>QA</fullName>
-                <label>QA</label>
                 <default>false</default>
+                <label>QA</label>
             </value>
             <value>
                 <fullName>Design</fullName>
-                <label>Design</label>
                 <default>false</default>
+                <label>Design</label>
             </value>
             <value>
                 <fullName>Outro</fullName>
-                <label>Outro</label>
                 <default>false</default>
+                <label>Outro</label>
             </value>
         </valueSetDefinition>
     </valueSet>

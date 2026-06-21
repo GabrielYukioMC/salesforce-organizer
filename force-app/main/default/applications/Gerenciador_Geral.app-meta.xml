@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <brand>
+        <headerColor>#0070D2</headerColor>
+        <shouldOverrideOrgTheme>false</shouldOverrideOrgTheme>
+    </brand>
+    <formFactors>Small</formFactors>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>Gerenciador Geral</label>
+    <navType>Standard</navType>
+    <tabs>Central_de_Tarefas</tabs>
+    <tabs>Central_Financeiro</tabs>
+    <tabs>Projeto__c</tabs>
+    <tabs>ApontamentoDeHoras__c</tabs>
+    <tabs>Comprador__c</tabs>
+    <uiType>Lightning</uiType>
+    <utilityBar>Gerenciador_Geral_UtilityBar</utilityBar>
+</CustomApplication>

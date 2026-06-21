@@ -2,7 +2,9 @@
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>RendaMensal__c</fullName>
     <label>Renda Mensal</label>
-    <type>Currency</type>
     <precision>16</precision>
+    <required>false</required>
     <scale>2</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <type>Currency</type>
 </CustomField>

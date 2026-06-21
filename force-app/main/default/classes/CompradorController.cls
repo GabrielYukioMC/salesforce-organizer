@@ -7,6 +7,5 @@ public with sharing class CompradorController {
     @AuraEnabled
     public static void saveContas(List<Account> contas) {
         update contas;
-        
     }
 }

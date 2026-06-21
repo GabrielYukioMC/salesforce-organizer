@@ -3,7 +3,6 @@
     <fullName>JaEnviado__c</fullName>
     <defaultValue>false</defaultValue>
     <label>Já Enviado</label>
-    <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Checkbox</type>
 </CustomField>

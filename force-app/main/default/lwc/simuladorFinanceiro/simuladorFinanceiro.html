@@ -135,7 +135,99 @@
             </div>
         </div>
 
+        <!-- Compras Planejadas -->
+        <div class="card-compras">
+            <div class="compras-cabecalho">
+                <h3 class="card-titulo">Compras Planejadas</h3>
+                <button class="botao-nova-compra" onclick={handleToggleFormCompra}>+ Adicionar</button>
+            </div>
+
+            <template if:true={temComprasPlaneadas}>
+                <div class="lista-compras">
+                    <template for:each={comprasPlaneadasFormatadas} for:item="compra">
+                        <div key={compra.id} class="linha-compra">
+                            <div class="compra-info">
+                                <span class="compra-descricao">{compra.descricao}</span>
+                                <span class="compra-detalhe">{compra.rotuloParcelamento} · a partir do mês {compra.mesInicio}</span>
+                            </div>
+                            <span class="compra-valor">{compra.valorFormatado}</span>
+                            <button class="botao-remover-compra" data-id={compra.id} onclick={handleRemoverCompra}>×</button>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={mostrarFormCompra}>
+                <div class="form-compra">
+                    <div class="form-compra-grid">
+                        <div class="campo-grupo">
+                            <label class="campo-label">Descrição</label>
+                            <lightning-input
+                                type="text"
+                                value={novaCompra.descricao}
+                                data-campo="descricao"
+                                onchange={handleNovaCompraChange}
+                                variant="label-hidden"
+                                placeholder="Ex: Computador, Viagem..."
+                            ></lightning-input>
+                        </div>
+                        <div class="campo-grupo">
+                            <label class="campo-label">Valor total (R$)</label>
+                            <lightning-input
+                                type="number"
+                                value={novaCompra.valor}
+                                data-campo="valor"
+                                onchange={handleNovaCompraChange}
+                                variant="label-hidden"
+                                min="0"
+                                step="100"
+                            ></lightning-input>
+                        </div>
+                        <div class="campo-grupo">
+                            <label class="campo-label">Mês início</label>
+                            <lightning-input
+                                type="number"
+                                value={novaCompra.mesInicio}
+                                data-campo="mesInicio"
+                                onchange={handleNovaCompraChange}
+                                variant="label-hidden"
+                                min="1"
+                                max="60"
+                            ></lightning-input>
+                            <template if:true={labelMesInicioNovaCompra}>
+                                <span class="campo-hint">{labelMesInicioNovaCompra}</span>
+                            </template>
+                            <template if:true={novaCompraForaDaHorizonte}>
+                                <span class="campo-aviso">Fora do horizonte atual — ajuste o horizonte para incluir.</span>
+                            </template>
+                        </div>
+                        <div class="campo-grupo">
+                            <label class="campo-label">Parcelas (1 = à vista)</label>
+                            <lightning-input
+                                type="number"
+                                value={novaCompra.numeroParcelas}
+                                data-campo="numeroParcelas"
+                                onchange={handleNovaCompraChange}
+                                variant="label-hidden"
+                                min="1"
+                                max="60"
+                            ></lightning-input>
+                        </div>
+                    </div>
+                    <button class="botao-confirmar-compra" onclick={handleAdicionarCompra}>Adicionar</button>
+                </div>
+            </template>
+        </div>
+
         <template if:true={simulacaoRealizada}>
+
+            <!-- Alerta de déficit -->
+            <template if:true={temDeficit}>
+                <div class="alerta-deficit">
+                    <span class="alerta-icone">⚠</span>
+                    <span>{mensagemDeficit}</span>
+                </div>
+            </template>
 
             <!-- Gráfico -->
             <div class="card-grafico">

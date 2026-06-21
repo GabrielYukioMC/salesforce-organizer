@@ -88,4 +88,3 @@ export function parseBoolean(valor) {
     }
     return false;
 }
- 
