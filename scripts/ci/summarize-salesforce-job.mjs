@@ -485,16 +485,59 @@ function buildTestClassesSection(testClasses, junitResults, hasDeployableChanges
   return lines.join("\n");
 }
 
-function buildCoverageSection(coverageData, junitResults) {
+function extractRawCoverage(rawCoverage, className) {
+  if (!rawCoverage || typeof rawCoverage !== "object") return null;
+
+  for (const [key, value] of Object.entries(rawCoverage)) {
+    if (key === "total") continue;
+    const baseName = path.posix
+      .basename(key.replaceAll("\\", "/"))
+      .replace(/\.cls(-meta\.xml)?$/i, "");
+    if (baseName.toLowerCase() === className.toLowerCase()) {
+      const pct = value?.lines?.pct ?? value?.statements?.pct ?? null;
+      return pct != null ? Number(Number(pct).toFixed(2)) : null;
+    }
+  }
+
+  const directValue = rawCoverage[className] ?? rawCoverage[className.toLowerCase()];
+  if (directValue) {
+    const pct = directValue?.lines?.pct ?? directValue?.statements?.pct ?? null;
+    return pct != null ? Number(Number(pct).toFixed(2)) : null;
+  }
+
+  return null;
+}
+
+function buildCoverageSection(coverageData, junitResults, apexTargets, rawCoverage) {
   const rows = coverageData?.rows ?? [];
   const testStats = aggregateTestStats(junitResults);
   const totalErrors = testStats.failures + testStats.errors;
   const totalTests = testStats.total || 0;
   const errorText = `${totalErrors}/${totalTests} erros`;
   const lines = ["### Cobertura"];
+  const minThreshold = Number(threshold);
 
   if (rows.length === 0) {
-    lines.push(`- Nao aplicavel - ${errorText} - ${salesforceStatus === "failure" ? "falhou" : "sem cobertura Apex alterada"}`);
+    const productionTargets = apexTargets.filter((t) => !/test$/i.test(t));
+
+    if (productionTargets.length > 0 && (salesforceStatus === "failure" || coverageStatus === "failure")) {
+      for (const target of productionTargets) {
+        const pct = extractRawCoverage(rawCoverage, target);
+        const pctText = pct != null ? `${pct}%` : "nao encontrada";
+        const detail =
+          pct == null
+            ? "nao encontrada - validate falhou"
+            : pct < minThreshold
+              ? `insuficiente (minimo ${minThreshold}%)`
+              : "falhou";
+        lines.push(`- ${target} - ${pctText} - ${errorText} - ${detail}`);
+      }
+      return lines.join("\n");
+    }
+
+    lines.push(
+      `- Nao aplicavel - ${errorText} - ${salesforceStatus === "failure" ? "falhou" : "sem cobertura Apex alterada"}`,
+    );
     return lines.join("\n");
   }
 
@@ -551,6 +594,7 @@ const apexTargets = await readListFile("pr-apex-targets.txt");
 const testClasses = await readListFile("pr-test-classes.txt");
 const deletedFiles = await readListFile("pr-deleted-files.txt");
 const coverageData = await readJsonFile("apex-coverage-results.json");
+const rawCoverage = await readJsonFile("coverage/coverage-summary.json");
 const junitResults = await collectJUnitResults(testClasses);
 const hasDeployableChanges = sourcePaths.length > 0;
 const hasApexTargets = apexTargets.length > 0;
@@ -581,7 +625,7 @@ const summary = [
   "",
   buildTestClassesSection(testClasses, junitResults, hasDeployableChanges),
   "",
-  buildCoverageSection(coverageData, junitResults),
+  buildCoverageSection(coverageData, junitResults, apexTargets, rawCoverage),
   "",
   buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles),
 ].join("\n");
