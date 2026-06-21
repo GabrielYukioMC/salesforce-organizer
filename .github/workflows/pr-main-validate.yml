@@ -1,0 +1,81 @@
+name: Validate PR against main org
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-main-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  salesforce-validation:
+    name: Salesforce validation and coverage gate
+    if: ${{ github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      COVERAGE_THRESHOLD: "80"
+      SF_ORG_ALIAS: main
+      SF_USE_PROGRESS_BAR: "false"
+      SF_DISABLE_TELEMETRY: "true"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Salesforce CLI
+        run: npm install --global @salesforce/cli
+
+      - name: Authenticate target org
+        shell: bash
+        env:
+          SF_MAIN_AUTH_URL: ${{ secrets.SF_MAIN_AUTH_URL }}
+        run: |
+          if [ -z "$SF_MAIN_AUTH_URL" ]; then
+            echo "::error title=Missing secret::Configure the SF_MAIN_AUTH_URL repository secret with the target org SFDX auth URL."
+            exit 1
+          fi
+
+          auth_file="${RUNNER_TEMP}/sf-main-auth-url.txt"
+          printf '%s' "$SF_MAIN_AUTH_URL" > "$auth_file"
+          sf org login sfdx-url --sfdx-url-file "$auth_file" --alias "$SF_ORG_ALIAS"
+
+      - name: Validate deploy and run local tests
+        shell: bash
+        run: |
+          mkdir -p deploy-results
+          sf project deploy validate \
+            --source-dir force-app \
+            --target-org "$SF_ORG_ALIAS" \
+            --test-level RunLocalTests \
+            --coverage-formatters json-summary \
+            --junit \
+            --results-dir deploy-results \
+            --wait 120 \
+            --api-version 65.0
+
+      - name: Enforce 80 percent Apex coverage
+        run: node scripts/ci/check-apex-coverage.mjs deploy-results "$COVERAGE_THRESHOLD"
+
+      - name: Upload validation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: salesforce-validation-results
+          path: deploy-results
+          if-no-files-found: ignore
