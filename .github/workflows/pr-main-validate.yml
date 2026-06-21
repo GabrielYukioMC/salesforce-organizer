@@ -25,6 +25,7 @@ jobs:
     timeout-minutes: 180
     env:
       COVERAGE_THRESHOLD: "80"
+      TEST_CLASSES_FILE: .github/salesforce-pr-test-classes.txt
       SF_ORG_ALIAS: main
       SF_USE_PROGRESS_BAR: "false"
       SF_DISABLE_TELEMETRY: "true"
@@ -32,16 +33,31 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
+      - name: Prepare PR validation scope
+        id: pr_scope
+        run: |
+          mkdir -p deploy-results
+          node scripts/ci/prepare-pr-validation.mjs \
+            --base "${{ github.event.pull_request.base.sha }}" \
+            --head "${{ github.event.pull_request.head.sha }}" \
+            --source-root force-app \
+            --tests-file "$TEST_CLASSES_FILE" \
+            --out-dir deploy-results
+
       - name: Install Salesforce CLI
+        if: steps.pr_scope.outputs.has_deployable_changes == 'true'
         run: npm install --global @salesforce/cli
 
       - name: Authenticate target org
+        if: steps.pr_scope.outputs.has_deployable_changes == 'true'
         shell: bash
         env:
           SF_MAIN_AUTH_URL: ${{ secrets.SF_MAIN_AUTH_URL }}
@@ -55,22 +71,37 @@ jobs:
           printf '%s' "$SF_MAIN_AUTH_URL" > "$auth_file"
           sf org login sfdx-url --sfdx-url-file "$auth_file" --alias "$SF_ORG_ALIAS"
 
-      - name: Validate deploy and run local tests
+      - name: Validate PR deploy and run specified tests
+        if: steps.pr_scope.outputs.has_deployable_changes == 'true'
         shell: bash
         run: |
-          mkdir -p deploy-results
+          mapfile -t source_paths < deploy-results/pr-source-paths.txt
+          mapfile -t test_classes < deploy-results/pr-test-classes.txt
+
+          deploy_args=()
+          for source_path in "${source_paths[@]}"; do
+            deploy_args+=(--source-dir "$source_path")
+          done
+
+          test_args=()
+          for test_class in "${test_classes[@]}"; do
+            test_args+=(--tests "$test_class")
+          done
+
           sf project deploy validate \
-            --source-dir force-app \
+            "${deploy_args[@]}" \
             --target-org "$SF_ORG_ALIAS" \
-            --test-level RunLocalTests \
+            --test-level RunSpecifiedTests \
+            "${test_args[@]}" \
             --coverage-formatters json-summary \
             --junit \
             --results-dir deploy-results \
             --wait 120 \
             --api-version 65.0
 
-      - name: Enforce 80 percent Apex coverage
-        run: node scripts/ci/check-apex-coverage.mjs deploy-results "$COVERAGE_THRESHOLD"
+      - name: Enforce 80 percent coverage for PR Apex classes
+        if: steps.pr_scope.outputs.has_apex_targets == 'true'
+        run: node scripts/ci/check-apex-coverage.mjs deploy-results "$COVERAGE_THRESHOLD" deploy-results/pr-apex-targets.txt
 
       - name: Upload validation artifacts
         if: always()

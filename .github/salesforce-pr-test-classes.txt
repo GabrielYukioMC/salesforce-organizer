@@ -1,0 +1,7 @@
+# One Apex test class per line.
+# The PR validation workflow runs only these tests with RunSpecifiedTests.
+TransferenciaServiceTest
+MetaServiceTest
+MeetingMinutesServiceTest
+TarefaServiceTest
+ApontamentoFixoServiceTest
