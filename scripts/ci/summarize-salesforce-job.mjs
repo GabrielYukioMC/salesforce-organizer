@@ -565,7 +565,7 @@ const itemStatus = hasDeployableChanges
   : "Nao executado";
 
 const summary = [
-  "## Resumo",
+  "## RESUMO GERAL",
   "",
   operation === "deploy"
     ? "Resumo do deploy automatico apos merge/push na `main`."
