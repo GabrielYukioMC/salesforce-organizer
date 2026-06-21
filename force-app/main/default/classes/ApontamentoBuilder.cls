@@ -10,22 +10,16 @@ public class ApontamentoBuilder {
     // Duração mínima de um slot para ser criado (15 minutos em milissegundos)
     private static final Long MIN_DURACAO_MS = 15L * 60 * 1000;
 
-    /**
-     * Arredonda um Datetime para o slot de meia hora mais próximo:
-     *   0–15 min  → :00 (trunca para hora cheia)
-     *  16–39 min  → :30 (meia hora)
-     *  40–59 min  → :00 da próxima hora (arredonda pra cima)
-     */
+    
     @TestVisible
     private static Datetime arredondar(Datetime dt) {
         Integer min = dt.minuteGmt();
-
         if (min <= 15) {
             return Datetime.newInstanceGmt(
                 dt.yearGmt(), dt.monthGmt(), dt.dayGmt(),
                 dt.hourGmt(), 0, 0
             );
-        } else if (min <= 39) {
+        } else if (min <= 39) { // 16-39 → 30
             return Datetime.newInstanceGmt(
                 dt.yearGmt(), dt.monthGmt(), dt.dayGmt(),
                 dt.hourGmt(), 30, 0
