@@ -34,5 +34,5 @@ O resumo anterior existia, mas nao estava no formato esperado para leitura rapid
 - `LWC`: nomes dos bundles LWC modificados.
 - `FLOW`: nomes dos flows modificados.
 - `Outros tipos de arquivos`: demais metadados validados.
-- `Classes teste`: classes de teste executadas e status.
+- `Classes teste`: classes de teste executadas e status. 
 - `Cobertura`: classe Apex, percentual, contagem de erros de teste e status.
