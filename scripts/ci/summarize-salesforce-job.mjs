@@ -621,8 +621,11 @@ const itemStatus = hasDeployableChanges
       : `${operationCopy.title} nao concluido`
   : "Nao executado";
 
+const overallEmoji = overall.ok ? "✅" : "❌";
+const operationLabel = operation === "deploy" ? "Deploy Salesforce na main" : "Validacao Salesforce da PR";
+
 const summary = [
-  "## RESUMO GERAL",
+  `## ${operationLabel} — ${overall.ok ? "SUCESSO" : "ERRO"} ${overallEmoji}`,
   "",
   operation === "deploy"
     ? "Resumo do deploy automatico apos merge/push na `main`."

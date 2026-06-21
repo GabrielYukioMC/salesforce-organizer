@@ -2,6 +2,7 @@
 <Package xmlns="http://soap.sforce.com/2006/04/metadata">
     <types>
         <members>ApontamentoBuilder</members>
+        <members>ApontamentoBuilderTest</members>
         <members>ApontamentoController</members>
         <members>ApontamentoControllerTest</members>
         <members>ApontamentoDTO</members>
