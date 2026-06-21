@@ -537,12 +537,11 @@ function buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles) {
 }
 
 async function appendSummary(markdown) {
-  if (!process.env.GITHUB_STEP_SUMMARY) {
-    console.log(markdown);
-    return;
-  }
+  console.log(markdown);
 
-  await fs.appendFile(process.env.GITHUB_STEP_SUMMARY, `${markdown}\n`, "utf8");
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    await fs.appendFile(process.env.GITHUB_STEP_SUMMARY, `${markdown}\n`, "utf8");
+  }
 }
 
 const operationCopy = operationWords();
