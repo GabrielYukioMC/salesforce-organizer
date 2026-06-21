@@ -5,7 +5,7 @@ public without sharing class ApontamentoFixoController {
         return ApontamentoFixoSelector.buscarPorUsuario(UserInfo.getUserId());
     }
 
-    @AuraEnabled
+    @AuraEnabled 
     public static void salvarRotina(ApontamentoFixo__c rotina) {
         ApontamentoFixoService.salvarRotina(rotina);
     }
