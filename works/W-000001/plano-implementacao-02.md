@@ -19,6 +19,7 @@ O plano 01 tratou a esteira de validate/deploy. Esta demanda e uma alteracao sep
 - [x] Analisar controller, service, selector e testes existentes.
 - [x] Criar teste focado em `ApontamentoFixoController`.
 - [x] Atualizar manifest com a nova classe de teste.
+- [x] Garantir que o arquivo de testes da esteira execute `ApontamentoFixoControllerTest`.
 - [x] Executar teste direcionado e conferir cobertura da controller.
 - [x] Registrar arquivos alterados.
 
