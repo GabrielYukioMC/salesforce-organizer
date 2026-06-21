@@ -111,11 +111,11 @@ function classifyPath(filePath) {
   const normalized = normalizePath(filePath);
 
   if (normalized.includes("/classes/") || normalized.includes("/triggers/")) {
-    return "Apex";
+    return "APEX CLASS";
   }
 
   if (normalized.includes("/flows/") || normalized.includes("/flowDefinitions/")) {
-    return "Flow";
+    return "FLOW";
   }
 
   if (normalized.includes("/lwc/")) {
@@ -131,35 +131,79 @@ function classifyPath(filePath) {
 
 function groupByType(paths) {
   const grouped = new Map([
-    ["Arquivos", paths],
-    ["Apex", []],
-    ["Flow", []],
+    ["APEX CLASS", []],
     ["LWC", []],
-    ["Aura", []],
-    ["Outros", []],
+    ["FLOW", []],
+    ["Outros tipos de arquivos", []],
   ]);
 
   for (const filePath of paths) {
     const type = classifyPath(filePath);
-    grouped.get(type).push(filePath);
+    if (grouped.has(type)) {
+      grouped.get(type).push(componentLabel(filePath, type));
+    } else {
+      grouped.get("Outros tipos de arquivos").push(componentLabel(filePath, type));
+    }
+  }
+
+  for (const [type, items] of grouped.entries()) {
+    grouped.set(type, uniqueSorted(items));
   }
 
   return grouped;
 }
 
-function compactList(items, emptyText) {
-  if (items.length === 0) {
-    return emptyText;
+function uniqueSorted(items) {
+  return [...new Set(items)].sort((a, b) => a.localeCompare(b));
+}
+
+function componentLabel(filePath, type) {
+  const normalized = normalizePath(filePath);
+  const fileName = path.posix.basename(normalized);
+
+  if (type === "APEX CLASS") {
+    return fileName
+      .replace(/\.cls(?:-meta\.xml)?$/i, "")
+      .replace(/\.trigger(?:-meta\.xml)?$/i, "");
   }
 
-  const visible = items.slice(0, 20).map((item) => `\`${escapeTable(item)}\``);
+  if (type === "LWC") {
+    const parts = normalized.split("/");
+    const lwcIndex = parts.indexOf("lwc");
+    return lwcIndex >= 0 && parts[lwcIndex + 1] ? parts[lwcIndex + 1] : fileName;
+  }
+
+  if (type === "FLOW") {
+    return fileName
+      .replace(/\.flow-meta\.xml$/i, "")
+      .replace(/\.flowDefinition-meta\.xml$/i, "");
+  }
+
+  if (type === "Aura") {
+    const parts = normalized.split("/");
+    const auraIndex = parts.indexOf("aura");
+    return auraIndex >= 0 && parts[auraIndex + 1] ? parts[auraIndex + 1] : fileName;
+  }
+
+  return normalized;
+}
+
+function formatBulletList(items, emptyText, itemStatus = null) {
+  if (items.length === 0) {
+    return `- ${emptyText}`;
+  }
+
+  const visible = items.slice(0, 20).map((item) => {
+    const statusSuffix = itemStatus ? ` - ${itemStatus}` : "";
+    return `- ${item}${statusSuffix}`;
+  });
   const hiddenCount = items.length - visible.length;
 
   if (hiddenCount > 0) {
-    visible.push(`mais ${hiddenCount} item(ns) nos artefatos`);
+    visible.push(`- mais ${hiddenCount} item(ns) nos artefatos`);
   }
 
-  return visible.join("<br>");
+  return visible.join("\n");
 }
 
 function escapeTable(value) {
@@ -286,6 +330,24 @@ function coverageForTargets(coverageData) {
   return visible.join("<br>");
 }
 
+function aggregateTestStats(junitResults) {
+  const totals = {
+    total: 0,
+    failures: 0,
+    errors: 0,
+    skipped: 0,
+  };
+
+  for (const result of junitResults.values()) {
+    totals.total += result.total;
+    totals.failures += result.failures;
+    totals.errors += result.errors;
+    totals.skipped += result.skipped;
+  }
+
+  return totals;
+}
+
 function normalizeTestClassName(value, configuredTests) {
   const normalized = String(value ?? "").trim();
   const lower = normalized.toLowerCase();
@@ -396,37 +458,50 @@ function testStatusFor(testClass, junitResults, hasDeployableChanges) {
   return "Nao encontrado";
 }
 
-function buildItemsTable(grouped, itemStatus) {
-  const lines = [
-    "| Grupo | Quantidade | Itens | Status |",
-    "| --- | ---: | --- | --- |",
-  ];
+function buildModifiedFilesSection(grouped, itemStatus) {
+  const lines = ["### Arquivos modificados"];
 
   for (const [group, items] of grouped.entries()) {
-    lines.push(
-      `| ${group} | ${items.length} | ${compactList(items, "Nenhum")} | ${itemStatus} |`,
-    );
+    lines.push("");
+    lines.push(`#### ${group}`);
+    lines.push(formatBulletList(items, "Nenhum", items.length > 0 ? itemStatus : null));
   }
 
   return lines.join("\n");
 }
 
-function buildTestsTable(testClasses, junitResults, coverageData, hasDeployableChanges) {
-  const coverageText = coverageForTargets(coverageData);
-  const lines = [
-    "| Classe de teste | Cobertura considerada | Rodou com sucesso? |",
-    "| --- | --- | --- |",
-  ];
+function buildTestClassesSection(testClasses, junitResults, hasDeployableChanges) {
+  const lines = ["### Classes teste"];
 
   if (testClasses.length === 0) {
-    lines.push("| Nenhuma | Nao aplicavel | Nao executado |");
+    lines.push("- Nenhuma");
     return lines.join("\n");
   }
 
   for (const testClass of testClasses) {
-    lines.push(
-      `| \`${escapeTable(testClass)}\` | ${coverageText} | ${testStatusFor(testClass, junitResults, hasDeployableChanges)} |`,
-    );
+    lines.push(`- ${testClass} - ${testStatusFor(testClass, junitResults, hasDeployableChanges)}`);
+  }
+
+  return lines.join("\n");
+}
+
+function buildCoverageSection(coverageData, junitResults) {
+  const rows = coverageData?.rows ?? [];
+  const testStats = aggregateTestStats(junitResults);
+  const totalErrors = testStats.failures + testStats.errors;
+  const totalTests = testStats.total || 0;
+  const errorText = `${totalErrors}/${totalTests} erros`;
+  const lines = ["### Cobertura"];
+
+  if (rows.length === 0) {
+    lines.push(`- Nao aplicavel - ${errorText} - ${salesforceStatus === "failure" ? "falhou" : "sem cobertura Apex alterada"}`);
+    return lines.join("\n");
+  }
+
+  for (const row of rows) {
+    const coverage = typeof row.coverage === "number" ? `${row.coverage}%` : "nao encontrado";
+    const status = row.ok && totalErrors === 0 && coverageStatus !== "failure" ? "sucesso" : "falhou";
+    lines.push(`- ${row.name} - ${coverage} - ${errorText} - ${status}`);
   }
 
   return lines.join("\n");
@@ -503,14 +578,11 @@ const summary = [
   `| ${operation === "deploy" ? "Deploy" : "Validate"} Salesforce | ${statusText(salesforceStatus)} |`,
   `| Gate de cobertura | ${hasApexTargets ? statusText(coverageStatus) : "Nao aplicavel"} |`,
   "",
-  "### Itens processados",
-  buildItemsTable(grouped, itemStatus),
+  buildModifiedFilesSection(grouped, itemStatus),
   "",
-  "### Classes de teste",
-  buildTestsTable(testClasses, junitResults, coverageData, hasDeployableChanges),
+  buildTestClassesSection(testClasses, junitResults, hasDeployableChanges),
   "",
-  "### Cobertura Apex",
-  coverageForTargets(coverageData),
+  buildCoverageSection(coverageData, junitResults),
   "",
   buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles),
 ].join("\n");
