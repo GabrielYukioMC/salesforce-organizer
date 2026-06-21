@@ -4,7 +4,7 @@ public class ApontamentoDTO {
     public Datetime inicio;
     public Datetime fim;
     public Decimal  duracaoHoras;
-    public String   observacoes;
+    public String   observacoes; 
     public Id       projeto;           // null por ora
     public Id       perfilDeAlocacao;  // null por ora
 }
