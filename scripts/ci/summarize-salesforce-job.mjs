@@ -474,12 +474,14 @@ function buildTestClassesSection(testClasses, junitResults, hasDeployableChanges
   const lines = ["### Classes teste"];
 
   if (testClasses.length === 0) {
-    lines.push("- Nenhuma");
+    lines.push("", "Nenhuma classe de teste configurada.");
     return lines.join("\n");
   }
 
+  lines.push("", "| Classe | Status |", "| --- | --- |");
+
   for (const testClass of testClasses) {
-    lines.push(`- ${testClass} - ${testStatusFor(testClass, junitResults, hasDeployableChanges)}`);
+    lines.push(`| \`${testClass}\` | ${testStatusFor(testClass, junitResults, hasDeployableChanges)} |`);
   }
 
   return lines.join("\n");
@@ -513,38 +515,49 @@ function buildCoverageSection(coverageData, junitResults, apexTargets, rawCovera
   const testStats = aggregateTestStats(junitResults);
   const totalErrors = testStats.failures + testStats.errors;
   const totalTests = testStats.total || 0;
-  const errorText = `${totalErrors}/${totalTests} erros`;
-  const lines = ["### Cobertura"];
   const minThreshold = Number(threshold);
+  const lines = ["### Cobertura"];
+
+  const testSummaryLine =
+    totalTests > 0
+      ? `> ${totalTests} teste(s) executado(s) — ${totalErrors} erro(s) nos testes`
+      : null;
 
   if (rows.length === 0) {
     const productionTargets = apexTargets.filter((t) => !/test$/i.test(t));
 
     if (productionTargets.length > 0 && (salesforceStatus === "failure" || coverageStatus === "failure")) {
+      if (testSummaryLine) lines.push("", testSummaryLine);
+      lines.push("", "| Classe | Cobertura | Status |", "| --- | ---: | --- |");
+
       for (const target of productionTargets) {
         const pct = extractRawCoverage(rawCoverage, target);
-        const pctText = pct != null ? `${pct}%` : "nao encontrada";
-        const detail =
+        const pctText = pct != null ? `${pct}%` : "—";
+        const status =
           pct == null
-            ? "nao encontrada - validate falhou"
+            ? "nao encontrada"
             : pct < minThreshold
               ? `insuficiente (minimo ${minThreshold}%)`
-              : "falhou";
-        lines.push(`- ${target} - ${pctText} - ${errorText} - ${detail}`);
+              : "ok — validate falhou por outras classes";
+        lines.push(`| \`${target}\` | ${pctText} | ${status} |`);
       }
+
       return lines.join("\n");
     }
 
-    lines.push(
-      `- Nao aplicavel - ${errorText} - ${salesforceStatus === "failure" ? "falhou" : "sem cobertura Apex alterada"}`,
-    );
+    if (testSummaryLine) lines.push("", testSummaryLine);
+    const reason = salesforceStatus === "failure" ? "validate falhou" : "sem classes Apex alteradas neste escopo";
+    lines.push("", `Nao aplicavel — ${reason}.`);
     return lines.join("\n");
   }
 
+  if (testSummaryLine) lines.push("", testSummaryLine);
+  lines.push("", "| Classe | Cobertura | Status |", "| --- | ---: | --- |");
+
   for (const row of rows) {
-    const coverage = typeof row.coverage === "number" ? `${row.coverage}%` : "nao encontrado";
+    const coverage = typeof row.coverage === "number" ? `${row.coverage}%` : "—";
     const status = row.ok && totalErrors === 0 && coverageStatus !== "failure" ? "sucesso" : "falhou";
-    lines.push(`- ${row.name} - ${coverage} - ${errorText} - ${status}`);
+    lines.push(`| \`${row.name}\` | ${coverage} | ${status} |`);
   }
 
   return lines.join("\n");
