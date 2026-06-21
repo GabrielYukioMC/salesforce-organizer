@@ -10,6 +10,69 @@ function fail(message, exitCode = 1) {
   process.exit(exitCode);
 }
 
+function escapeGithubCommand(value) {
+  return String(value).replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+}
+
+function githubNotice(title, message) {
+  console.log(`::notice title=${escapeGithubCommand(title)}::${escapeGithubCommand(message)}`);
+}
+
+function githubError(title, message) {
+  console.error(`::error title=${escapeGithubCommand(title)}::${escapeGithubCommand(message)}`);
+}
+
+async function appendStepSummary(markdown) {
+  if (!process.env.GITHUB_STEP_SUMMARY) {
+    return;
+  }
+
+  await fs.appendFile(process.env.GITHUB_STEP_SUMMARY, `${markdown}\n`, "utf8");
+}
+
+async function writeCoverageResult(result) {
+  await fs.writeFile(
+    path.join(resultsDirArg, "apex-coverage-results.json"),
+    `${JSON.stringify(result, null, 2)}\n`,
+    "utf8",
+  );
+}
+
+function tableCell(value) {
+  return String(value).replaceAll("|", "\\|");
+}
+
+function coverageText(value) {
+  return typeof value === "number" ? `${value}%` : "Nao encontrado";
+}
+
+function buildCoverageSummary({ rows, threshold }) {
+  const failedRows = rows.filter((row) => !row.ok);
+  const status =
+    failedRows.length === 0
+      ? `Tudo certo: os alvos Apex ficaram com cobertura minima de ${threshold}%.`
+      : `Atencao: ${failedRows.length} alvo(s) Apex precisam de ajuste antes de seguir.`;
+
+  return [
+    "## Cobertura Apex",
+    "",
+    status,
+    "",
+    "| Alvo | Cobertura | Status | Fonte |",
+    "| --- | ---: | --- | --- |",
+    ...rows.map((row) =>
+      [
+        `| \`${tableCell(row.name)}\``,
+        coverageText(row.coverage),
+        tableCell(row.ok ? "Aprovado" : row.message),
+        `\`${tableCell(row.source ?? "Nao localizado")}\` |`,
+      ].join(" | "),
+    ),
+    "",
+    `Limite exigido: ${threshold}%`,
+  ].join("\n");
+}
+
 if (!resultsDirArg) {
   fail("Usage: node scripts/ci/check-apex-coverage.mjs <results-dir> [threshold] [targets-file]", 2);
 }
@@ -411,10 +474,36 @@ async function checkAggregateCoverage(parsedFiles) {
   console.log(`Apex coverage: ${coverage}%`);
   console.log(`Required coverage: ${threshold}%`);
 
+  const rows = [
+    {
+      name: "Cobertura consolidada",
+      coverage,
+      ok: coverage >= threshold,
+      message: coverage >= threshold ? "Aprovado" : `Abaixo de ${threshold}%`,
+      source: `${selected.file} (${selected.label})`,
+    },
+  ];
+
+  await writeCoverageResult({
+    mode: "aggregate",
+    threshold,
+    rows,
+    failures: coverage < threshold ? [`Cobertura consolidada: ${coverage} percent is below ${threshold} percent`] : [],
+  });
+
+  await appendStepSummary(
+    buildCoverageSummary({
+      threshold,
+      rows,
+    }),
+  );
+
   if (coverage < threshold) {
-    fail(`::error title=Apex coverage below threshold::Apex coverage ${coverage}% is below ${threshold}%.`);
+    githubError("Cobertura Apex abaixo do minimo", `Cobertura ${coverage} percent esta abaixo de ${threshold} percent.`);
+    fail(`Apex coverage ${coverage}% is below ${threshold}%.`);
   }
 
+  githubNotice("Cobertura Apex aprovada", `Cobertura consolidada: ${coverage} percent com minimo de ${threshold} percent.`);
   console.log("Apex coverage gate passed.");
 }
 
@@ -422,6 +511,21 @@ async function checkTargetCoverage(parsedFiles) {
   const targets = await readListFile(targetsFileArg);
 
   if (targets.length === 0) {
+    await writeCoverageResult({
+      mode: "targets",
+      threshold,
+      rows: [],
+      failures: [],
+    });
+
+    await appendStepSummary(
+      [
+        "## Cobertura Apex",
+        "",
+        `Nenhum alvo Apex foi listado em \`${targetsFileArg}\`. A etapa de cobertura foi pulada.`,
+      ].join("\n"),
+    );
+    githubNotice("Cobertura Apex pulada", "Nao ha classes ou triggers Apex de producao alterados neste escopo.");
     console.log(`No Apex coverage targets found in "${targetsFileArg}". Skipping target coverage gate.`);
     return;
   }
@@ -437,12 +541,20 @@ async function checkTargetCoverage(parsedFiles) {
   }
 
   const failures = [];
+  const rows = [];
 
   for (const target of targets) {
     const candidates = byName.get(target.toLowerCase()) ?? [];
 
     if (candidates.length === 0) {
       failures.push(`${target}: coverage result not found`);
+      rows.push({
+        name: target,
+        coverage: null,
+        ok: false,
+        message: "Resultado de cobertura nao encontrado",
+        source: null,
+      });
       continue;
     }
 
@@ -453,19 +565,37 @@ async function checkTargetCoverage(parsedFiles) {
 
     console.log(`${target}: ${coverage}% from ${selected.file} (${selected.label})`);
 
+    rows.push({
+      name: target,
+      coverage,
+      ok: coverage >= threshold,
+      message: coverage >= threshold ? "Aprovado" : `Abaixo de ${threshold}%`,
+      source: `${selected.file} (${selected.label})`,
+    });
+
     if (coverage < threshold) {
-      failures.push(`${target}: ${coverage}% is below ${threshold}%`);
+      failures.push(`${target}: ${coverage} percent is below ${threshold} percent`);
     }
   }
 
+  await writeCoverageResult({
+    mode: "targets",
+    threshold,
+    rows,
+    failures,
+  });
+
+  await appendStepSummary(buildCoverageSummary({ rows, threshold }));
+
   if (failures.length > 0) {
     for (const failure of failures) {
-      console.error(`::error title=Apex coverage target failed::${failure}`);
+      githubError("Cobertura Apex reprovada", failure);
     }
 
     fail(`Apex coverage gate failed for ${failures.length} target(s).`);
   }
 
+  githubNotice("Cobertura Apex aprovada", `${targets.length} alvo(s) Apex passaram no minimo de ${threshold} percent.`);
   console.log(`Apex coverage gate passed for ${targets.length} target(s).`);
 }
 

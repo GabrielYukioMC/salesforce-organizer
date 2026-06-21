@@ -8,12 +8,29 @@ const options = parseArgs(process.argv.slice(2));
 const sourceRoot = options["source-root"] ?? "force-app";
 const testsFile = options["tests-file"] ?? ".github/salesforce-pr-test-classes.txt";
 const outDir = options["out-dir"] ?? "deploy-results";
+const operation = options.operation ?? "validate";
 const base = options.base;
 const head = options.head;
 
 function fail(message, exitCode = 1) {
   console.error(message);
   process.exit(exitCode);
+}
+
+if (!["validate", "deploy"].includes(operation)) {
+  fail(`Invalid operation "${operation}". Expected "validate" or "deploy".`, 2);
+}
+
+function escapeGithubCommand(value) {
+  return String(value).replaceAll("%", "%25").replaceAll("\r", "%0D").replaceAll("\n", "%0A");
+}
+
+function githubNotice(title, message) {
+  console.log(`::notice title=${escapeGithubCommand(title)}::${escapeGithubCommand(message)}`);
+}
+
+function githubError(title, message) {
+  console.error(`::error title=${escapeGithubCommand(title)}::${escapeGithubCommand(message)}`);
 }
 
 function parseArgs(args) {
@@ -228,6 +245,82 @@ async function writeGithubOutputs(outputs) {
   await fs.appendFile(process.env.GITHUB_OUTPUT, `${lines.join("\n")}\n`, "utf8");
 }
 
+async function appendStepSummary(markdown) {
+  if (!process.env.GITHUB_STEP_SUMMARY) {
+    return;
+  }
+
+  await fs.appendFile(process.env.GITHUB_STEP_SUMMARY, `${markdown}\n`, "utf8");
+}
+
+function operationTitle() {
+  return operation === "deploy" ? "Deploy Salesforce na main" : "Validacao Salesforce da PR";
+}
+
+function operationVerb() {
+  return operation === "deploy" ? "deployados" : "validados";
+}
+
+function formatList(lines, emptyText) {
+  if (lines.length === 0) {
+    return `- ${emptyText}`;
+  }
+
+  const visibleLines = lines.slice(0, 40).map((line) => `- \`${line}\``);
+  const hiddenCount = lines.length - visibleLines.length;
+
+  if (hiddenCount > 0) {
+    visibleLines.push(`- ...mais ${hiddenCount} item(ns) omitido(s) do resumo. Veja os artefatos do job para a lista completa.`);
+  }
+
+  return visibleLines.join("\n");
+}
+
+function buildScopeSummary({ changedFiles, deploySourcePaths, apexTargets, testClasses, deletedFiles }) {
+  const hasDeletionBlock = deletedFiles.length > 0;
+  const hasDeployableChanges = deploySourcePaths.length > 0;
+  const status = hasDeletionBlock
+    ? "Bloqueado: ha remocao de metadata sem destructiveChanges."
+    : hasDeployableChanges
+      ? `Pronto: ${deploySourcePaths.length} caminho(s) serao ${operationVerb()}.`
+      : "Sem alteracoes Salesforce para processar.";
+
+  return [
+    `## ${operationTitle()}`,
+    "",
+    status,
+    "",
+    "| Item | Quantidade |",
+    "| --- | ---: |",
+    `| Arquivos Salesforce alterados | ${changedFiles.length} |`,
+    `| Caminhos enviados ao Salesforce CLI | ${deploySourcePaths.length} |`,
+    `| Classes/triggers Apex com cobertura cobrada | ${apexTargets.length} |`,
+    `| Classes de teste configuradas | ${testClasses.length} |`,
+    `| Arquivos removidos | ${deletedFiles.length} |`,
+    "",
+    "### Arquivos alterados",
+    formatList(changedFiles, "Nenhum arquivo Salesforce alterado."),
+    "",
+    `### Caminhos que serao ${operationVerb()}`,
+    formatList(deploySourcePaths, "Nada sera enviado ao Salesforce CLI."),
+    "",
+    "### Apex com cobertura minima de 80%",
+    formatList(apexTargets, "Nenhuma classe ou trigger Apex de producao alterada."),
+    "",
+    "### Classes de teste que serao executadas",
+    formatList(testClasses, "Nenhuma classe de teste configurada."),
+    ...(deletedFiles.length > 0
+      ? [
+          "",
+          "### Remocoes detectadas",
+          formatList(deletedFiles, "Nenhuma remocao detectada."),
+          "",
+          "Acao necessaria: implementar suporte a `destructiveChanges` antes de remover metadata por esta esteira.",
+        ]
+      : []),
+  ].join("\n");
+}
+
 if (!base || !head) {
   fail("Both --base and --head are required.", 2);
 }
@@ -238,7 +331,17 @@ const changedFiles = runGitDiff("ACMRT");
 const deletedFiles = runGitDiff("D");
 
 if (deletedFiles.length > 0) {
-  console.error("Deleted Salesforce metadata was detected in this PR:");
+  await appendStepSummary(
+    buildScopeSummary({
+      changedFiles,
+      deploySourcePaths: [],
+      apexTargets: [],
+      testClasses: [],
+      deletedFiles,
+    }),
+  );
+  githubError("Remocao de metadata detectada", "Esta esteira incremental ainda nao publica destructiveChanges.");
+  console.error("Deleted Salesforce metadata was detected:");
   for (const deletedFile of deletedFiles) {
     console.error(`- ${deletedFile}`);
   }
@@ -266,8 +369,27 @@ await writeGithubOutputs({
   test_class_count: String(testClasses.length),
 });
 
+await appendStepSummary(
+  buildScopeSummary({
+    changedFiles,
+    deploySourcePaths,
+    apexTargets,
+    testClasses,
+    deletedFiles,
+  }),
+);
+
+if (deploySourcePaths.length === 0) {
+  githubNotice(operationTitle(), "Nao ha arquivos Salesforce alterados neste escopo. As etapas de Salesforce serao puladas.");
+} else {
+  githubNotice(
+    operationTitle(),
+    `${deploySourcePaths.length} caminho(s) preparado(s), ${testClasses.length} teste(s) configurado(s), ${apexTargets.length} alvo(s) Apex para cobertura.`,
+  );
+}
+
 console.log(`Changed Salesforce files: ${changedFiles.length}`);
-console.log(`Deploy source paths: ${deploySourcePaths.length}`);
+console.log(`Salesforce CLI source paths: ${deploySourcePaths.length}`);
 for (const sourcePath of deploySourcePaths) {
   console.log(`- ${sourcePath}`);
 }
