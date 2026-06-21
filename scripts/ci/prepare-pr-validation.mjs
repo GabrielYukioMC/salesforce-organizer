@@ -329,14 +329,28 @@ await fs.mkdir(outDir, { recursive: true });
 
 const changedFiles = runGitDiff("ACMRT");
 const deletedFiles = runGitDiff("D");
+const testClasses = await readTestClasses();
 
 if (deletedFiles.length > 0) {
+  await writeLines(path.join(outDir, "pr-changed-files.txt"), changedFiles);
+  await writeLines(path.join(outDir, "pr-source-paths.txt"), []);
+  await writeLines(path.join(outDir, "pr-apex-targets.txt"), []);
+  await writeLines(path.join(outDir, "pr-test-classes.txt"), testClasses);
+  await writeLines(path.join(outDir, "pr-deleted-files.txt"), deletedFiles);
+  await writeGithubOutputs({
+    has_deployable_changes: "false",
+    has_apex_targets: "false",
+    deploy_source_count: "0",
+    apex_target_count: "0",
+    test_class_count: String(testClasses.length),
+  });
+
   await appendStepSummary(
     buildScopeSummary({
       changedFiles,
       deploySourcePaths: [],
       apexTargets: [],
-      testClasses: [],
+      testClasses,
       deletedFiles,
     }),
   );
@@ -350,7 +364,6 @@ if (deletedFiles.length > 0) {
 
 const deploySourcePaths = uniqueSorted(await Promise.all(changedFiles.map(deploySourcePathFor)));
 const apexTargets = await collectApexCoverageTargets(changedFiles);
-const testClasses = await readTestClasses();
 
 if (deploySourcePaths.length > 0 && testClasses.length === 0) {
   fail(`No test classes were found in "${testsFile}". Add one Apex test class per line.`);
@@ -360,6 +373,7 @@ await writeLines(path.join(outDir, "pr-changed-files.txt"), changedFiles);
 await writeLines(path.join(outDir, "pr-source-paths.txt"), deploySourcePaths);
 await writeLines(path.join(outDir, "pr-apex-targets.txt"), apexTargets);
 await writeLines(path.join(outDir, "pr-test-classes.txt"), testClasses);
+await writeLines(path.join(outDir, "pr-deleted-files.txt"), deletedFiles);
 
 await writeGithubOutputs({
   has_deployable_changes: String(deploySourcePaths.length > 0),

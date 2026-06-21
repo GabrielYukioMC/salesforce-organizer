@@ -204,7 +204,15 @@ function operationWords() {
       };
 }
 
-function inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData }) {
+function inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData, deletedFiles }) {
+  if (deletedFiles.length > 0) {
+    return {
+      ok: false,
+      label: "Remocao de metadata bloqueada",
+      detail: "Ha arquivo removido em force-app, mas esta esteira incremental ainda nao publica destructiveChanges.",
+    };
+  }
+
   if (!hasDeployableChanges) {
     return {
       ok: true,
@@ -424,11 +432,19 @@ function buildTestsTable(testClasses, junitResults, coverageData, hasDeployableC
   return lines.join("\n");
 }
 
-function buildFinalNotes(overall, coverageData, hasApexTargets) {
+function buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles) {
   const lines = ["### Resultado final"];
 
   lines.push(`- Status: ${overall.label}`);
   lines.push(`- Detalhe: ${overall.detail}`);
+
+  if (deletedFiles.length > 0) {
+    lines.push("- Remocoes bloqueadas:");
+
+    for (const deletedFile of deletedFiles) {
+      lines.push(`  - ${deletedFile}`);
+    }
+  }
 
   if (hasApexTargets && coverageData?.failures?.length > 0) {
     lines.push("- Pontos de cobertura a corrigir:");
@@ -459,11 +475,12 @@ const changedFiles = await readListFile("pr-changed-files.txt");
 const sourcePaths = await readListFile("pr-source-paths.txt");
 const apexTargets = await readListFile("pr-apex-targets.txt");
 const testClasses = await readListFile("pr-test-classes.txt");
+const deletedFiles = await readListFile("pr-deleted-files.txt");
 const coverageData = await readJsonFile("apex-coverage-results.json");
 const junitResults = await collectJUnitResults(testClasses);
 const hasDeployableChanges = sourcePaths.length > 0;
 const hasApexTargets = apexTargets.length > 0;
-const overall = inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData });
+const overall = inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData, deletedFiles });
 const grouped = groupByType(sourcePaths);
 const itemStatus = hasDeployableChanges
   ? salesforceStatus === "success"
@@ -495,7 +512,7 @@ const summary = [
   "### Cobertura Apex",
   coverageForTargets(coverageData),
   "",
-  buildFinalNotes(overall, coverageData, hasApexTargets),
+  buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles),
 ].join("\n");
 
 await appendSummary(summary);

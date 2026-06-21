@@ -5,6 +5,7 @@
         <members>ApontamentoController</members>
         <members>ApontamentoDTO</members>
         <members>ApontamentoFixoController</members>
+        <members>ApontamentoFixoControllerTest</members>
         <members>ApontamentoFixoSelector</members>
         <members>ApontamentoFixoService</members>
         <members>ApontamentoFixoServiceTest</members>
