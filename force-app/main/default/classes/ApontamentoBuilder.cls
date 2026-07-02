@@ -8,21 +8,17 @@ public class ApontamentoBuilder {
     private static final Integer UTC_OFFSET = -3;
 
     // Duração mínima de um slot para ser criado (15 minutos em milissegundos)
-    private static final Long MIN_DURACAO_MS = 15L * 60 * 1000;
+    private static final Long MIN_DURACAO_MS = 15L * 60 * 1000;    
 
     
     @TestVisible
     private static Datetime arredondar(Datetime dt) {
         Integer min = dt.minuteGmt();
         if (min <= 15) {
-            return Datetime.newInstanceGmt(
-                dt.yearGmt(), dt.monthGmt(), dt.dayGmt(),
-                dt.hourGmt(), 0, 0
+            return Datetime.newInstanceGmt(  dt.yearGmt(), dt.monthGmt(), dt.dayGmt(), dt.hourGmt(), 0, 0
             );
         } else if (min <= 39) { // 16-39 → 30
-            return Datetime.newInstanceGmt(
-                dt.yearGmt(), dt.monthGmt(), dt.dayGmt(),
-                dt.hourGmt(), 30, 0
+            return Datetime.newInstanceGmt(  dt.yearGmt(), dt.monthGmt(), dt.dayGmt(),  dt.hourGmt(), 30, 0
             );
         } else {
             return Datetime.newInstanceGmt(
