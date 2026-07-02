@@ -1,0 +1,118 @@
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open detail-modal">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header detail-header">
+                <div class="title-row">
+                    <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                    <div>
+                        <h2>{record.Name}</h2>
+                        <p>{clienteName} · {projetoName} · {record.Tipo__c}</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <lightning-button label="Editar" onclick={handleEdit}></lightning-button>
+                    <lightning-button-icon
+                        icon-name="utility:close"
+                        alternative-text="Fechar"
+                        title="Fechar"
+                        variant="bare"
+                        onclick={handleClose}
+                    ></lightning-button-icon>
+                </div>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium">
+                <template if:true={showRiskAlert}>
+                    <div class="risk-alert">
+                        Atenção: script de alto risco. Validar aprovação, backup e ambiente antes de usar.
+                    </div>
+                </template>
+
+                <div class="badges">
+                    <template if:true={record.Criticidade__c}>
+                        <span class="badge">Criticidade: {record.Criticidade__c}</span>
+                    </template>
+                    <template if:true={record.Risco__c}>
+                        <span class="badge">Risco: {record.Risco__c}</span>
+                    </template>
+                    <template if:true={record.Ambiente__c}>
+                        <span class="badge">Ambiente: {record.Ambiente__c}</span>
+                    </template>
+                    <span class="badge">Status: {record.Status__c}</span>
+                </div>
+
+                <template if:true={isCaso}>
+                    <div class="detail-grid">
+                        <section><h3>Sintoma</h3><p>{record.Sintoma__c}</p></section>
+                        <section><h3>Causa provável</h3><p>{record.CausaProvavel__c}</p></section>
+                        <section><h3>Como investigar</h3><p>{record.ComoInvestigar__c}</p></section>
+                        <section><h3>Como resolver</h3><p>{record.ComoResolver__c}</p></section>
+                        <section><h3>Como validar</h3><p>{record.ComoValidar__c}</p></section>
+                    </div>
+                </template>
+
+                <template if:true={isQuery}>
+                    <div class="detail-grid">
+                        <section><h3>Quando usar</h3><p>{record.QuandoUsar__c}</p></section>
+                        <section><h3>Parâmetros para trocar</h3><p>{record.Parametros__c}</p></section>
+                        <section><h3>Como interpretar</h3><p>{record.ComoInterpretar__c}</p></section>
+                        <section><h3>Objeto Salesforce</h3><p>{record.ObjetoSalesforce__c}</p></section>
+                    </div>
+                    <c-code-block-viewer
+                        label="Query SOQL"
+                        value={record.QuerySOQL__c}
+                        copy-label="Copiar SOQL"
+                        oncopytext={forwardCopy}
+                    ></c-code-block-viewer>
+                </template>
+
+                <template if:true={isScript}>
+                    <div class="script-flags">
+                        <span>{backupLabel}</span>
+                        <span>{aprovacaoLabel}</span>
+                    </div>
+                    <div class="detail-grid">
+                        <section><h3>Objetivo</h3><p>{record.Objetivo__c}</p></section>
+                        <section><h3>Quando usar</h3><p>{record.QuandoUsar__c}</p></section>
+                        <section><h3>Parâmetros para trocar</h3><p>{record.Parametros__c}</p></section>
+                        <section><h3>Como validar</h3><p>{record.ComoValidar__c}</p></section>
+                        <section><h3>Rollback</h3><p>{record.Rollback__c}</p></section>
+                    </div>
+                    <c-code-block-viewer
+                        label="Script Apex"
+                        value={record.ScriptApex__c}
+                        copy-label="Copiar Script"
+                        oncopytext={forwardCopy}
+                    ></c-code-block-viewer>
+                </template>
+
+                <template if:true={isErro}>
+                    <div class="detail-grid">
+                        <section><h3>Mensagem do erro</h3><p>{record.MensagemErro__c}</p></section>
+                        <section><h3>Onde acontece</h3><p>{record.OndeAcontece__c}</p></section>
+                        <section><h3>Causa provável</h3><p>{record.CausaProvavel__c}</p></section>
+                        <section><h3>Como investigar</h3><p>{record.ComoInvestigar__c}</p></section>
+                        <section><h3>Solução conhecida</h3><p>{record.SolucaoConhecida__c}</p></section>
+                        <section><h3>Como validar</h3><p>{record.ComoValidar__c}</p></section>
+                    </div>
+                </template>
+
+                <template if:true={isProcedimento}>
+                    <div class="detail-grid">
+                        <section><h3>Objetivo</h3><p>{record.Objetivo__c}</p></section>
+                        <section><h3>Pré-requisitos</h3><p>{record.PreRequisitos__c}</p></section>
+                        <section><h3>Passos</h3><p>{record.Passos__c}</p></section>
+                        <section><h3>Cuidados</h3><p>{record.Cuidados__c}</p></section>
+                        <section><h3>Como validar</h3><p>{record.ComoValidar__c}</p></section>
+                        <section><h3>Resultado esperado</h3><p>{record.ResultadoEsperado__c}</p></section>
+                    </div>
+                </template>
+            </div>
+
+            <footer class="slds-modal__footer">
+                <lightning-button label="Fechar" onclick={handleClose}></lightning-button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

@@ -1,0 +1,56 @@
+<template>
+    <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+            <header class="slds-modal__header modal-header">
+                <div class="title-row">
+                    <lightning-icon icon-name="standard:folder" size="small"></lightning-icon>
+                    <h2>Novo Projeto</h2>
+                </div>
+                <lightning-button-icon
+                    icon-name="utility:close"
+                    alternative-text="Fechar"
+                    title="Fechar"
+                    variant="bare"
+                    onclick={handleCancel}
+                ></lightning-button-icon>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium">
+                <lightning-input label="Cliente" value={clienteName} disabled></lightning-input>
+                <lightning-input
+                    label="Nome do projeto"
+                    value={nome}
+                    required
+                    onchange={handleNomeChange}
+                    placeholder="Ex.: Oferta Ativa"
+                    class="slds-m-top_small"
+                ></lightning-input>
+                <lightning-textarea
+                    label="Descrição"
+                    value={descricao}
+                    onchange={handleDescricaoChange}
+                    class="slds-m-top_small"
+                ></lightning-textarea>
+                <lightning-input
+                    type="checkbox"
+                    label="Ativo"
+                    checked={ativo}
+                    onchange={handleAtivoChange}
+                    class="slds-m-top_small"
+                ></lightning-input>
+            </div>
+
+            <footer class="slds-modal__footer">
+                <lightning-button label="Cancelar" onclick={handleCancel}></lightning-button>
+                <lightning-button
+                    label="Salvar"
+                    variant="brand"
+                    onclick={handleSave}
+                    disabled={saving}
+                    class="slds-m-left_small"
+                ></lightning-button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

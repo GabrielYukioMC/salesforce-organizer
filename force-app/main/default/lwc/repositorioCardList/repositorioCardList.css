@@ -1,0 +1,77 @@
+.list-shell {
+    background: #ffffff;
+    padding: 1rem 1.5rem 1.5rem;
+}
+
+.state,
+.empty-state {
+    align-items: center;
+    background: #f8f8f8;
+    border: 1px dashed #c9c9c9;
+    border-radius: 0.5rem;
+    color: #5c5c5c;
+    display: flex;
+    justify-content: center;
+    min-height: 12rem;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.state-loading {
+    position: relative;
+}
+
+.empty-state {
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.empty-state.compact {
+    min-height: 8rem;
+}
+
+.toolbar {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.toolbar-title span {
+    color: #080707;
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.toolbar-title p {
+    color: #6b6d70;
+    font-size: 0.85rem;
+    margin: 0.15rem 0 0;
+}
+
+.toolbar-actions {
+    align-items: center;
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: minmax(12rem, 18rem) minmax(8rem, 10rem) auto auto;
+}
+
+.cards {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+}
+
+@media (max-width: 52rem) {
+    .toolbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .toolbar-actions {
+        grid-template-columns: 1fr;
+    }
+}

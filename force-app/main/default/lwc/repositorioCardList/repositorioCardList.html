@@ -1,0 +1,93 @@
+<template>
+    <section class="list-shell">
+        <template if:true={loading}>
+            <div class="state state-loading">
+                <lightning-spinner alternative-text="Carregando registros" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={loading}>
+            <template if:true={semCliente}>
+                <div class="state">Selecione um cliente para visualizar os projetos e registros técnicos.</div>
+            </template>
+
+            <template if:true={semProjeto}>
+                <div class="state">Selecione ou crie um projeto para este cliente.</div>
+            </template>
+
+            <template if:true={temContexto}>
+                <div class="toolbar">
+                    <div class="toolbar-title">
+                        <span>{tipoLabel}</span>
+                        <p>{recordCountLabel}</p>
+                    </div>
+                    <div class="toolbar-actions">
+                        <lightning-input
+                            type="search"
+                            label="Buscar"
+                            variant="label-hidden"
+                            placeholder="Buscar neste projeto..."
+                            value={searchTerm}
+                            onchange={handleSearchChange}
+                        ></lightning-input>
+                        <lightning-combobox
+                            label="Status"
+                            variant="label-hidden"
+                            value={statusFilter}
+                            options={statusOptions}
+                            onchange={handleStatusChange}
+                        ></lightning-combobox>
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            alternative-text="Limpar filtros"
+                            title="Limpar filtros"
+                            onclick={clearFilters}
+                        ></lightning-button-icon>
+                        <lightning-button
+                            variant="brand"
+                            label={newRecordLabel}
+                            icon-name="utility:add"
+                            onclick={handleNewRecord}
+                        ></lightning-button>
+                    </div>
+                </div>
+
+                <template if:true={semRegistros}>
+                    <div class="empty-state">
+                        <p>Nenhum registro encontrado para esta aba.</p>
+                        <lightning-button
+                            variant="brand-outline"
+                            label="Criar primeiro registro"
+                            icon-name="utility:add"
+                            onclick={handleNewRecord}
+                        ></lightning-button>
+                    </div>
+                </template>
+
+                <template if:false={semRegistros}>
+                    <template if:true={semResultadoFiltrado}>
+                        <div class="empty-state compact">
+                            <p>Nenhum registro combina com a busca atual.</p>
+                            <lightning-button label="Limpar filtros" onclick={clearFilters}></lightning-button>
+                        </div>
+                    </template>
+
+                    <template if:false={semResultadoFiltrado}>
+                        <div class="cards">
+                            <template for:each={filteredRegistros} for:item="registro">
+                                <c-repositorio-card
+                                    key={registro.Id}
+                                    record={registro}
+                                    ondetail={forwardEvent}
+                                    onedit={forwardEvent}
+                                    onarchive={forwardEvent}
+                                    oncopytext={forwardEvent}
+                                ></c-repositorio-card>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </template>
+        </template>
+    </section>
+</template>

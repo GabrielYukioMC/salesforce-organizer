@@ -1,0 +1,231 @@
+.record-card {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 4px rgba(24, 24, 24, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    min-height: 16rem;
+    overflow: hidden;
+    padding: 1rem;
+    position: relative;
+    transition:
+        box-shadow 120ms ease,
+        transform 120ms ease,
+        border-color 120ms ease;
+}
+
+.record-card:hover {
+    border-color: #b0c4df;
+    box-shadow: 0 8px 20px rgba(24, 24, 24, 0.12);
+    transform: translateY(-1px);
+}
+
+.record-card.high-risk {
+    border-color: #ea001e;
+    box-shadow: inset 0 0 0 1px #ea001e;
+}
+
+.accent {
+    background: #0b5cab;
+    height: 0.25rem;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.record-card.theme-case .accent {
+    background: #6b46c1;
+}
+
+.record-card.theme-query .accent {
+    background: #0f7b6c;
+}
+
+.record-card.theme-script .accent {
+    background: #0b5cab;
+}
+
+.record-card.theme-error .accent {
+    background: #ba0517;
+}
+
+.record-card.theme-procedure .accent {
+    background: #b75d00;
+}
+
+.type-row {
+    align-items: center;
+    color: #5c5c5c;
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 700;
+    gap: 0.45rem;
+    margin-top: 0.1rem;
+    text-transform: uppercase;
+}
+
+.icon-tile {
+    align-items: center;
+    border-radius: 0.4rem;
+    display: inline-flex;
+    height: 1.65rem;
+    justify-content: center;
+    width: 1.65rem;
+}
+
+.icon-tile lightning-icon {
+    --slds-c-icon-color-foreground-default: currentColor;
+}
+
+.icon-tile.theme-case {
+    background: #f3efff;
+    color: #4c2aa0;
+}
+
+.icon-tile.theme-query {
+    background: #edfdf8;
+    color: #056764;
+}
+
+.icon-tile.theme-script {
+    background: #eef4ff;
+    color: #0b5cab;
+}
+
+.icon-tile.theme-error {
+    background: #fff1f1;
+    color: #ba0517;
+}
+
+.icon-tile.theme-procedure {
+    background: #fff7e6;
+    color: #8c4b02;
+}
+
+.card-header {
+    min-height: 4.6rem;
+}
+
+.card-header h2 {
+    color: #181818;
+    font-size: 1.03rem;
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0;
+}
+
+.card-header p {
+    color: #5c5c5c;
+    margin-top: 0.45rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.field-grid {
+    display: grid;
+    gap: 0.65rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+}
+
+.field-grid div {
+    min-width: 0;
+}
+
+.field-grid dt {
+    color: #5c5c5c;
+    font-size: 0.68rem;
+    font-weight: 700;
+    margin-bottom: 0.15rem;
+    text-transform: uppercase;
+}
+
+.field-grid dd {
+    color: #181818;
+    font-size: 0.82rem;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-line;
+}
+
+.risk-alert {
+    align-items: center;
+    background: #fff1f1;
+    border: 1px solid #feb8b8;
+    border-radius: 0.4rem;
+    color: #ba0517;
+    display: flex;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.risk-alert lightning-icon {
+    --slds-c-icon-color-foreground-default: #ba0517;
+}
+
+.badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.badge {
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    padding: 0.2rem 0.65rem;
+}
+
+.badge-red {
+    background: #feded8;
+    color: #ba0517;
+}
+
+.badge-orange {
+    background: #ffead8;
+    color: #8c4b02;
+}
+
+.badge-yellow {
+    background: #fff4ce;
+    color: #5f4b00;
+}
+
+.badge-green {
+    background: #dff6dd;
+    color: #056764;
+}
+
+.badge-blue {
+    background: #d8edff;
+    color: #0b5cab;
+}
+
+.badge-neutral,
+.badge-gray {
+    background: #f3f3f3;
+    color: #3e3e3c;
+}
+
+.card-actions {
+    align-items: center;
+    border-top: 1px solid #d8dde6;
+    display: flex;
+    gap: 0.45rem;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 0.75rem;
+}
+
+.card-actions lightning-button {
+    margin-right: auto;
+}

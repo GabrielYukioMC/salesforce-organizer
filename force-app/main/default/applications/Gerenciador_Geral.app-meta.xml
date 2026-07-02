@@ -13,6 +13,7 @@
     <label>Gerenciador Geral</label>
     <navType>Standard</navType>
     <tabs>Central_de_Tarefas</tabs>
+    <tabs>Central_De_Conhecimento</tabs>
     <tabs>Central_Financeiro</tabs>
     <tabs>Projeto__c</tabs>
     <tabs>ApontamentoDeHoras__c</tabs>

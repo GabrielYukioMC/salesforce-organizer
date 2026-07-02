@@ -1,0 +1,124 @@
+<template>
+    <div class="repo-page">
+        <div class="repo-shell">
+            <section class="repo-hero">
+                <div class="repo-title">
+                    <span class="repo-title-icon">
+                        <lightning-icon icon-name="utility:knowledge_base" size="small"></lightning-icon>
+                    </span>
+                    <div>
+                        <p class="eyebrow">Central De Conhecimento</p>
+                        <h1>Repositório Técnico</h1>
+                        <p class="subtitle">Organize conhecimento técnico por cliente e projeto</p>
+                    </div>
+                </div>
+
+                <div class="repo-metrics" aria-label="Resumo do repositório">
+                    <div class="metric">
+                        <strong>{clientesCount}</strong>
+                        <span>Clientes</span>
+                    </div>
+                    <div class="metric">
+                        <strong>{projetosCount}</strong>
+                        <span>Projetos</span>
+                    </div>
+                    <div class="metric">
+                        <strong>{registrosCount}</strong>
+                        <span>Registros</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="selector-panel" aria-label="Filtros do repositório">
+                <div class="repo-filters">
+                    <div class="filter-field">
+                        <lightning-combobox
+                            label="Cliente"
+                            value={clienteId}
+                            options={clienteOptions}
+                            placeholder="Selecione um cliente"
+                            onchange={handleClienteChange}
+                            disabled={loadingClientes}
+                        ></lightning-combobox>
+                    </div>
+                    <lightning-button
+                        label="Novo Cliente"
+                        icon-name="utility:add"
+                        onclick={openClienteModal}
+                        class="filter-action"
+                    ></lightning-button>
+
+                    <div class="filter-field">
+                        <lightning-combobox
+                            label="Projeto"
+                            value={projetoId}
+                            options={projetoOptions}
+                            placeholder="Selecione um projeto"
+                            onchange={handleProjetoChange}
+                            disabled={projetoDisabled}
+                        ></lightning-combobox>
+                    </div>
+                    <lightning-button
+                        label="Novo Projeto"
+                        icon-name="utility:add"
+                        onclick={openProjetoModal}
+                        disabled={novoProjetoDisabled}
+                        class="filter-action"
+                    ></lightning-button>
+                </div>
+            </section>
+
+            <c-repositorio-tabs active-type={tipoAtivo} ontipochange={handleTipoChange}></c-repositorio-tabs>
+
+            <c-repositorio-card-list
+                loading={loadingRegistros}
+                cliente-id={clienteId}
+                projeto-id={projetoId}
+                tipo-ativo={tipoAtivo}
+                registros={registros}
+                onnewrecord={openNewRecordForm}
+                ondetail={openDetail}
+                onedit={openEditForm}
+                onarchive={handleArchive}
+                oncopytext={handleCopyText}
+            ></c-repositorio-card-list>
+
+            <template if:true={showClienteModal}>
+                <c-repositorio-cliente-modal
+                    oncancel={closeClienteModal}
+                    oncreated={handleClienteCreated}
+                ></c-repositorio-cliente-modal>
+            </template>
+
+            <template if:true={showProjetoModal}>
+                <c-repositorio-projeto-modal
+                    cliente-id={clienteId}
+                    cliente-name={clienteName}
+                    oncancel={closeProjetoModal}
+                    oncreated={handleProjetoCreated}
+                ></c-repositorio-projeto-modal>
+            </template>
+
+            <template if:true={showFormModal}>
+                <c-repositorio-record-form
+                    mode={formMode}
+                    record={selectedRecord}
+                    cliente-id={clienteId}
+                    projeto-id={projetoId}
+                    tipo={formTipo}
+                    onsaved={handleRecordSaved}
+                    oncancel={closeFormModal}
+                ></c-repositorio-record-form>
+            </template>
+
+            <template if:true={showDetailModal}>
+                <c-repositorio-record-detail
+                    record={selectedRecord}
+                    onclose={closeDetailModal}
+                    onedit={openEditForm}
+                    oncopytext={handleCopyText}
+                ></c-repositorio-record-detail>
+            </template>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,62 @@
+.tabs {
+    background: #ffffff;
+    border-bottom: 1px solid #d8dde6;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.75rem 1.5rem 0;
+}
+
+.tab {
+    align-items: center;
+    background: transparent;
+    border: 0;
+    border-radius: 0.45rem 0.45rem 0 0;
+    border-bottom: 3px solid transparent;
+    color: #3e3e3c;
+    cursor: pointer;
+    display: inline-flex;
+    gap: 0.45rem;
+    min-height: 2.75rem;
+    padding: 0 0.9rem;
+}
+
+.tab:hover {
+    background: #f3f3f3;
+}
+
+.tab.active {
+    border-bottom-color: #1b5cab;
+    color: #0b5cab;
+    font-weight: 700;
+}
+
+.tab.theme-case.active {
+    background: #f3efff;
+    border-bottom-color: #6b46c1;
+    color: #4c2aa0;
+}
+
+.tab.theme-query.active {
+    background: #edfdf8;
+    border-bottom-color: #0f7b6c;
+    color: #056764;
+}
+
+.tab.theme-script.active {
+    background: #eef4ff;
+    border-bottom-color: #0b5cab;
+    color: #0b5cab;
+}
+
+.tab.theme-error.active {
+    background: #fff1f1;
+    border-bottom-color: #ba0517;
+    color: #ba0517;
+}
+
+.tab.theme-procedure.active {
+    background: #fff7e6;
+    border-bottom-color: #b75d00;
+    color: #8c4b02;
+}
