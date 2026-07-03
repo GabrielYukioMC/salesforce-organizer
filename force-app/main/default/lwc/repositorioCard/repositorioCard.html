@@ -1,0 +1,76 @@
+<template>
+    <article class={cardClass}>
+        <div class="accent"></div>
+
+        <div class="type-row">
+            <span class={iconTileClass}>
+                <lightning-icon icon-name={iconName} size="x-small"></lightning-icon>
+            </span>
+            <span>{typeLabel}</span>
+        </div>
+
+        <template if:true={showContextLabel}>
+            <div class="context-row">{contextLabel}</div>
+        </template>
+
+        <div class="card-header">
+            <h2>{record.Name}</h2>
+            <p>{primaryDescription}</p>
+        </div>
+
+        <template if:true={showRiskAlert}>
+            <div class="risk-alert">
+                <lightning-icon icon-name="utility:warning" size="xx-small"></lightning-icon>
+                <span>Script de alto risco</span>
+            </div>
+        </template>
+
+        <dl class="field-grid">
+            <template for:each={details} for:item="detail">
+                <div key={detail.label}>
+                    <dt>{detail.label}</dt>
+                    <dd>{detail.value}</dd>
+                </div>
+            </template>
+        </dl>
+
+        <div class="badges">
+            <template if:true={showCriticidade}>
+                <span class={criticidadeClass}>Criticidade: {record.Criticidade__c}</span>
+            </template>
+            <template if:true={showRisco}>
+                <span class={riscoClass}>Risco: {record.Risco__c}</span>
+            </template>
+            <template if:true={record.Ambiente__c}>
+                <span class="badge badge-blue">Ambiente: {record.Ambiente__c}</span>
+            </template>
+            <span class={statusClass}>{record.Status__c}</span>
+        </div>
+
+        <div class="card-actions">
+            <lightning-button label="Ver detalhes" icon-name="utility:preview" variant="neutral" onclick={handleDetail}></lightning-button>
+            <template if:true={showCopy}>
+                <lightning-button-icon
+                    icon-name="utility:copy"
+                    alternative-text={copyLabel}
+                    title={copyLabel}
+                    onclick={handleCopy}
+                ></lightning-button-icon>
+            </template>
+            <template if:false={readOnly}>
+                <lightning-button-icon
+                    icon-name="utility:edit"
+                    alternative-text="Editar"
+                    title="Editar"
+                    onclick={handleEdit}
+                ></lightning-button-icon>
+                <lightning-button-icon
+                    icon-name="utility:archive"
+                    alternative-text="Arquivar"
+                    title="Arquivar"
+                    onclick={handleArchive}
+                ></lightning-button-icon>
+            </template>
+        </div>
+    </article>
+</template>

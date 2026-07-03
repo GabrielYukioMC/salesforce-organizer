@@ -1,0 +1,35 @@
+.code-viewer {
+    margin-top: 1rem;
+}
+
+.code-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.code-header h3 {
+    color: #3e3e3c;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02rem;
+    text-transform: uppercase;
+}
+
+pre {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0)),
+        #201858;
+    border-radius: 0.5rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    color: #f3f3ff;
+    font-family: Consolas, Monaco, 'Courier New', monospace;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    margin: 0;
+    max-height: 22rem;
+    overflow: auto;
+    padding: 1rem;
+    white-space: pre-wrap;
+}

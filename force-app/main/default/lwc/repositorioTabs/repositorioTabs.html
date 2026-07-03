@@ -1,0 +1,10 @@
+<template>
+    <nav class="tabs" aria-label="Tipos de registro técnico">
+        <template for:each={tabsView} for:item="tab">
+            <button key={tab.value} class={tab.className} data-value={tab.value} onclick={handleClick}>
+                <lightning-icon icon-name={tab.iconName} size="x-small"></lightning-icon>
+                <span>{tab.label}</span>
+            </button>
+        </template>
+    </nav>
+</template>

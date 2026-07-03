@@ -1,0 +1,107 @@
+<template>
+    <section class="list-shell">
+        <template if:true={loading}>
+            <div class="state state-loading">
+                <lightning-spinner alternative-text="Carregando registros" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={loading}>
+            <template if:true={semCliente}>
+                <div class="state">
+                    <lightning-icon icon-name="utility:company" size="medium" class="state-icon"></lightning-icon>
+                    <p>Selecione um cliente para visualizar os projetos e registros técnicos.</p>
+                </div>
+            </template>
+
+            <template if:true={semProjeto}>
+                <div class="state">
+                    <lightning-icon icon-name="utility:folder" size="medium" class="state-icon"></lightning-icon>
+                    <p>Selecione ou crie um projeto para este cliente.</p>
+                </div>
+            </template>
+
+            <template if:true={temContexto}>
+                <div class="toolbar">
+                    <div class="toolbar-title">
+                        <span>{tipoLabel}</span>
+                        <p>{recordCountLabel}</p>
+                    </div>
+                    <div class={toolbarActionsClass}>
+                        <lightning-input
+                            type="search"
+                            label="Buscar"
+                            variant="label-hidden"
+                            placeholder={searchPlaceholder}
+                            value={searchTerm}
+                            onchange={handleSearchChange}
+                        ></lightning-input>
+                        <lightning-combobox
+                            label="Status"
+                            variant="label-hidden"
+                            value={statusFilter}
+                            options={statusOptions}
+                            onchange={handleStatusChange}
+                        ></lightning-combobox>
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            alternative-text="Recarregar registros"
+                            title="Recarregar registros"
+                            onclick={handleRefresh}
+                        ></lightning-button-icon>
+                        <template if:false={readOnly}>
+                            <lightning-button
+                                variant="brand"
+                                label={newRecordLabel}
+                                icon-name="utility:add"
+                                onclick={handleNewRecord}
+                            ></lightning-button>
+                        </template>
+                    </div>
+                </div>
+
+                <template if:true={semRegistros}>
+                    <div class="empty-state">
+                        <lightning-icon icon-name="utility:knowledge_base" size="medium" class="state-icon"></lightning-icon>
+                        <p>Nenhum registro encontrado para esta aba.</p>
+                        <template if:false={readOnly}>
+                            <lightning-button
+                                variant="brand-outline"
+                                label="Criar primeiro registro"
+                                icon-name="utility:add"
+                                onclick={handleNewRecord}
+                            ></lightning-button>
+                        </template>
+                    </div>
+                </template>
+
+                <template if:false={semRegistros}>
+                    <template if:true={semResultadoFiltrado}>
+                        <div class="empty-state compact">
+                            <lightning-icon icon-name="utility:search" size="small" class="state-icon"></lightning-icon>
+                            <p>Nenhum registro combina com a busca atual.</p>
+                            <lightning-button label="Limpar filtros" onclick={clearFilters}></lightning-button>
+                        </div>
+                    </template>
+
+                    <template if:false={semResultadoFiltrado}>
+                        <div class="cards">
+                            <template for:each={filteredRegistros} for:item="registro">
+                                <c-repositorio-card
+                                    key={registro.Id}
+                                    record={registro}
+                                    read-only={readOnly}
+                                    show-context={todosClientes}
+                                    ondetail={forwardEvent}
+                                    onedit={forwardEvent}
+                                    onarchive={forwardEvent}
+                                    oncopytext={forwardEvent}
+                                ></c-repositorio-card>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </template>
+        </template>
+    </section>
+</template>

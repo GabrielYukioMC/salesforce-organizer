@@ -1,0 +1,14 @@
+<template>
+    <section class="code-viewer">
+        <div class="code-header">
+            <h3>{label}</h3>
+            <lightning-button
+                variant="brand"
+                icon-name="utility:copy"
+                label={copyLabel}
+                onclick={handleCopy}
+            ></lightning-button>
+        </div>
+        <pre>{value}</pre>
+    </section>
+</template>
