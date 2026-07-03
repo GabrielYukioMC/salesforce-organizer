@@ -76,21 +76,44 @@
 }
 
 .metric {
+    align-items: center;
     background: #ffffff;
     border: 1px solid #d8dde6;
     border-radius: 0.5rem;
+    display: flex;
+    gap: 0.65rem;
     min-width: 5.5rem;
     padding: 0.65rem 0.8rem;
 }
 
-.metric strong {
+.metric-icon {
+    align-items: center;
+    background: #eef4ff;
+    border-radius: 0.4rem;
+    color: #0b5cab;
+    display: inline-flex;
+    flex: none;
+    height: 2rem;
+    justify-content: center;
+    width: 2rem;
+}
+
+.metric-icon lightning-icon {
+    --slds-c-icon-color-foreground-default: currentColor;
+}
+
+.metric-body {
+    min-width: 0;
+}
+
+.metric-body strong {
     color: #080707;
     display: block;
     font-size: 1.25rem;
     line-height: 1;
 }
 
-.metric span {
+.metric-body span {
     color: #5c5c5c;
     display: block;
     font-size: 0.72rem;
@@ -101,6 +124,22 @@
     background: #ffffff;
     border-bottom: 1px solid #d8dde6;
     padding: 1rem 1.5rem;
+}
+
+.section-label {
+    align-items: center;
+    color: #0b5cab;
+    display: flex;
+    font-size: 0.72rem;
+    font-weight: 700;
+    gap: 0.4rem;
+    letter-spacing: 0.02rem;
+    margin: 0 0 0.65rem;
+    text-transform: uppercase;
+}
+
+.section-label lightning-icon {
+    --slds-c-icon-color-foreground-default: #0b5cab;
 }
 
 .repo-filters {

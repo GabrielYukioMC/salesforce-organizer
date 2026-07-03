@@ -24,7 +24,7 @@ export const TABS = [
     {
         label: 'Scripts Apex',
         value: TIPO_SCRIPT,
-        iconName: 'utility:code_playground',
+        iconName: 'utility:apex',
         newLabel: 'Novo Script Apex',
         formLabel: 'Script Apex',
         theme: 'script'

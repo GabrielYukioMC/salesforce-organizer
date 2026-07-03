@@ -28,6 +28,21 @@
     text-align: left;
 }
 
+.title-icon {
+    align-items: center;
+    background: #0b5cab;
+    border-radius: 0.5rem;
+    box-shadow: 0 6px 14px rgba(11, 92, 171, 0.22);
+    display: inline-flex;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+.title-icon lightning-icon {
+    --slds-c-icon-color-foreground-default: #ffffff;
+}
+
 h2 {
     font-size: 1.25rem;
     font-weight: 700;
@@ -82,9 +97,11 @@ section {
 
 h3 {
     color: #3e3e3c;
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     font-weight: 700;
+    letter-spacing: 0.02rem;
     margin-bottom: 0.35rem;
+    text-transform: uppercase;
 }
 
 p {

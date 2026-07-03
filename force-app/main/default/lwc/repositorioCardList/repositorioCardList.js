@@ -7,6 +7,8 @@ export default class RepositorioCardList extends LightningElement {
     @api projetoId;
     @api tipoAtivo;
     @api registros = [];
+    @api readOnly = false;
+    @api todosClientes = false;
 
     searchTerm = '';
     statusFilter = 'Todos';
@@ -19,15 +21,15 @@ export default class RepositorioCardList extends LightningElement {
     ];
 
     get semCliente() {
-        return !this.clienteId;
+        return !this.clienteId && !this.todosClientes;
     }
 
     get semProjeto() {
-        return Boolean(this.clienteId) && !this.projetoId;
+        return Boolean(this.clienteId) && !this.projetoId && !this.todosClientes;
     }
 
     get temContexto() {
-        return Boolean(this.clienteId && this.projetoId);
+        return this.todosClientes || Boolean(this.clienteId && this.projetoId);
     }
 
     get semRegistros() {
@@ -65,7 +67,18 @@ export default class RepositorioCardList extends LightningElement {
         return getTipoConfig(this.tipoAtivo).newLabel;
     }
 
+    get searchPlaceholder() {
+        return this.todosClientes ? 'Buscar em todos os clientes...' : 'Buscar neste projeto...';
+    }
+
+    get toolbarActionsClass() {
+        return this.readOnly ? 'toolbar-actions read-only' : 'toolbar-actions';
+    }
+
     handleNewRecord() {
+        if (this.readOnly) {
+            return;
+        }
         this.dispatchEvent(new CustomEvent('newrecord'));
     }
 
@@ -75,6 +88,10 @@ export default class RepositorioCardList extends LightningElement {
 
     handleStatusChange(event) {
         this.statusFilter = event.detail.value;
+    }
+
+    handleRefresh() {
+        this.dispatchEvent(new CustomEvent('refresh'));
     }
 
     clearFilters() {

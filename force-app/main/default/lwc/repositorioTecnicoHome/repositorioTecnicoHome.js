@@ -3,8 +3,11 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getClientes from '@salesforce/apex/RepositorioTecnicoController.getClientes';
 import getProjetosByCliente from '@salesforce/apex/RepositorioTecnicoController.getProjetosByCliente';
 import getRegistros from '@salesforce/apex/RepositorioTecnicoController.getRegistros';
+import getRegistrosTodos from '@salesforce/apex/RepositorioTecnicoController.getRegistrosTodos';
 import arquivarRegistro from '@salesforce/apex/RepositorioTecnicoController.arquivarRegistro';
 import { TIPO_CASO, getTipoConfig } from 'c/repositorioConfig';
+
+const TODOS_CLIENTES_VALUE = '__TODOS_CLIENTES__';
 
 export default class RepositorioTecnicoHome extends LightningElement {
     @track clientes = [];
@@ -27,11 +30,14 @@ export default class RepositorioTecnicoHome extends LightningElement {
     showDetailModal = false;
 
     connectedCallback() {
-        this.loadClientes();
+        this.loadClientes(TODOS_CLIENTES_VALUE);
     }
 
     get clienteOptions() {
-        return this.clientes.map((cliente) => ({ label: cliente.Name, value: cliente.Id }));
+        return [
+            { label: 'Todos', value: TODOS_CLIENTES_VALUE },
+            ...this.clientes.map((cliente) => ({ label: cliente.Name, value: cliente.Id }))
+        ];
     }
 
     get projetoOptions() {
@@ -39,16 +45,35 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     get clienteName() {
+        if (this.isTodosClientes) {
+            return 'Todos';
+        }
         const cliente = this.clientes.find((item) => item.Id === this.clienteId);
         return cliente ? cliente.Name : '';
     }
 
+    get isTodosClientes() {
+        return this.clienteId === TODOS_CLIENTES_VALUE;
+    }
+
+    get readOnlyMode() {
+        return this.isTodosClientes;
+    }
+
     get projetoDisabled() {
-        return !this.clienteId || this.loadingProjetos;
+        return this.isTodosClientes || !this.clienteId || this.loadingProjetos;
+    }
+
+    get projetoPlaceholder() {
+        return this.isTodosClientes ? 'Todos os projetos' : 'Selecione um projeto';
+    }
+
+    get novoClienteDisabled() {
+        return this.readOnlyMode;
     }
 
     get novoProjetoDisabled() {
-        return !this.clienteId;
+        return this.readOnlyMode || !this.clienteId;
     }
 
     get clientesCount() {
@@ -56,6 +81,9 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     get projetosCount() {
+        if (this.isTodosClientes) {
+            return new Set((this.registros || []).map((registro) => registro.Projeto__c).filter(Boolean)).size;
+        }
         return this.projetos.length;
     }
 
@@ -68,7 +96,7 @@ export default class RepositorioTecnicoHome extends LightningElement {
         try {
             this.clientes = await getClientes();
             const selectedId = preferredClienteId || this.clienteId;
-            this.clienteId = this.resolveSelectedId(this.clientes, selectedId);
+            this.clienteId = this.resolveSelectedClienteId(selectedId);
             await this.loadProjetos();
         } catch (error) {
             this.handleError(error);
@@ -82,6 +110,13 @@ export default class RepositorioTecnicoHome extends LightningElement {
             this.projetos = [];
             this.projetoId = null;
             this.registros = [];
+            return;
+        }
+
+        if (this.isTodosClientes) {
+            this.projetos = [];
+            this.projetoId = null;
+            await this.loadRegistros();
             return;
         }
 
@@ -99,23 +134,32 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     async loadRegistros() {
-        if (!this.clienteId || !this.projetoId || !this.tipoAtivo) {
+        if (!this.tipoAtivo || (!this.isTodosClientes && (!this.clienteId || !this.projetoId))) {
             this.registros = [];
             return;
         }
 
         this.loadingRegistros = true;
         try {
-            this.registros = await getRegistros({
-                clienteId: this.clienteId,
-                projetoId: this.projetoId,
-                tipo: this.tipoAtivo
-            });
+            this.registros = this.isTodosClientes
+                ? await getRegistrosTodos({ tipo: this.tipoAtivo })
+                : await getRegistros({
+                      clienteId: this.clienteId,
+                      projetoId: this.projetoId,
+                      tipo: this.tipoAtivo
+                  });
         } catch (error) {
             this.handleError(error);
         } finally {
             this.loadingRegistros = false;
         }
+    }
+
+    resolveSelectedClienteId(preferredId) {
+        if (preferredId === TODOS_CLIENTES_VALUE) {
+            return TODOS_CLIENTES_VALUE;
+        }
+        return this.resolveSelectedId(this.clientes, preferredId);
     }
 
     resolveSelectedId(records, preferredId) {
@@ -141,7 +185,29 @@ export default class RepositorioTecnicoHome extends LightningElement {
         this.loadRegistros();
     }
 
+    async handleRefresh() {
+        if (this.loadingClientes || this.loadingProjetos || this.loadingRegistros) {
+            return;
+        }
+
+        if (!this.clienteId) {
+            await this.loadClientes();
+            return;
+        }
+
+        if (this.isTodosClientes) {
+            await this.loadClientes(TODOS_CLIENTES_VALUE);
+            return;
+        }
+
+        await this.loadClientes(this.clienteId);
+    }
+
     openClienteModal() {
+        if (this.readOnlyMode) {
+            this.showReadOnlyToast();
+            return;
+        }
         this.showClienteModal = true;
     }
 
@@ -156,6 +222,10 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     openProjetoModal() {
+        if (this.readOnlyMode) {
+            this.showReadOnlyToast();
+            return;
+        }
         this.showProjetoModal = true;
     }
 
@@ -170,6 +240,10 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     openNewRecordForm() {
+        if (this.readOnlyMode) {
+            this.showReadOnlyToast();
+            return;
+        }
         this.selectedRecord = null;
         this.formMode = 'create';
         this.formTipo = this.tipoAtivo;
@@ -177,6 +251,10 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     openEditForm(event) {
+        if (this.readOnlyMode) {
+            this.showReadOnlyToast();
+            return;
+        }
         const recordId = event.detail.id;
         this.selectedRecord = this.findRecord(recordId);
         this.formMode = 'edit';
@@ -209,6 +287,10 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     async handleArchive(event) {
+        if (this.readOnlyMode) {
+            this.showReadOnlyToast();
+            return;
+        }
         const recordId = event.detail.id;
         const record = this.findRecord(recordId);
         if (!record || !window.confirm(`Arquivar "${record.Name}"?`)) {
@@ -270,6 +352,10 @@ export default class RepositorioTecnicoHome extends LightningElement {
 
     showToast(title, message, variant) {
         this.dispatchEvent(new ShowToastEvent({ title, message, variant }));
+    }
+
+    showReadOnlyToast() {
+        this.showToast('Somente visualização', 'Selecione um cliente específico para criar ou alterar registros.', 'info');
     }
 
     get newRecordLabel() {

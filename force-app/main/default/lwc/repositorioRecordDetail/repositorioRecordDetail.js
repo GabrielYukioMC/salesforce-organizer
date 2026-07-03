@@ -3,6 +3,7 @@ import { TIPO_CASO, TIPO_ERRO, TIPO_PROCEDIMENTO, TIPO_QUERY, TIPO_SCRIPT, getTi
 
 export default class RepositorioRecordDetail extends LightningElement {
     @api record;
+    @api readOnly = false;
 
     get iconName() {
         return getTipoConfig(this.record.Tipo__c).iconName;
@@ -53,6 +54,9 @@ export default class RepositorioRecordDetail extends LightningElement {
     }
 
     handleEdit() {
+        if (this.readOnly) {
+            return;
+        }
         this.dispatchEvent(
             new CustomEvent('edit', {
                 detail: { id: this.record.Id },

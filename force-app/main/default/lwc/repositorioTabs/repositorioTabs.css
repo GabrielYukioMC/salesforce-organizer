@@ -3,60 +3,64 @@
     border-bottom: 1px solid #d8dde6;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.75rem 1.5rem 0;
+    gap: 0.5rem;
+    padding: 0.9rem 1.5rem;
 }
 
 .tab {
     align-items: center;
-    background: transparent;
-    border: 0;
-    border-radius: 0.45rem 0.45rem 0 0;
-    border-bottom: 3px solid transparent;
+    background: #f4f6f9;
+    border: 1px solid transparent;
+    border-radius: 999px;
     color: #3e3e3c;
     cursor: pointer;
     display: inline-flex;
+    font-size: 0.85rem;
+    font-weight: 600;
     gap: 0.45rem;
-    min-height: 2.75rem;
-    padding: 0 0.9rem;
+    min-height: 2.35rem;
+    padding: 0 1rem;
+    transition:
+        background-color 120ms ease,
+        border-color 120ms ease,
+        color 120ms ease;
 }
 
 .tab:hover {
-    background: #f3f3f3;
+    background: #eaeef3;
 }
 
 .tab.active {
-    border-bottom-color: #1b5cab;
     color: #0b5cab;
     font-weight: 700;
 }
 
 .tab.theme-case.active {
     background: #f3efff;
-    border-bottom-color: #6b46c1;
+    border-color: #6b46c1;
     color: #4c2aa0;
 }
 
 .tab.theme-query.active {
     background: #edfdf8;
-    border-bottom-color: #0f7b6c;
+    border-color: #0f7b6c;
     color: #056764;
 }
 
 .tab.theme-script.active {
     background: #eef4ff;
-    border-bottom-color: #0b5cab;
+    border-color: #0b5cab;
     color: #0b5cab;
 }
 
 .tab.theme-error.active {
     background: #fff1f1;
-    border-bottom-color: #ba0517;
+    border-color: #ba0517;
     color: #ba0517;
 }
 
 .tab.theme-procedure.active {
     background: #fff7e6;
-    border-bottom-color: #b75d00;
+    border-color: #b75d00;
     color: #8c4b02;
 }

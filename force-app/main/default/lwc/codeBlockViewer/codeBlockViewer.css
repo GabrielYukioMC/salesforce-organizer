@@ -1,5 +1,5 @@
 .code-viewer {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
 }
 
 .code-header {
@@ -11,8 +11,10 @@
 
 .code-header h3 {
     color: #3e3e3c;
-    font-size: 0.95rem;
+    font-size: 0.72rem;
     font-weight: 700;
+    letter-spacing: 0.02rem;
+    text-transform: uppercase;
 }
 
 pre {

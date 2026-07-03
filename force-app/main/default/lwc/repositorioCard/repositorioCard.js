@@ -3,6 +3,8 @@ import { TIPO_CASO, TIPO_QUERY, TIPO_SCRIPT, TIPO_ERRO, TIPO_PROCEDIMENTO, getTi
 
 export default class RepositorioCard extends LightningElement {
     @api record;
+    @api readOnly = false;
+    @api showContext = false;
 
     get iconName() {
         return getTipoConfig(this.record.Tipo__c).iconName;
@@ -18,6 +20,16 @@ export default class RepositorioCard extends LightningElement {
 
     get iconTileClass() {
         return `icon-tile theme-${this.theme}`;
+    }
+
+    get showContextLabel() {
+        return this.showContext && this.contextLabel;
+    }
+
+    get contextLabel() {
+        const clienteName = this.record.Cliente__r ? this.record.Cliente__r.Name : '';
+        const projetoName = this.record.Projeto__r ? this.record.Projeto__r.Name : '';
+        return [clienteName, projetoName].filter(Boolean).join(' / ');
     }
 
     get isCaso() {
@@ -180,10 +192,16 @@ export default class RepositorioCard extends LightningElement {
     }
 
     handleEdit() {
+        if (this.readOnly) {
+            return;
+        }
         this.dispatchRecordEvent('edit');
     }
 
     handleArchive() {
+        if (this.readOnly) {
+            return;
+        }
         this.dispatchRecordEvent('archive');
     }
 

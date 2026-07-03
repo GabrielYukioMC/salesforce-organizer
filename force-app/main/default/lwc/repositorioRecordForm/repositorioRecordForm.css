@@ -31,6 +31,21 @@
     text-align: left;
 }
 
+.title-icon {
+    align-items: center;
+    background: #0b5cab;
+    border-radius: 0.5rem;
+    box-shadow: 0 6px 14px rgba(11, 92, 171, 0.22);
+    display: inline-flex;
+    height: 2.5rem;
+    justify-content: center;
+    width: 2.5rem;
+}
+
+.title-icon lightning-icon {
+    --slds-c-icon-color-foreground-default: #ffffff;
+}
+
 h2 {
     font-size: 1.25rem;
     font-weight: 700;
@@ -61,6 +76,7 @@ lightning-combobox {
 }
 
 .checks {
+    align-items: center;
     display: flex;
     gap: 1.5rem;
     margin-top: 0.75rem;
@@ -70,11 +86,21 @@ lightning-combobox {
     --slds-c-textarea-sizing-min-height: 9rem;
 }
 
-.checks {
+.form-section {
     background: #ffffff;
     border: 1px solid #d8dde6;
     border-radius: 0.5rem;
-    padding: 0.65rem 0.85rem;
+    margin-top: 1rem;
+    padding: 0.85rem 1rem 1rem;
+}
+
+.form-section h3 {
+    color: #3e3e3c;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02rem;
+    margin: 0 0 0.15rem;
+    text-transform: uppercase;
 }
 
 @media (max-width: 42rem) {
@@ -85,5 +111,6 @@ lightning-combobox {
     .checks {
         flex-direction: column;
         gap: 0.5rem;
+        align-items: flex-start;
     }
 }

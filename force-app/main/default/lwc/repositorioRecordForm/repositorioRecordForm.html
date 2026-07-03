@@ -3,7 +3,9 @@
         <div class="slds-modal__container">
             <header class="slds-modal__header modal-header">
                 <div class="title-row">
-                    <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                    <span class="title-icon">
+                        <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                    </span>
                     <div>
                         <h2>{modalTitle}</h2>
                         <p>Tipo: {tipo}</p>
@@ -28,71 +30,128 @@
                 ></lightning-input>
 
                 <template if:true={isCaso}>
-                    <lightning-textarea data-field="Resumo__c" label="Resumo" value={draft.Resumo__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="Sintoma__c" label="Sintoma" value={draft.Sintoma__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="CausaProvavel__c" label="Causa provável" value={draft.CausaProvavel__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ComoInvestigar__c" label="Como investigar" value={draft.ComoInvestigar__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ComoResolver__c" label="Como resolver" value={draft.ComoResolver__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
-                    <div class="two-columns">
-                        <lightning-combobox data-field="Criticidade__c" label="Criticidade" value={draft.Criticidade__c} options={criticidadeOptions} onchange={handleFieldChange}></lightning-combobox>
-                        <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
+                    <div class="form-section">
+                        <h3>Resumo</h3>
+                        <lightning-textarea data-field="Resumo__c" label="Resumo" value={draft.Resumo__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Diagnóstico</h3>
+                        <lightning-textarea data-field="Sintoma__c" label="Sintoma" value={draft.Sintoma__c} required onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="CausaProvavel__c" label="Causa provável" value={draft.CausaProvavel__c} onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="ComoInvestigar__c" label="Como investigar" value={draft.ComoInvestigar__c} required onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Resolução</h3>
+                        <lightning-textarea data-field="ComoResolver__c" label="Como resolver" value={draft.ComoResolver__c} required onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Classificação</h3>
+                        <div class="two-columns">
+                            <lightning-combobox data-field="Criticidade__c" label="Criticidade" value={draft.Criticidade__c} options={criticidadeOptions} onchange={handleFieldChange}></lightning-combobox>
+                            <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
+                        </div>
                     </div>
                 </template>
 
                 <template if:true={isQuery}>
-                    <div class="two-columns">
-                        <lightning-textarea data-field="QuandoUsar__c" label="Quando usar" value={draft.QuandoUsar__c} required onchange={handleFieldChange}></lightning-textarea>
-                        <lightning-input data-field="ObjetoSalesforce__c" label="Objeto Salesforce" value={draft.ObjetoSalesforce__c} onchange={handleFieldChange}></lightning-input>
+                    <div class="form-section">
+                        <h3>Contexto</h3>
+                        <div class="two-columns">
+                            <lightning-textarea data-field="QuandoUsar__c" label="Quando usar" value={draft.QuandoUsar__c} required onchange={handleFieldChange}></lightning-textarea>
+                            <lightning-input data-field="ObjetoSalesforce__c" label="Objeto Salesforce" value={draft.ObjetoSalesforce__c} onchange={handleFieldChange}></lightning-input>
+                        </div>
+                        <lightning-textarea data-field="Parametros__c" label="Parâmetros para trocar" value={draft.Parametros__c} onchange={handleFieldChange}></lightning-textarea>
                     </div>
-                    <lightning-textarea data-field="Parametros__c" label="Parâmetros para trocar" value={draft.Parametros__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="QuerySOQL__c" label="Query SOQL" value={draft.QuerySOQL__c} required onchange={handleFieldChange} class="code-field"></lightning-textarea>
-                    <lightning-textarea data-field="ComoInterpretar__c" label="Como interpretar" value={draft.ComoInterpretar__c} onchange={handleFieldChange}></lightning-textarea>
-                    <div class="two-columns">
-                        <lightning-combobox data-field="Ambiente__c" label="Ambiente" value={draft.Ambiente__c} options={ambienteOptions} onchange={handleFieldChange}></lightning-combobox>
-                        <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
+                    <div class="form-section">
+                        <h3>Query</h3>
+                        <lightning-textarea data-field="QuerySOQL__c" label="Query SOQL" value={draft.QuerySOQL__c} required onchange={handleFieldChange} class="code-field"></lightning-textarea>
+                        <lightning-textarea data-field="ComoInterpretar__c" label="Como interpretar" value={draft.ComoInterpretar__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Classificação</h3>
+                        <div class="two-columns">
+                            <lightning-combobox data-field="Ambiente__c" label="Ambiente" value={draft.Ambiente__c} options={ambienteOptions} onchange={handleFieldChange}></lightning-combobox>
+                            <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
+                        </div>
                     </div>
                 </template>
 
                 <template if:true={isScript}>
-                    <lightning-textarea data-field="Objetivo__c" label="Objetivo" value={draft.Objetivo__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="QuandoUsar__c" label="Quando usar" value={draft.QuandoUsar__c} onchange={handleFieldChange}></lightning-textarea>
-                    <div class="two-columns">
-                        <lightning-combobox data-field="Risco__c" label="Risco" value={draft.Risco__c} options={riscoOptions} required onchange={handleFieldChange}></lightning-combobox>
-                        <lightning-combobox data-field="Ambiente__c" label="Ambiente" value={draft.Ambiente__c} options={ambienteOptions} required onchange={handleFieldChange}></lightning-combobox>
+                    <div class="form-section">
+                        <h3>Contexto</h3>
+                        <lightning-textarea data-field="Objetivo__c" label="Objetivo" value={draft.Objetivo__c} required onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="QuandoUsar__c" label="Quando usar" value={draft.QuandoUsar__c} onchange={handleFieldChange}></lightning-textarea>
+                        <div class="two-columns">
+                            <lightning-combobox data-field="Risco__c" label="Risco" value={draft.Risco__c} options={riscoOptions} required onchange={handleFieldChange}></lightning-combobox>
+                            <lightning-combobox data-field="Ambiente__c" label="Ambiente" value={draft.Ambiente__c} options={ambienteOptions} required onchange={handleFieldChange}></lightning-combobox>
+                        </div>
+                        <div class="checks">
+                            <lightning-input data-field="ExigeBackup__c" type="checkbox" label="Exige backup?" checked={draft.ExigeBackup__c} onchange={handleFieldChange}></lightning-input>
+                            <lightning-input data-field="ExigeAprovacao__c" type="checkbox" label="Exige aprovação?" checked={draft.ExigeAprovacao__c} onchange={handleFieldChange}></lightning-input>
+                        </div>
                     </div>
-                    <div class="checks">
-                        <lightning-input data-field="ExigeBackup__c" type="checkbox" label="Exige backup?" checked={draft.ExigeBackup__c} onchange={handleFieldChange}></lightning-input>
-                        <lightning-input data-field="ExigeAprovacao__c" type="checkbox" label="Exige aprovação?" checked={draft.ExigeAprovacao__c} onchange={handleFieldChange}></lightning-input>
+                    <div class="form-section">
+                        <h3>Script</h3>
+                        <lightning-textarea data-field="Parametros__c" label="Parâmetros para trocar" value={draft.Parametros__c} onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="ScriptApex__c" label="Script Apex" value={draft.ScriptApex__c} required onchange={handleFieldChange} class="code-field"></lightning-textarea>
                     </div>
-                    <lightning-textarea data-field="Parametros__c" label="Parâmetros para trocar" value={draft.Parametros__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ScriptApex__c" label="Script Apex" value={draft.ScriptApex__c} required onchange={handleFieldChange} class="code-field"></lightning-textarea>
-                    <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="Rollback__c" label="Rollback" value={draft.Rollback__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
-                </template>
-
-                <template if:true={isErro}>
-                    <lightning-textarea data-field="MensagemErro__c" label="Mensagem do erro" value={draft.MensagemErro__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="OndeAcontece__c" label="Onde acontece" value={draft.OndeAcontece__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="CausaProvavel__c" label="Causa provável" value={draft.CausaProvavel__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ComoInvestigar__c" label="Como investigar" value={draft.ComoInvestigar__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="SolucaoConhecida__c" label="Solução conhecida" value={draft.SolucaoConhecida__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
-                    <div class="two-columns">
-                        <lightning-combobox data-field="Criticidade__c" label="Criticidade" value={draft.Criticidade__c} options={criticidadeOptions} onchange={handleFieldChange}></lightning-combobox>
+                    <div class="form-section">
+                        <h3>Validação</h3>
+                        <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="Rollback__c" label="Rollback" value={draft.Rollback__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Classificação</h3>
                         <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
                     </div>
                 </template>
 
+                <template if:true={isErro}>
+                    <div class="form-section">
+                        <h3>Ocorrência</h3>
+                        <lightning-textarea data-field="MensagemErro__c" label="Mensagem do erro" value={draft.MensagemErro__c} required onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="OndeAcontece__c" label="Onde acontece" value={draft.OndeAcontece__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Diagnóstico</h3>
+                        <lightning-textarea data-field="CausaProvavel__c" label="Causa provável" value={draft.CausaProvavel__c} onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="ComoInvestigar__c" label="Como investigar" value={draft.ComoInvestigar__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Solução</h3>
+                        <lightning-textarea data-field="SolucaoConhecida__c" label="Solução conhecida" value={draft.SolucaoConhecida__c} required onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Classificação</h3>
+                        <div class="two-columns">
+                            <lightning-combobox data-field="Criticidade__c" label="Criticidade" value={draft.Criticidade__c} options={criticidadeOptions} onchange={handleFieldChange}></lightning-combobox>
+                            <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
+                        </div>
+                    </div>
+                </template>
+
                 <template if:true={isProcedimento}>
-                    <lightning-textarea data-field="Objetivo__c" label="Objetivo" value={draft.Objetivo__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="PreRequisitos__c" label="Pré-requisitos" value={draft.PreRequisitos__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="Passos__c" label="Passos" value={draft.Passos__c} required onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="Cuidados__c" label="Cuidados" value={draft.Cuidados__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-textarea data-field="ResultadoEsperado__c" label="Resultado esperado" value={draft.ResultadoEsperado__c} onchange={handleFieldChange}></lightning-textarea>
-                    <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
+                    <div class="form-section">
+                        <h3>Objetivo</h3>
+                        <lightning-textarea data-field="Objetivo__c" label="Objetivo" value={draft.Objetivo__c} required onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="PreRequisitos__c" label="Pré-requisitos" value={draft.PreRequisitos__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Execução</h3>
+                        <lightning-textarea data-field="Passos__c" label="Passos" value={draft.Passos__c} required onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="Cuidados__c" label="Cuidados" value={draft.Cuidados__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Validação</h3>
+                        <lightning-textarea data-field="ComoValidar__c" label="Como validar" value={draft.ComoValidar__c} onchange={handleFieldChange}></lightning-textarea>
+                        <lightning-textarea data-field="ResultadoEsperado__c" label="Resultado esperado" value={draft.ResultadoEsperado__c} onchange={handleFieldChange}></lightning-textarea>
+                    </div>
+                    <div class="form-section">
+                        <h3>Classificação</h3>
+                        <lightning-combobox data-field="Status__c" label="Status" value={draft.Status__c} options={statusOptions} required onchange={handleFieldChange}></lightning-combobox>
+                    </div>
                 </template>
             </div>
 

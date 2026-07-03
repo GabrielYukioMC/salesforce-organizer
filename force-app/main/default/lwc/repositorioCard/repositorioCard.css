@@ -67,6 +67,15 @@
     text-transform: uppercase;
 }
 
+.context-row {
+    color: #6b6d70;
+    font-size: 0.78rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .icon-tile {
     align-items: center;
     border-radius: 0.4rem;

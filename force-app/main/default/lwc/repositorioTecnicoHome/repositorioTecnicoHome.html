@@ -15,21 +15,40 @@
 
                 <div class="repo-metrics" aria-label="Resumo do repositório">
                     <div class="metric">
-                        <strong>{clientesCount}</strong>
-                        <span>Clientes</span>
+                        <span class="metric-icon">
+                            <lightning-icon icon-name="utility:company" size="x-small"></lightning-icon>
+                        </span>
+                        <div class="metric-body">
+                            <strong>{clientesCount}</strong>
+                            <span>Clientes</span>
+                        </div>
                     </div>
                     <div class="metric">
-                        <strong>{projetosCount}</strong>
-                        <span>Projetos</span>
+                        <span class="metric-icon">
+                            <lightning-icon icon-name="utility:folder" size="x-small"></lightning-icon>
+                        </span>
+                        <div class="metric-body">
+                            <strong>{projetosCount}</strong>
+                            <span>Projetos</span>
+                        </div>
                     </div>
                     <div class="metric">
-                        <strong>{registrosCount}</strong>
-                        <span>Registros</span>
+                        <span class="metric-icon">
+                            <lightning-icon icon-name="utility:list" size="x-small"></lightning-icon>
+                        </span>
+                        <div class="metric-body">
+                            <strong>{registrosCount}</strong>
+                            <span>Registros</span>
+                        </div>
                     </div>
                 </div>
             </section>
 
             <section class="selector-panel" aria-label="Filtros do repositório">
+                <p class="section-label">
+                    <lightning-icon icon-name="utility:filter" size="xx-small"></lightning-icon>
+                    <span>Contexto de trabalho</span>
+                </p>
                 <div class="repo-filters">
                     <div class="filter-field">
                         <lightning-combobox
@@ -45,6 +64,7 @@
                         label="Novo Cliente"
                         icon-name="utility:add"
                         onclick={openClienteModal}
+                        disabled={novoClienteDisabled}
                         class="filter-action"
                     ></lightning-button>
 
@@ -53,7 +73,7 @@
                             label="Projeto"
                             value={projetoId}
                             options={projetoOptions}
-                            placeholder="Selecione um projeto"
+                            placeholder={projetoPlaceholder}
                             onchange={handleProjetoChange}
                             disabled={projetoDisabled}
                         ></lightning-combobox>
@@ -76,11 +96,14 @@
                 projeto-id={projetoId}
                 tipo-ativo={tipoAtivo}
                 registros={registros}
+                read-only={readOnlyMode}
+                todos-clientes={isTodosClientes}
                 onnewrecord={openNewRecordForm}
                 ondetail={openDetail}
                 onedit={openEditForm}
                 onarchive={handleArchive}
                 oncopytext={handleCopyText}
+                onrefresh={handleRefresh}
             ></c-repositorio-card-list>
 
             <template if:true={showClienteModal}>
@@ -114,6 +137,7 @@
             <template if:true={showDetailModal}>
                 <c-repositorio-record-detail
                     record={selectedRecord}
+                    read-only={readOnlyMode}
                     onclose={closeDetailModal}
                     onedit={openEditForm}
                     oncopytext={handleCopyText}

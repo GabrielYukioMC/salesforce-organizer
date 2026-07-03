@@ -9,6 +9,10 @@
             <span>{typeLabel}</span>
         </div>
 
+        <template if:true={showContextLabel}>
+            <div class="context-row">{contextLabel}</div>
+        </template>
+
         <div class="card-header">
             <h2>{record.Name}</h2>
             <p>{primaryDescription}</p>
@@ -44,7 +48,7 @@
         </div>
 
         <div class="card-actions">
-            <lightning-button label="Ver detalhes" icon-name="utility:preview" variant="base" onclick={handleDetail}></lightning-button>
+            <lightning-button label="Ver detalhes" icon-name="utility:preview" variant="neutral" onclick={handleDetail}></lightning-button>
             <template if:true={showCopy}>
                 <lightning-button-icon
                     icon-name="utility:copy"
@@ -53,18 +57,20 @@
                     onclick={handleCopy}
                 ></lightning-button-icon>
             </template>
-            <lightning-button-icon
-                icon-name="utility:edit"
-                alternative-text="Editar"
-                title="Editar"
-                onclick={handleEdit}
-            ></lightning-button-icon>
-            <lightning-button-icon
-                icon-name="utility:archive"
-                alternative-text="Arquivar"
-                title="Arquivar"
-                onclick={handleArchive}
-            ></lightning-button-icon>
+            <template if:false={readOnly}>
+                <lightning-button-icon
+                    icon-name="utility:edit"
+                    alternative-text="Editar"
+                    title="Editar"
+                    onclick={handleEdit}
+                ></lightning-button-icon>
+                <lightning-button-icon
+                    icon-name="utility:archive"
+                    alternative-text="Arquivar"
+                    title="Arquivar"
+                    onclick={handleArchive}
+                ></lightning-button-icon>
+            </template>
         </div>
     </article>
 </template>

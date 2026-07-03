@@ -73,11 +73,60 @@ private class RepositorioTecnicoControllerTest {
     }
 
     @IsTest
+    static void deveListarRegistrosDeTodosClientesAtivos() {
+        ClienteRepositorio__c clienteA = RepositorioTecnicoController.criarCliente(
+            new ClienteRepositorio__c(Name = 'Cliente A', Ativo__c = true)
+        );
+        ProjetoRepositorio__c projetoA = RepositorioTecnicoController.criarProjeto(
+            new ProjetoRepositorio__c(Name = 'Projeto A', Cliente__c = clienteA.Id, Ativo__c = true)
+        );
+        RegistroRepositorio__c scriptA = salvarScript(clienteA.Id, projetoA.Id);
+
+        ClienteRepositorio__c clienteB = RepositorioTecnicoController.criarCliente(
+            new ClienteRepositorio__c(Name = 'Cliente B', Ativo__c = true)
+        );
+        ProjetoRepositorio__c projetoB = RepositorioTecnicoController.criarProjeto(
+            new ProjetoRepositorio__c(Name = 'Projeto B', Cliente__c = clienteB.Id, Ativo__c = true)
+        );
+        RegistroRepositorio__c scriptB = salvarScript(clienteB.Id, projetoB.Id);
+
+        ClienteRepositorio__c clienteInativo = RepositorioTecnicoController.criarCliente(
+            new ClienteRepositorio__c(Name = 'Cliente Inativo', Ativo__c = false)
+        );
+        ProjetoRepositorio__c projetoClienteInativo = RepositorioTecnicoController.criarProjeto(
+            new ProjetoRepositorio__c(Name = 'Projeto Cliente Inativo', Cliente__c = clienteInativo.Id, Ativo__c = true)
+        );
+        salvarScript(clienteInativo.Id, projetoClienteInativo.Id);
+
+        ProjetoRepositorio__c projetoInativo = RepositorioTecnicoController.criarProjeto(
+            new ProjetoRepositorio__c(Name = 'Projeto Inativo', Cliente__c = clienteA.Id, Ativo__c = false)
+        );
+        salvarScript(clienteA.Id, projetoInativo.Id);
+
+        List<RegistroRepositorio__c> scripts = RepositorioTecnicoController.getRegistrosTodos(
+            'Script Anonymous Apex'
+        );
+        Set<Id> scriptIds = new Map<Id, RegistroRepositorio__c>(scripts).keySet();
+
+        System.assertEquals(2, scripts.size(), 'Deve retornar registros de todos os clientes/projetos ativos.');
+        System.assert(scriptIds.contains(scriptA.Id), 'Deve incluir o registro do cliente A.');
+        System.assert(scriptIds.contains(scriptB.Id), 'Deve incluir o registro do cliente B.');
+
+        RepositorioTecnicoController.arquivarRegistro(scriptA.Id);
+        List<RegistroRepositorio__c> scriptsDepoisArquivo = RepositorioTecnicoController.getRegistrosTodos(
+            'Script Anonymous Apex'
+        );
+        System.assertEquals(1, scriptsDepoisArquivo.size(), 'Arquivados não devem aparecer na visão Todos.');
+        System.assertEquals(scriptB.Id, scriptsDepoisArquivo[0].Id);
+    }
+
+    @IsTest
     static void deveValidarParametrosObrigatorios() {
         assertAuraErrorOnCliente();
         assertAuraErrorOnProjeto();
         assertAuraErrorOnBuscaProjeto();
         assertAuraErrorOnBuscaRegistro();
+        assertAuraErrorOnBuscaTodos();
         assertAuraErrorOnRegistroInvalido();
         assertAuraErrorOnArquivo();
     }
@@ -192,6 +241,15 @@ private class RepositorioTecnicoControllerTest {
         try {
             RepositorioTecnicoController.getRegistros(null, null, null);
             System.assert(false, 'Busca sem filtros obrigatórios deveria falhar.');
+        } catch (AuraHandledException expected) {
+            System.assertNotEquals(null, expected);
+        }
+    }
+
+    private static void assertAuraErrorOnBuscaTodos() {
+        try {
+            RepositorioTecnicoController.getRegistrosTodos(null);
+            System.assert(false, 'Busca todos sem tipo deveria falhar.');
         } catch (AuraHandledException expected) {
             System.assertNotEquals(null, expected);
         }

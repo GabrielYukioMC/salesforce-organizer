@@ -8,11 +8,17 @@
 
         <template if:false={loading}>
             <template if:true={semCliente}>
-                <div class="state">Selecione um cliente para visualizar os projetos e registros técnicos.</div>
+                <div class="state">
+                    <lightning-icon icon-name="utility:company" size="medium" class="state-icon"></lightning-icon>
+                    <p>Selecione um cliente para visualizar os projetos e registros técnicos.</p>
+                </div>
             </template>
 
             <template if:true={semProjeto}>
-                <div class="state">Selecione ou crie um projeto para este cliente.</div>
+                <div class="state">
+                    <lightning-icon icon-name="utility:folder" size="medium" class="state-icon"></lightning-icon>
+                    <p>Selecione ou crie um projeto para este cliente.</p>
+                </div>
             </template>
 
             <template if:true={temContexto}>
@@ -21,12 +27,12 @@
                         <span>{tipoLabel}</span>
                         <p>{recordCountLabel}</p>
                     </div>
-                    <div class="toolbar-actions">
+                    <div class={toolbarActionsClass}>
                         <lightning-input
                             type="search"
                             label="Buscar"
                             variant="label-hidden"
-                            placeholder="Buscar neste projeto..."
+                            placeholder={searchPlaceholder}
                             value={searchTerm}
                             onchange={handleSearchChange}
                         ></lightning-input>
@@ -39,34 +45,40 @@
                         ></lightning-combobox>
                         <lightning-button-icon
                             icon-name="utility:refresh"
-                            alternative-text="Limpar filtros"
-                            title="Limpar filtros"
-                            onclick={clearFilters}
+                            alternative-text="Recarregar registros"
+                            title="Recarregar registros"
+                            onclick={handleRefresh}
                         ></lightning-button-icon>
-                        <lightning-button
-                            variant="brand"
-                            label={newRecordLabel}
-                            icon-name="utility:add"
-                            onclick={handleNewRecord}
-                        ></lightning-button>
+                        <template if:false={readOnly}>
+                            <lightning-button
+                                variant="brand"
+                                label={newRecordLabel}
+                                icon-name="utility:add"
+                                onclick={handleNewRecord}
+                            ></lightning-button>
+                        </template>
                     </div>
                 </div>
 
                 <template if:true={semRegistros}>
                     <div class="empty-state">
+                        <lightning-icon icon-name="utility:knowledge_base" size="medium" class="state-icon"></lightning-icon>
                         <p>Nenhum registro encontrado para esta aba.</p>
-                        <lightning-button
-                            variant="brand-outline"
-                            label="Criar primeiro registro"
-                            icon-name="utility:add"
-                            onclick={handleNewRecord}
-                        ></lightning-button>
+                        <template if:false={readOnly}>
+                            <lightning-button
+                                variant="brand-outline"
+                                label="Criar primeiro registro"
+                                icon-name="utility:add"
+                                onclick={handleNewRecord}
+                            ></lightning-button>
+                        </template>
                     </div>
                 </template>
 
                 <template if:false={semRegistros}>
                     <template if:true={semResultadoFiltrado}>
                         <div class="empty-state compact">
+                            <lightning-icon icon-name="utility:search" size="small" class="state-icon"></lightning-icon>
                             <p>Nenhum registro combina com a busca atual.</p>
                             <lightning-button label="Limpar filtros" onclick={clearFilters}></lightning-button>
                         </div>
@@ -78,6 +90,8 @@
                                 <c-repositorio-card
                                     key={registro.Id}
                                     record={registro}
+                                    read-only={readOnly}
+                                    show-context={todosClientes}
                                     ondetail={forwardEvent}
                                     onedit={forwardEvent}
                                     onarchive={forwardEvent}

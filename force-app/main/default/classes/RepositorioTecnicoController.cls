@@ -2,7 +2,7 @@ public without sharing class RepositorioTecnicoController {
     private static final String STATUS_ARQUIVADO = 'Arquivado';
     private static final String STATUS_ATIVO = 'Ativo';
 
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static List<ClienteRepositorio__c> getClientes() {
         assertReadable(ClienteRepositorio__c.SObjectType, 'Cliente Repositório');
 
@@ -15,7 +15,7 @@ public without sharing class RepositorioTecnicoController {
         return stripClientes(clientes);
     }
 
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static List<ProjetoRepositorio__c> getProjetosByCliente(Id clienteId) {
         requireId(clienteId, 'Cliente');
         assertReadable(ProjetoRepositorio__c.SObjectType, 'Projeto Repositório');
@@ -29,7 +29,7 @@ public without sharing class RepositorioTecnicoController {
         return stripProjetos(projetos);
     }
 
-    @AuraEnabled(cacheable=true)
+    @AuraEnabled
     public static List<RegistroRepositorio__c> getRegistros(Id clienteId, Id projetoId, String tipo) {
         requireId(clienteId, 'Cliente');
         requireId(projetoId, 'Projeto');
@@ -84,6 +84,63 @@ public without sharing class RepositorioTecnicoController {
                 AND Tipo__c = :tipo
                 AND Status__c != :STATUS_ARQUIVADO
             ORDER BY Ordem__c ASC NULLS LAST, LastModifiedDate DESC
+        ];
+        return stripRegistros(registros);
+    }
+
+    @AuraEnabled
+    public static List<RegistroRepositorio__c> getRegistrosTodos(String tipo) {
+        requireText(tipo, 'Tipo');
+        assertReadable(RegistroRepositorio__c.SObjectType, 'Registro Repositório');
+
+        List<RegistroRepositorio__c> registros = [
+            SELECT
+                Id,
+                Name,
+                Cliente__c,
+                Cliente__r.Name,
+                Projeto__c,
+                Projeto__r.Name,
+                Tipo__c,
+                Status__c,
+                Resumo__c,
+                Conteudo__c,
+                Criticidade__c,
+                Risco__c,
+                Ambiente__c,
+                Tags__c,
+                ObjetoSalesforce__c,
+                ClasseOuFlow__c,
+                Ordem__c,
+                Sintoma__c,
+                CausaProvavel__c,
+                ComoInvestigar__c,
+                ComoResolver__c,
+                ComoValidar__c,
+                QuandoUsar__c,
+                Parametros__c,
+                QuerySOQL__c,
+                ComoInterpretar__c,
+                Objetivo__c,
+                ExigeBackup__c,
+                ExigeAprovacao__c,
+                ScriptApex__c,
+                Rollback__c,
+                MensagemErro__c,
+                OndeAcontece__c,
+                SolucaoConhecida__c,
+                PreRequisitos__c,
+                Passos__c,
+                Cuidados__c,
+                ResultadoEsperado__c,
+                LastModifiedDate
+            FROM RegistroRepositorio__c
+            WHERE
+                Tipo__c = :tipo
+                AND Status__c != :STATUS_ARQUIVADO
+                AND Cliente__r.Ativo__c = true
+                AND Projeto__r.Ativo__c = true
+            ORDER BY Cliente__r.Name ASC, Projeto__r.Name ASC, Ordem__c ASC NULLS LAST, LastModifiedDate DESC
         ];
         return stripRegistros(registros);
     }

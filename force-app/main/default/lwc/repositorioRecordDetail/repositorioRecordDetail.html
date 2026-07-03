@@ -3,14 +3,18 @@
         <div class="slds-modal__container">
             <header class="slds-modal__header detail-header">
                 <div class="title-row">
-                    <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                    <span class="title-icon">
+                        <lightning-icon icon-name={iconName} size="small"></lightning-icon>
+                    </span>
                     <div>
                         <h2>{record.Name}</h2>
                         <p>{clienteName} · {projetoName} · {record.Tipo__c}</p>
                     </div>
                 </div>
                 <div class="header-actions">
-                    <lightning-button label="Editar" onclick={handleEdit}></lightning-button>
+                    <template if:false={readOnly}>
+                        <lightning-button label="Editar" onclick={handleEdit}></lightning-button>
+                    </template>
                     <lightning-button-icon
                         icon-name="utility:close"
                         alternative-text="Fechar"
