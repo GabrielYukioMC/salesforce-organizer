@@ -2,7 +2,7 @@ public class ApontamentoBuilder {
 
     private static final Integer HORA_TRABALHO_INICIO = 9;
     private static final Integer HORA_TRABALHO_FIM = 18;
-
+   private static final Integer UTC_OFFSET = -3;
     // Offset UTC do usuário (Brazil UTC-3): hora local = hora UTC + UTC_OFFSET
      
 
