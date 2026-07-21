@@ -12,7 +12,7 @@ const COLUMNS = [
 ];
 
 export default class ContasOportunidade extends LightningElement {
-    @api recordId;
+    @api recordId;   
     @track contas = [];
     @track draftValues = [];
     @track isLoading = false;
@@ -26,11 +26,7 @@ export default class ContasOportunidade extends LightningElement {
         
         this._wiredResult = result;
         if (result.data) {
-            this.contas = result.data.map(c => ({
-                id: c.Conta__c,
-                Name: c.Conta__r.Name,
-                RendaMensal__c: c.Conta__r.RendaMensal__c,
-                Phone: c.Conta__r.Phone
+            this.contas = result.data.map(c => ({    id: c.Conta__c,    Name: c.Conta__r.Name,    RendaMensal__c: c.Conta__r.RendaMensal__c,  Phone: c.Conta__r.Phone
             }));
         }
     }

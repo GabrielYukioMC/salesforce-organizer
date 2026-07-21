@@ -56,9 +56,40 @@ jobs:
             --out-dir deploy-results \
             --operation validate
 
-      - name: Install Salesforce CLI
+      - name: Setup Java for Code Analyzer
         if: steps.pr_scope.outputs.has_deployable_changes == 'true'
-        run: npm install --global @salesforce/cli
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Python for Code Analyzer
+        if: steps.pr_scope.outputs.has_deployable_changes == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Salesforce CLI and Code Analyzer
+        if: steps.pr_scope.outputs.has_deployable_changes == 'true'
+        run: |
+          npm install --no-audit --no-fund
+          npm install --global @salesforce/cli
+          sf plugins install code-analyzer@latest
+
+      - name: Run code quality gate
+        id: code_quality
+        if: steps.pr_scope.outputs.has_deployable_changes == 'true'
+        run: |
+          node scripts/ci/run-code-quality.mjs \
+            --source-root force-app \
+            --changed-file deploy-results/pr-changed-files.txt \
+            --out-dir deploy-results \
+            --workspace . \
+            --severity-threshold 3
+
+      - name: Build readable code quality summary
+        if: always()
+        run: node scripts/ci/summarize-code-quality.mjs --out-dir deploy-results
 
       - name: Authenticate target org
         id: auth_pr
@@ -126,7 +157,8 @@ jobs:
             --threshold "$COVERAGE_THRESHOLD" \
             --auth-status "${{ steps.auth_pr.outcome }}" \
             --salesforce-status "${{ steps.validate_deploy.outcome }}" \
-            --coverage-status "${{ steps.coverage_gate.outcome }}"
+            --coverage-status "${{ steps.coverage_gate.outcome }}" \
+            --quality-status "${{ steps.code_quality.outcome }}"
 
       - name: Upload validation artifacts
         if: always()
@@ -171,9 +203,40 @@ jobs:
             --out-dir deploy-results \
             --operation deploy
 
-      - name: Install Salesforce CLI
+      - name: Setup Java for Code Analyzer
         if: steps.deploy_scope.outputs.has_deployable_changes == 'true'
-        run: npm install --global @salesforce/cli
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Python for Code Analyzer
+        if: steps.deploy_scope.outputs.has_deployable_changes == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Salesforce CLI and Code Analyzer
+        if: steps.deploy_scope.outputs.has_deployable_changes == 'true'
+        run: |
+          npm install --no-audit --no-fund
+          npm install --global @salesforce/cli
+          sf plugins install code-analyzer@latest
+
+      - name: Run code quality gate
+        id: deploy_code_quality
+        if: steps.deploy_scope.outputs.has_deployable_changes == 'true'
+        run: |
+          node scripts/ci/run-code-quality.mjs \
+            --source-root force-app \
+            --changed-file deploy-results/pr-changed-files.txt \
+            --out-dir deploy-results \
+            --workspace . \
+            --severity-threshold 3
+
+      - name: Build readable code quality summary
+        if: always()
+        run: node scripts/ci/summarize-code-quality.mjs --out-dir deploy-results
 
       - name: Authenticate target org
         id: auth_deploy
@@ -241,7 +304,8 @@ jobs:
             --threshold "$COVERAGE_THRESHOLD" \
             --auth-status "${{ steps.auth_deploy.outcome }}" \
             --salesforce-status "${{ steps.deploy_start.outcome }}" \
-            --coverage-status "${{ steps.deploy_coverage_gate.outcome }}"
+            --coverage-status "${{ steps.deploy_coverage_gate.outcome }}" \
+            --quality-status "${{ steps.deploy_code_quality.outcome }}"
 
       - name: Upload deploy artifacts
         if: always()
