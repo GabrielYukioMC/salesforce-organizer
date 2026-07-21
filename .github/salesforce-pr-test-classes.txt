@@ -1,1 +1,2 @@
-RepositorioTecnicoControllerTest
+RegistroAnexoControllerTest
+ApontamentoBuilderTest

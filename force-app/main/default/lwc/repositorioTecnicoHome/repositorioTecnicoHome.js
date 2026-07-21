@@ -59,7 +59,7 @@ export default class RepositorioTecnicoHome extends LightningElement {
     get readOnlyMode() {
         return this.isTodosClientes;
     }
-
+ 
     get projetoDisabled() {
         return this.isTodosClientes || !this.clienteId || this.loadingProjetos;
     }
@@ -69,7 +69,7 @@ export default class RepositorioTecnicoHome extends LightningElement {
     }
 
     get novoClienteDisabled() {
-        return this.readOnlyMode;
+        return false;
     }
 
     get novoProjetoDisabled() {
@@ -339,6 +339,15 @@ export default class RepositorioTecnicoHome extends LightningElement {
         if (!success) {
             throw new Error('Clipboard indisponível');
         }
+    }
+
+    funcLogs(){
+        console.log('Logs:', this.registros);
+        console.table(this.registros);
+        // criar um log de tudo
+        // criar um log de tudo em formato JSON
+        console.log('JSON:', JSON.stringify(this.registros, null, 2));
+        // fim dos logs
     }
 
     findRecord(recordId) {

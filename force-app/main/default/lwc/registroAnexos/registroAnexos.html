@@ -1,0 +1,71 @@
+<template>
+    <section class="anexos-section">
+        <div class="anexos-header">
+            <h3>Anexos</h3>
+            <span class="badge">{contadorLabel}</span>
+        </div>
+
+        <template if:true={loading}>
+            <lightning-spinner alternative-text="Carregando anexos" size="small"></lightning-spinner>
+        </template>
+
+        <template if:false={loading}>
+            <template if:true={semAnexos}>
+                <p class="empty-state">Nenhum arquivo anexado ainda.</p>
+            </template>
+
+            <ul class="anexos-list">
+                <template for:each={anexos} for:item="anexo">
+                    <li key={anexo.contentDocumentId} class="anexo-card">
+                        <span class="anexo-icon">
+                            <lightning-icon icon-name={anexo.iconName} size="x-small"></lightning-icon>
+                        </span>
+                        <div class="anexo-info">
+                            <p class="anexo-title" title={anexo.displayName}>{anexo.displayName}</p>
+                            <p class="anexo-meta">{anexo.sizeLabel}</p>
+                        </div>
+                        <div class="anexo-actions">
+                            <lightning-button-icon
+                                icon-name="utility:preview"
+                                alternative-text="Visualizar"
+                                title="Visualizar"
+                                variant="bare"
+                                data-id={anexo.contentDocumentId}
+                                onclick={handlePreview}
+                            ></lightning-button-icon>
+                            <template if:false={readOnly}>
+                                <lightning-button-icon
+                                    icon-name="utility:delete"
+                                    alternative-text="Remover"
+                                    title="Remover"
+                                    variant="bare"
+                                    data-id={anexo.contentDocumentId}
+                                    onclick={handleRemove}
+                                ></lightning-button-icon>
+                            </template>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+
+            <template if:true={podeAnexar}>
+                <div class="upload-zone">
+                    <lightning-input
+                        type="file"
+                        label="Anexar arquivo"
+                        variant="label-hidden"
+                        onchange={handleFileChange}
+                        disabled={uploading}
+                    ></lightning-input>
+                    <template if:true={uploading}>
+                        <lightning-spinner alternative-text="Enviando arquivo" size="x-small"></lightning-spinner>
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={limiteAtingido}>
+                <p class="limite-info">Limite de anexos atingido ({contadorLabel}).</p>
+            </template>
+        </template>
+    </section>
+</template>

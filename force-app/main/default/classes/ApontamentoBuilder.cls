@@ -1,22 +1,21 @@
 public class ApontamentoBuilder {
 
     private static final Integer HORA_TRABALHO_INICIO = 9;
-    private static final Integer HORA_TRABALHO_FIM    = 18;
-
+    private static final Integer HORA_TRABALHO_FIM = 18;
+   private static final Integer UTC_OFFSET = -3;
     // Offset UTC do usuário (Brazil UTC-3): hora local = hora UTC + UTC_OFFSET
-    // Uso: converter Datetime UTC para data local e criar limites de expediente em UTC
-    private static final Integer UTC_OFFSET = -3;
+     
 
-    // Duração mínima de um slot para ser criado (15 minutos em milissegundos)
+    // Duração mínima de um slot para ser criado (15 minutos em milissegundos) teste testado em app nv fff
     private static final Long MIN_DURACAO_MS = 15L * 60 * 1000;
-
-    
+     
     @TestVisible
     private static Datetime arredondar(Datetime dt) {
         Integer min = dt.minuteGmt();
         if (min <= 15) {
             return Datetime.newInstanceGmt(
-                dt.yearGmt(), dt.monthGmt(), dt.dayGmt(),
+                dt.yearGmt(), dt.monthGmt(),
+                 dt.dayGmt(),
                 dt.hourGmt(), 0, 0
             );
         } else if (min <= 39) { // 16-39 → 30
@@ -45,19 +44,18 @@ public class ApontamentoBuilder {
         Datetime rawFim    = t.FimTarefa__c    != null ? t.FimTarefa__c    : DateTime.now();
 
         Datetime inicio = arredondar(rawInicio);
-        Datetime fim    = arredondar(rawFim);
-
+        Datetime fim = arredondar(rawFim);
         ApontamentoDTO dto = new ApontamentoDTO();
-        dto.name             = t.Name;
-        dto.ownerId          = t.UsuarioProprietario__c;
-        dto.inicio           = inicio;
-        dto.fim              = fim;
-        dto.duracaoHoras     = calcularDuracao(inicio, fim);
-        dto.observacoes      = t.Descricao__c;
-        dto.projeto          = null;
+        dto.name = t.Name;
+        dto.ownerId = t.UsuarioProprietario__c;
+        dto.inicio = inicio;
+        dto.fim = fim;
+        dto.duracaoHoras = calcularDuracao(inicio, fim);
+        dto.observacoes = t.Descricao__c;
+        dto.projeto = null;
         dto.perfilDeAlocacao = null;
 
-        System.debug('### ApontamentoDTO gerado: ' + JSON.serialize(dto));
+        System.debug('### ApontamentoDTO gerado XD: ' + JSON.serialize(dto));
         return dto;
     }
 

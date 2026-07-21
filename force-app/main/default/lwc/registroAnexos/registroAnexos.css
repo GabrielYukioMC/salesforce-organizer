@@ -1,0 +1,112 @@
+.anexos-section {
+    background: #ffffff;
+    border: 1px solid #d8dde6;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(24, 24, 24, 0.04);
+    margin-top: 0.75rem;
+    padding: 0.85rem;
+}
+
+.anexos-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+}
+
+.anexos-header h3 {
+    color: #3e3e3c;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02rem;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.anexos-header .badge {
+    background: #f3f3f3;
+    border-radius: 999px;
+    color: #3e3e3c;
+    font-size: 0.72rem;
+    padding: 0.2rem 0.65rem;
+}
+
+.empty-state {
+    color: #5c5c5c;
+    font-size: 0.85rem;
+    margin: 0 0 0.6rem;
+}
+
+.anexos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0 0 0.6rem;
+    padding: 0;
+}
+
+.anexo-card {
+    align-items: center;
+    border: 1px solid #d8dde6;
+    border-radius: 0.4rem;
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.5rem 0.65rem;
+}
+
+.anexo-icon {
+    align-items: center;
+    background: #eef4ff;
+    border-radius: 0.4rem;
+    color: #0b5cab;
+    display: inline-flex;
+    flex: 0 0 auto;
+    height: 1.9rem;
+    justify-content: center;
+    width: 1.9rem;
+}
+
+.anexo-icon lightning-icon {
+    --slds-c-icon-color-foreground-default: currentColor;
+}
+
+.anexo-info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.anexo-title {
+    color: #181818;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.anexo-meta {
+    color: #5c5c5c;
+    font-size: 0.72rem;
+    margin: 0.1rem 0 0;
+}
+
+.anexo-actions {
+    align-items: center;
+    display: flex;
+    flex: 0 0 auto;
+    gap: 0.2rem;
+}
+
+.upload-zone {
+    align-items: center;
+    display: flex;
+    gap: 0.6rem;
+}
+
+.limite-info {
+    color: #5c5c5c;
+    font-size: 0.78rem;
+    margin: 0.4rem 0 0;
+}

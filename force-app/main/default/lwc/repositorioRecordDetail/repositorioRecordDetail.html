@@ -111,6 +111,8 @@
                         <section><h3>Resultado esperado</h3><p>{record.ResultadoEsperado__c}</p></section>
                     </div>
                 </template>
+
+                <c-registro-anexos record-id={record.Id} read-only={readOnly}></c-registro-anexos>
             </div>
 
             <footer class="slds-modal__footer">
