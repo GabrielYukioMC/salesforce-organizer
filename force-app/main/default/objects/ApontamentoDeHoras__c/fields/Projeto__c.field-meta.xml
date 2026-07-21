@@ -3,7 +3,7 @@
     <fullName>Projeto__c</fullName>
     <externalId>false</externalId>
     <label>Projeto</label>
-    <length>255</length>
+    <length>254</length>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>Text</type>

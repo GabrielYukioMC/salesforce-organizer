@@ -10,6 +10,7 @@ const threshold = options.threshold ?? "80";
 const authStatus = options["auth-status"] ?? "unknown";
 const salesforceStatus = options["salesforce-status"] ?? "unknown";
 const coverageStatus = options["coverage-status"] ?? "unknown";
+const qualityStatus = options["quality-status"] ?? "unknown";
 
 if (!["validate", "deploy"].includes(operation)) {
   fail(`Invalid operation "${operation}". Expected "validate" or "deploy".`, 2);
@@ -232,6 +233,49 @@ function statusText(status) {
   return "Nao informado";
 }
 
+function qualityStatusText(status, codeQualityData) {
+  if (codeQualityData?.status === "skipped") {
+    return "Nao aplicavel";
+  }
+
+  if (codeQualityData?.gate?.ok === true) {
+    return "Sucesso";
+  }
+
+  if (codeQualityData?.gate?.ok === false) {
+    return "Falhou";
+  }
+
+  return statusText(status);
+}
+
+function codeQualityFailure(codeQualityData, stepStatus) {
+  if (codeQualityData?.status === "skipped") {
+    return null;
+  }
+
+  if (codeQualityData?.gate?.ok === false) {
+    const details = [];
+    const errors = codeQualityData.summary?.analysisErrors ?? [];
+
+    if (codeQualityData.summary?.blockingViolations > 0) {
+      details.push(`${codeQualityData.summary.blockingViolations} violacao(oes) bloqueante(s) no gate de qualidade.`);
+    }
+
+    if (errors.length > 0) {
+      details.push(errors.join("; "));
+    }
+
+    return details.join(" ") || "O gate de qualidade retornou falha.";
+  }
+
+  if (!codeQualityData && stepStatus === "failure") {
+    return "A etapa de qualidade falhou antes de gerar resultado estruturado.";
+  }
+
+  return null;
+}
+
 function operationWords() {
   return operation === "deploy"
     ? {
@@ -248,12 +292,21 @@ function operationWords() {
       };
 }
 
-function inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData, deletedFiles }) {
+function inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData, deletedFiles, codeQualityData }) {
   if (deletedFiles.length > 0) {
     return {
       ok: false,
       label: "Remocao de metadata bloqueada",
       detail: "Ha arquivo removido em force-app, mas esta esteira incremental ainda nao publica destructiveChanges.",
+    };
+  }
+
+  const qualityFailure = codeQualityFailure(codeQualityData, qualityStatus);
+  if (qualityFailure) {
+    return {
+      ok: false,
+      label: "Qualidade de codigo insuficiente",
+      detail: qualityFailure,
     };
   }
 
@@ -563,7 +616,56 @@ function buildCoverageSection(coverageData, junitResults, apexTargets, rawCovera
   return lines.join("\n");
 }
 
-function buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles) {
+function buildCodeQualitySection(codeQualityData) {
+  const lines = ["### Qualidade de codigo"];
+
+  if (!codeQualityData) {
+    lines.push("", "Nao executada ou resultado nao encontrado.");
+    return lines.join("\n");
+  }
+
+  if (codeQualityData.status === "skipped") {
+    lines.push("", "Nao aplicavel - nenhum arquivo Salesforce alterado precisou ser analisado.");
+    return lines.join("\n");
+  }
+
+  const summary = codeQualityData.summary ?? {};
+  const metadataCounts = summary.countsByMetadataType ?? {};
+  const blockingViolations = (codeQualityData.violations ?? []).filter((violation) => violation.blockingReasons?.length > 0);
+
+  lines.push(
+    "",
+    "| Metrica | Quantidade |",
+    "| --- | ---: |",
+    `| Violacoes totais | ${summary.totalViolations ?? 0} |`,
+    `| Bloqueantes | ${summary.blockingViolations ?? 0} |`,
+    `| Seguranca | ${summary.securityViolations ?? 0} |`,
+    `| Performance | ${summary.performanceViolations ?? 0} |`,
+    `| Apex | ${metadataCounts.Apex ?? 0} |`,
+    `| LWC | ${metadataCounts.LWC ?? 0} |`,
+  );
+
+  if (blockingViolations.length === 0) {
+    lines.push("", "Nenhuma violacao bloqueante pelo gate atual.");
+    return lines.join("\n");
+  }
+
+  lines.push("", "#### Violacoes bloqueantes", "", "| Arquivo | Regra | Severidade | Linha |", "| --- | --- | ---: | ---: |");
+
+  for (const violation of blockingViolations.slice(0, 8)) {
+    lines.push(
+      `| \`${escapeTable(violation.file || "Nao informado")}\` | ${escapeTable(violation.rule)} | ${violation.severity ?? "-"} | ${violation.line ?? "-"} |`,
+    );
+  }
+
+  if (blockingViolations.length > 8) {
+    lines.push(`| mais ${blockingViolations.length - 8} item(ns) |  |  |  |`);
+  }
+
+  return lines.join("\n");
+}
+
+function buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles, codeQualityData) {
   const lines = ["### Resultado final"];
 
   lines.push(`- Status: ${overall.label}`);
@@ -583,6 +685,12 @@ function buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles) {
     for (const failure of coverageData.failures) {
       lines.push(`  - ${failure}`);
     }
+  }
+
+  const qualityFailure = codeQualityFailure(codeQualityData, qualityStatus);
+  if (qualityFailure) {
+    lines.push("- Qualidade de codigo:");
+    lines.push(`  - ${qualityFailure}`);
   }
 
   if (authStatus === "failure") {
@@ -607,11 +715,12 @@ const apexTargets = await readListFile("pr-apex-targets.txt");
 const testClasses = await readListFile("pr-test-classes.txt");
 const deletedFiles = await readListFile("pr-deleted-files.txt");
 const coverageData = await readJsonFile("apex-coverage-results.json");
+const codeQualityData = await readJsonFile("code-quality-results.json");
 const rawCoverage = await readJsonFile("coverage/coverage-summary.json");
 const junitResults = await collectJUnitResults(testClasses);
 const hasDeployableChanges = sourcePaths.length > 0;
 const hasApexTargets = apexTargets.length > 0;
-const overall = inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData, deletedFiles });
+const overall = inferOverallStatus({ hasDeployableChanges, hasApexTargets, coverageData, deletedFiles, codeQualityData });
 const grouped = groupByType(sourcePaths);
 const itemStatus = hasDeployableChanges
   ? salesforceStatus === "success"
@@ -634,16 +743,19 @@ const summary = [
   "| Etapa | Status |",
   "| --- | --- |",
   `| Autenticacao Salesforce | ${statusText(authStatus)} |`,
+  `| Gate de qualidade | ${qualityStatusText(qualityStatus, codeQualityData)} |`,
   `| ${operation === "deploy" ? "Deploy" : "Validate"} Salesforce | ${statusText(salesforceStatus)} |`,
   `| Gate de cobertura | ${hasApexTargets ? statusText(coverageStatus) : "Nao aplicavel"} |`,
   "",
   buildModifiedFilesSection(grouped, itemStatus),
   "",
+  buildCodeQualitySection(codeQualityData),
+  "",
   buildTestClassesSection(testClasses, junitResults, hasDeployableChanges),
   "",
   buildCoverageSection(coverageData, junitResults, apexTargets, rawCoverage),
   "",
-  buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles),
+  buildFinalNotes(overall, coverageData, hasApexTargets, deletedFiles, codeQualityData),
 ].join("\n");
 
 await appendSummary(summary);
