@@ -6,7 +6,7 @@ public class ApontamentoBuilder {
     // Offset UTC do usuário (Brazil UTC-3): hora local = hora UTC + UTC_OFFSET
      
 
-    // Duração mínima de um slot para ser criado (15 minutos em milissegundos)
+    // Duração mínima de um slot para ser criado (15 minutos em milissegundos) teste testado em app nv fff
     private static final Long MIN_DURACAO_MS = 15L * 60 * 1000;
      
     @TestVisible
