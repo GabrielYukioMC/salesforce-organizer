@@ -9,14 +9,15 @@ public class ApontamentoBuilder {
 
     // Duração mínima de um slot para ser criado (15 minutos em milissegundos)
     private static final Long MIN_DURACAO_MS = 15L * 60 * 1000;
-
+// receba um update de conteudo diferente reererere
     
     @TestVisible
     private static Datetime arredondar(Datetime dt) {
         Integer min = dt.minuteGmt();
         if (min <= 15) {
             return Datetime.newInstanceGmt(
-                dt.yearGmt(), dt.monthGmt(), dt.dayGmt(),
+                dt.yearGmt(), dt.monthGmt(),
+                 dt.dayGmt(),
                 dt.hourGmt(), 0, 0
             );
         } else if (min <= 39) { // 16-39 → 30
