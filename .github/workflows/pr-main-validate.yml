@@ -9,6 +9,7 @@ on:
       - synchronize
       - reopened
       - ready_for_review
+
   push:
     branches:
       - main
@@ -23,9 +24,12 @@ concurrency:
 jobs:
   salesforce-validation:
     name: Validate PR changes
+
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.draft == false }}
+
     runs-on: ubuntu-latest
     timeout-minutes: 180
+
     env:
       COVERAGE_THRESHOLD: "80"
       TEST_CLASSES_FILE: .github/salesforce-pr-test-classes.txt
@@ -42,12 +46,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: "22"
 
       - name: Prepare readable PR validation scope
         id: pr_scope
+        shell: bash
         run: |
           mkdir -p deploy-results
+
           node scripts/ci/prepare-pr-validation.mjs \
             --base "${{ github.event.pull_request.base.sha }}" \
             --head "${{ github.event.pull_request.head.sha }}" \
@@ -58,14 +64,27 @@ jobs:
 
       - name: Install Salesforce CLI
         if: steps.pr_scope.outputs.has_deployable_changes == 'true'
-        run: npm install --global @salesforce/cli
+        shell: bash
+        run: |
+          echo "Node version:"
+          node --version
+
+          echo "NPM version:"
+          npm --version
+
+          npm install --global @salesforce/cli
+
+          echo "Salesforce CLI version:"
+          sf version --verbose
 
       - name: Authenticate target org
         id: auth_pr
         if: steps.pr_scope.outputs.has_deployable_changes == 'true'
         shell: bash
+
         env:
           SF_MAIN_AUTH_URL: ${{ secrets.SF_MAIN_AUTH_URL }}
+
         run: |
           if [ -z "$SF_MAIN_AUTH_URL" ]; then
             {
@@ -75,13 +94,24 @@ jobs:
               echo
               echo "Configure esse secret em Settings > Secrets and variables > Actions usando o SFDX Auth URL da org alvo."
             } >> "$GITHUB_STEP_SUMMARY"
+
             echo "::error title=Missing secret::Configure the SF_MAIN_AUTH_URL repository secret with the target org SFDX auth URL."
+
             exit 1
           fi
 
           auth_file="${RUNNER_TEMP}/sf-main-auth-url.txt"
+
           printf '%s' "$SF_MAIN_AUTH_URL" > "$auth_file"
-          sf org login sfdx-url --sfdx-url-file "$auth_file" --alias "$SF_ORG_ALIAS"
+
+          sf org login sfdx-url \
+            --sfdx-url-file "$auth_file" \
+            --alias "$SF_ORG_ALIAS"
+
+          rm -f "$auth_file"
+
+          sf org display \
+            --target-org "$SF_ORG_ALIAS"
 
       - name: Validate only the files changed in this PR
         id: validate_deploy
@@ -92,14 +122,42 @@ jobs:
           mapfile -t test_classes < deploy-results/pr-test-classes.txt
 
           deploy_args=()
+
           for source_path in "${source_paths[@]}"; do
-            deploy_args+=(--source-dir "$source_path")
+            if [ -n "$source_path" ]; then
+              deploy_args+=(--source-dir "$source_path")
+            fi
           done
 
           test_args=()
+
           for test_class in "${test_classes[@]}"; do
-            test_args+=(--tests "$test_class")
+            if [ -n "$test_class" ]; then
+              test_args+=(--tests "$test_class")
+            fi
           done
+
+          echo "Arquivos que serao validados:"
+
+          for source_path in "${source_paths[@]}"; do
+            echo "- $source_path"
+          done
+
+          echo "Classes de teste que serao executadas:"
+
+          for test_class in "${test_classes[@]}"; do
+            echo "- $test_class"
+          done
+
+          if [ "${#deploy_args[@]}" -eq 0 ]; then
+            echo "::error title=No source paths::Nenhum caminho Salesforce foi encontrado para validacao."
+            exit 1
+          fi
+
+          if [ "${#test_args[@]}" -eq 0 ]; then
+            echo "::error title=No test classes::Nenhuma classe de teste foi encontrada para RunSpecifiedTests."
+            exit 1
+          fi
 
           sf project deploy validate \
             "${deploy_args[@]}" \
@@ -115,10 +173,16 @@ jobs:
       - name: Check 80 percent coverage for PR Apex classes
         id: coverage_gate
         if: steps.pr_scope.outputs.has_apex_targets == 'true'
-        run: node scripts/ci/check-apex-coverage.mjs deploy-results "$COVERAGE_THRESHOLD" deploy-results/pr-apex-targets.txt
+        shell: bash
+        run: |
+          node scripts/ci/check-apex-coverage.mjs \
+            deploy-results \
+            "$COVERAGE_THRESHOLD" \
+            deploy-results/pr-apex-targets.txt
 
       - name: Build readable validate summary
         if: always()
+        shell: bash
         run: |
           node scripts/ci/summarize-salesforce-job.mjs \
             --operation validate \
@@ -138,9 +202,12 @@ jobs:
 
   salesforce-deploy:
     name: Deploy approved main changes
+
     if: ${{ github.event_name == 'push' }}
+
     runs-on: ubuntu-latest
     timeout-minutes: 180
+
     env:
       COVERAGE_THRESHOLD: "80"
       TEST_CLASSES_FILE: .github/salesforce-pr-test-classes.txt
@@ -161,8 +228,10 @@ jobs:
 
       - name: Prepare readable deploy scope
         id: deploy_scope
+        shell: bash
         run: |
           mkdir -p deploy-results
+
           node scripts/ci/prepare-pr-validation.mjs \
             --base "${{ github.event.before }}" \
             --head "${{ github.sha }}" \
@@ -173,14 +242,27 @@ jobs:
 
       - name: Install Salesforce CLI
         if: steps.deploy_scope.outputs.has_deployable_changes == 'true'
-        run: npm install --global @salesforce/cli
+        shell: bash
+        run: |
+          echo "Node version:"
+          node --version
+
+          echo "NPM version:"
+          npm --version
+
+          npm install --global @salesforce/cli
+
+          echo "Salesforce CLI version:"
+          sf version --verbose
 
       - name: Authenticate target org
         id: auth_deploy
         if: steps.deploy_scope.outputs.has_deployable_changes == 'true'
         shell: bash
+
         env:
           SF_MAIN_AUTH_URL: ${{ secrets.SF_MAIN_AUTH_URL }}
+
         run: |
           if [ -z "$SF_MAIN_AUTH_URL" ]; then
             {
@@ -190,13 +272,24 @@ jobs:
               echo
               echo "Configure esse secret em Settings > Secrets and variables > Actions usando o SFDX Auth URL da org alvo."
             } >> "$GITHUB_STEP_SUMMARY"
+
             echo "::error title=Missing secret::Configure the SF_MAIN_AUTH_URL repository secret with the target org SFDX auth URL."
+
             exit 1
           fi
 
           auth_file="${RUNNER_TEMP}/sf-main-auth-url.txt"
+
           printf '%s' "$SF_MAIN_AUTH_URL" > "$auth_file"
-          sf org login sfdx-url --sfdx-url-file "$auth_file" --alias "$SF_ORG_ALIAS"
+
+          sf org login sfdx-url \
+            --sfdx-url-file "$auth_file" \
+            --alias "$SF_ORG_ALIAS"
+
+          rm -f "$auth_file"
+
+          sf org display \
+            --target-org "$SF_ORG_ALIAS"
 
       - name: Deploy only the files changed on main
         id: deploy_start
@@ -207,14 +300,42 @@ jobs:
           mapfile -t test_classes < deploy-results/pr-test-classes.txt
 
           deploy_args=()
+
           for source_path in "${source_paths[@]}"; do
-            deploy_args+=(--source-dir "$source_path")
+            if [ -n "$source_path" ]; then
+              deploy_args+=(--source-dir "$source_path")
+            fi
           done
 
           test_args=()
+
           for test_class in "${test_classes[@]}"; do
-            test_args+=(--tests "$test_class")
+            if [ -n "$test_class" ]; then
+              test_args+=(--tests "$test_class")
+            fi
           done
+
+          echo "Arquivos que serao implantados:"
+
+          for source_path in "${source_paths[@]}"; do
+            echo "- $source_path"
+          done
+
+          echo "Classes de teste que serao executadas:"
+
+          for test_class in "${test_classes[@]}"; do
+            echo "- $test_class"
+          done
+
+          if [ "${#deploy_args[@]}" -eq 0 ]; then
+            echo "::error title=No source paths::Nenhum caminho Salesforce foi encontrado para deploy."
+            exit 1
+          fi
+
+          if [ "${#test_args[@]}" -eq 0 ]; then
+            echo "::error title=No test classes::Nenhuma classe de teste foi encontrada para RunSpecifiedTests."
+            exit 1
+          fi
 
           sf project deploy start \
             "${deploy_args[@]}" \
@@ -230,10 +351,16 @@ jobs:
       - name: Confirm 80 percent coverage for deployed Apex classes
         id: deploy_coverage_gate
         if: steps.deploy_scope.outputs.has_apex_targets == 'true'
-        run: node scripts/ci/check-apex-coverage.mjs deploy-results "$COVERAGE_THRESHOLD" deploy-results/pr-apex-targets.txt
+        shell: bash
+        run: |
+          node scripts/ci/check-apex-coverage.mjs \
+            deploy-results \
+            "$COVERAGE_THRESHOLD" \
+            deploy-results/pr-apex-targets.txt
 
       - name: Build readable deploy summary
         if: always()
+        shell: bash
         run: |
           node scripts/ci/summarize-salesforce-job.mjs \
             --operation deploy \
