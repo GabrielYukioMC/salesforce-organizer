@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>ProjetoLookup__c</fullName>
-    <label>Projeto</label>
+    <label>ProjetoXDXDXDXD</label>
     <required>false</required>
     <type>Lookup</type>
     <referenceTo>Projeto__c</referenceTo>
