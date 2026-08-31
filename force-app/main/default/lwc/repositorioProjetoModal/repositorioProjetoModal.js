@@ -59,9 +59,7 @@ export default class RepositorioProjetoModal extends LightningElement {
     }
 
     getErrorMessage(error) {
-        return error && error.body && error.body.message
-            ? error.body.message
-            : 'Não foi possível concluir a operação. Verifique os dados e tente novamente.';
+        return error && error.body && error.body.message  ? error.body.message : 'Não foi possível concluir a operação. Verifique os dados e tente novamente.';
     }
 
     toast(title, message, variant) {

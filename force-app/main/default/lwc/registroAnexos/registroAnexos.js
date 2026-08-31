@@ -30,6 +30,7 @@ export default class RegistroAnexos extends NavigationMixin(LightningElement) {
     @api readOnly = false;
 
     @track anexos = [];
+
     loading = false;
     uploading = false;
 
