@@ -1,0 +1,409 @@
+<template>
+    <section class="sust-central">
+        <header class="sust-central__header">
+            <div>
+                <p class="sust-central__eyebrow">Sustentação</p>
+                <h1 class="sust-central__title">Central de controle de Sustentacao</h1>
+            </div>
+            <div class="sust-central__actions">
+                <lightning-helptext
+                    content="A central atualiza a fila de novos casos a cada 30 segundos. Para tocar o sino, ative o alarme uma vez nesta página."
+                ></lightning-helptext>
+                <lightning-button
+                    label={alarmStatusLabel}
+                    variant={alarmButtonVariant}
+                    icon-name="utility:announcement"
+                    onclick={handleEnableAlarm}
+                ></lightning-button>
+                <lightning-button-icon
+                    icon-name="utility:refresh"
+                    alternative-text="Atualizar"
+                    title="Atualizar"
+                    onclick={handleRefresh}
+                ></lightning-button-icon>
+            </div>
+        </header>
+
+        <template if:true={loading}>
+            <div class="sust-central__state">
+                <lightning-spinner alternative-text="Carregando casos" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={errorMessage}>
+            <div class="sust-central__error">{errorMessage}</div>
+        </template>
+
+        <template if:true={showNewCaseAlert}>
+            <div class="sust-central__notice">
+                <lightning-icon icon-name="utility:notification" size="x-small"></lightning-icon>
+                <p>{lastNewCaseMessage}</p>
+            </div>
+        </template>
+
+        <template if:true={dashboard}>
+            <lightning-tabset variant="scoped">
+                <lightning-tab label="Novos casos">
+                    <div class="sust-central__tab">
+                        <div class="sust-central__filters">
+                            <lightning-input
+                                type="search"
+                                label="Buscar"
+                                value={searchTerm}
+                                onchange={handleSearchChange}
+                            ></lightning-input>
+                            <lightning-combobox
+                                label="Prioridade"
+                                value={priorityFilter}
+                                options={priorityOptions}
+                                onchange={handlePriorityChange}
+                            ></lightning-combobox>
+                            <lightning-combobox
+                                label="SLA"
+                                value={slaStateFilter}
+                                options={slaStateOptions}
+                                onchange={handleSlaStateChange}
+                            ></lightning-combobox>
+                            <lightning-combobox
+                                label="Ordenar por"
+                                value={sortBy}
+                                options={sortOptions}
+                                onchange={handleSortChange}
+                            ></lightning-combobox>
+                        </div>
+                        <p class="sust-central__sort-hint">Ordenado por: {activeSortLabel}</p>
+
+                        <div class="sust-central__summary">
+                            <div>
+                                <span>Total filtrado</span>
+                                <strong>{filteredNewCount}</strong>
+                            </div>
+                            <div>
+                                <span>Vencidos</span>
+                                <strong>{filteredNewViolatedCount}</strong>
+                            </div>
+                            <div>
+                                <span>Dentro do prazo</span>
+                                <strong>{filteredNewInTimeCount}</strong>
+                            </div>
+                        </div>
+
+                        <template if:true={hasFilteredNewCases}>
+                            <div class="sust-central__list">
+                                <template for:each={filteredNewRows} for:item="caseRow">
+                                    <article key={caseRow.id} class={caseRow.cardClass}>
+                                        <div class="sust-central__case-main">
+                                            <div class="sust-central__case-heading">
+                                                <a href={caseRow.recordUrl}>{caseRow.caseNumber}</a>
+                                                <span class={caseRow.priorityClass}>{caseRow.priority}</span>
+                                                <span class={caseRow.slaStateClass}>{caseRow.slaStateLabel}</span>
+                                            </div>
+                                            <p class="sust-central__subject">{caseRow.subject}</p>
+                                            <div class="sust-central__case-meta">
+                                                <span>{caseRow.status}</span>
+                                                <span>{caseRow.slaType}</span>
+                                            </div>
+                                        </div>
+                                        <div class="sust-central__sla-panel">
+                                            <span>{caseRow.deadlineLabel}</span>
+                                            <strong>{caseRow.slaLabel}</strong>
+                                            <div class={caseRow.progressClass}>
+                                                <span style={caseRow.progressStyle}></span>
+                                            </div>
+                                        </div>
+                                        <div class="sust-central__facts">
+                                            <div class="sust-central__fact">
+                                                <span>Abertura</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.openedAt} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                            <div class="sust-central__fact">
+                                                <span>Prazo atendimento</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.deadline} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </template>
+                            </div>
+                        </template>
+
+                        <template if:false={hasFilteredNewCases}>
+                            <div class="sust-central__empty">
+                                <lightning-icon icon-name="utility:search" size="small"></lightning-icon>
+                                <p>Nenhum Case encontrado para os filtros.</p>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-tab>
+
+                <lightning-tab label="Casos Abertos">
+                    <div class="sust-central__tab">
+                        <template if:true={hasOpenCases}>
+                            <div class="sust-central__list">
+                                <template for:each={openRows} for:item="caseRow">
+                                    <article key={caseRow.id} class={caseRow.cardClass}>
+                                        <div class="sust-central__case-main">
+                                            <div class="sust-central__case-heading">
+                                                <a href={caseRow.recordUrl}>{caseRow.caseNumber}</a>
+                                                <span class={caseRow.priorityClass}>{caseRow.priority}</span>
+                                                <span class={caseRow.slaStateClass}>{caseRow.slaStateLabel}</span>
+                                            </div>
+                                            <p class="sust-central__subject">{caseRow.subject}</p>
+                                            <div class="sust-central__case-meta">
+                                                <span>{caseRow.status}</span>
+                                                <span>{caseRow.slaType}</span>
+                                            </div>
+                                        </div>
+                                        <div class="sust-central__sla-panel">
+                                            <span>{caseRow.deadlineLabel}</span>
+                                            <strong>{caseRow.slaLabel}</strong>
+                                            <div class={caseRow.progressClass}>
+                                                <span style={caseRow.progressStyle}></span>
+                                            </div>
+                                        </div>
+                                        <div class="sust-central__facts">
+                                            <div class="sust-central__fact">
+                                                <span>Início trabalho</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.workStartedAt} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                            <div class="sust-central__fact">
+                                                <span>Prazo trabalho</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.deadline} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </template>
+                            </div>
+                        </template>
+                        <template if:false={hasOpenCases}>
+                            <div class="sust-central__empty">
+                                <lightning-icon icon-name="utility:success" size="small"></lightning-icon>
+                                <p>Nenhum Case em trabalho no momento.</p>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-tab>
+
+                <lightning-tab label="Casos em Homologacao">
+                    <div class="sust-central__tab">
+                        <template if:true={hasHomologationCases}>
+                            <div class="sust-central__list">
+                                <template for:each={homologationRows} for:item="caseRow">
+                                    <article key={caseRow.id} class="sust-central__case homologation">
+                                        <div class="sust-central__case-main">
+                                            <div class="sust-central__case-heading">
+                                                <a href={caseRow.recordUrl}>{caseRow.caseNumber}</a>
+                                                <span class={caseRow.priorityClass}>{caseRow.priority}</span>
+                                                <span class="sust-central__status-pill homologation">{caseRow.status}</span>
+                                            </div>
+                                            <p class="sust-central__subject">{caseRow.subject}</p>
+                                            <div class="sust-central__case-meta">
+                                                <span>{caseRow.slaType}</span>
+                                                <span>SLA pausado</span>
+                                            </div>
+                                        </div>
+                                        <div class="sust-central__sla-panel homologation">
+                                            <span>{caseRow.deadlineLabel}</span>
+                                            <strong>{caseRow.slaLabel}</strong>
+                                        </div>
+                                        <div class="sust-central__facts">
+                                            <div class="sust-central__fact">
+                                                <span>Em homologação desde</span>
+                                                <p>{caseRow.pauseLabel}</p>
+                                            </div>
+                                            <div class="sust-central__fact">
+                                                <span>Prazo trabalho</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.deadline} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </template>
+                            </div>
+                        </template>
+                        <template if:false={hasHomologationCases}>
+                            <div class="sust-central__empty">
+                                <lightning-icon icon-name="utility:success" size="small"></lightning-icon>
+                                <p>Nenhum Case em homologação no momento.</p>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-tab>
+
+                <lightning-tab label="Casos parados">
+                    <div class="sust-central__tab">
+                        <template if:true={hasPausedCases}>
+                            <div class="sust-central__list">
+                                <template for:each={pausedRows} for:item="caseRow">
+                                    <article key={caseRow.id} class="sust-central__case paused">
+                                        <div class="sust-central__case-main">
+                                            <div class="sust-central__case-heading">
+                                                <a href={caseRow.recordUrl}>{caseRow.caseNumber}</a>
+                                                <span class={caseRow.priorityClass}>{caseRow.priority}</span>
+                                                <span class="sust-central__status-pill">{caseRow.status}</span>
+                                            </div>
+                                            <p class="sust-central__subject">{caseRow.subject}</p>
+                                            <div class="sust-central__case-meta">
+                                                <span>{caseRow.slaType}</span>
+                                                <span>SLA pausado</span>
+                                            </div>
+                                        </div>
+                                        <div class="sust-central__sla-panel paused">
+                                            <span>{caseRow.deadlineLabel}</span>
+                                            <strong>{caseRow.slaLabel}</strong>
+                                        </div>
+                                        <div class="sust-central__facts">
+                                            <div class="sust-central__fact">
+                                                <span>Pausado desde</span>
+                                                <p>{caseRow.pauseLabel}</p>
+                                            </div>
+                                            <div class="sust-central__fact">
+                                                <span>Prazo trabalho</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.deadline} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </template>
+                            </div>
+                        </template>
+                        <template if:false={hasPausedCases}>
+                            <div class="sust-central__empty">
+                                <lightning-icon icon-name="utility:success" size="small"></lightning-icon>
+                                <p>Nenhum Case parado no momento.</p>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-tab>
+
+                <lightning-tab label="Casos Fechados">
+                    <div class="sust-central__tab">
+                        <template if:true={hasClosedCases}>
+                            <div class="sust-central__list">
+                                <template for:each={closedRows} for:item="caseRow">
+                                    <article key={caseRow.id} class={caseRow.cardClass}>
+                                        <div class="sust-central__case-main">
+                                            <div class="sust-central__case-heading">
+                                                <a href={caseRow.recordUrl}>{caseRow.caseNumber}</a>
+                                                <span class={caseRow.priorityClass}>{caseRow.priority}</span>
+                                                <span class={caseRow.slaStateClass}>{caseRow.slaStateLabel}</span>
+                                            </div>
+                                            <p class="sust-central__subject">{caseRow.subject}</p>
+                                            <div class="sust-central__case-meta">
+                                                <span>{caseRow.status}</span>
+                                                <span>Fechado</span>
+                                            </div>
+                                        </div>
+                                        <div class={caseRow.slaPanelClass}>
+                                            <span>{caseRow.deadlineLabel}</span>
+                                            <strong>{caseRow.slaLabel}</strong>
+                                            <div class={caseRow.progressClass}>
+                                                <span style={caseRow.progressStyle}></span>
+                                            </div>
+                                        </div>
+                                        <div class="sust-central__facts">
+                                            <div class="sust-central__fact">
+                                                <span>Abertura</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.openedAt} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                            <div class="sust-central__fact">
+                                                <span>Fim trabalho</span>
+                                                <p>
+                                                    <lightning-formatted-date-time value={caseRow.workFinishedAt} year="numeric" month="2-digit" day="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </template>
+                            </div>
+                        </template>
+                        <template if:false={hasClosedCases}>
+                            <div class="sust-central__empty">
+                                <lightning-icon icon-name="utility:archive" size="small"></lightning-icon>
+                                <p>Nenhum Case fechado no período selecionado.</p>
+                            </div>
+                        </template>
+                    </div>
+                </lightning-tab>
+
+                <lightning-tab label="Resumo">
+                    <div class="sust-central__tab">
+                        <div class="sust-central__filters compact">
+                            <lightning-combobox
+                                label="Período"
+                                value={summaryPeriod}
+                                options={summaryPeriodOptions}
+                                onchange={handleSummaryPeriodChange}
+                            ></lightning-combobox>
+                            <lightning-input
+                                type="date"
+                                label="Início"
+                                value={startDate}
+                                onchange={handleStartDateChange}
+                            ></lightning-input>
+                            <lightning-input
+                                type="date"
+                                label="Fim"
+                                value={endDate}
+                                onchange={handleEndDateChange}
+                            ></lightning-input>
+                        </div>
+
+                        <div class="sust-central__summary-board">
+                            <div class="sust-central__summary-group">
+                                <div class="sust-central__summary-heading">
+                                    <span>Visão geral</span>
+                                    <strong>{summary.openedCases}</strong>
+                                    <p>casos abertos no intervalo</p>
+                                </div>
+                                <div class="sust-central__summary-metrics">
+                                    <div>
+                                        <span>Resolvidos</span>
+                                        <strong>{summary.resolvedCases}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Em trabalho</span>
+                                        <strong>{summary.workingCases}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Abertos no período</span>
+                                        <strong>{summary.monthOpenedCases}</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="sust-central__summary-group risk">
+                                <div class="sust-central__summary-heading">
+                                    <span>Perdas de SLA</span>
+                                    <strong>{summary.totalLostSla}</strong>
+                                    <p>ocorrências no intervalo</p>
+                                </div>
+                                <div class="sust-central__summary-metrics">
+                                    <div>
+                                        <span>Atendimento</span>
+                                        <strong>{summary.lostAttendanceSla}</strong>
+                                    </div>
+                                    <div>
+                                        <span>Trabalho</span>
+                                        <strong>{summary.lostWorkSla}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </lightning-tab>
+            </lightning-tabset>
+        </template>
+    </section>
+</template>

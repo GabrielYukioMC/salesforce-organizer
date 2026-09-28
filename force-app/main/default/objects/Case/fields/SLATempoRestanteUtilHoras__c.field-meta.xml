@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SLATempoRestanteUtilHoras__c</fullName>
+    <externalId>false</externalId>
+    <inlineHelpText>Horas úteis restantes do SLA ativo: atendimento antes do primeiro atendimento e trabalho depois que o Case entra em trabalho.</inlineHelpText>
+    <label>Tempo restante SLA útil (h)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

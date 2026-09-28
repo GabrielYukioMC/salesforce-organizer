@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>BloquearAlteracaoPrioridadeSLA</fullName>
+    <active>true</active>
+    <description>Bloqueia alteração da prioridade de SLA após o início do trabalho, exceto para usuários com permissão customizada.</description>
+    <errorConditionFormula>AND(
+    ISCHANGED(PrioridadeSLA__c),
+    NOT(ISBLANK(InicioTrabalhoSLA__c)),
+    NOT($Permission.AlterarPrioridadeSLA)
+)</errorConditionFormula>
+    <errorDisplayField>PrioridadeSLA__c</errorDisplayField>
+    <errorMessage>A prioridade do SLA não pode ser alterada após o início do trabalho.</errorMessage>
+</ValidationRule>

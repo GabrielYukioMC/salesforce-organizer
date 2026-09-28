@@ -1,0 +1,238 @@
+<template>
+    <lightning-card title="Comunicação da demanda" icon-name="standard:feed">
+        <lightning-button slot="actions" label="Atualizar" icon-name="utility:refresh" onclick={refresh} disabled={busy}></lightning-button>
+        <div class="shell">
+            <template lwc:if={busy}><lightning-spinner alternative-text="Carregando comunicação" size="small"></lightning-spinner></template>
+            <template lwc:if={error}><div class="error" role="alert">{error}</div></template>
+            <template lwc:if={context}>
+                <lightning-tabset variant="scoped">
+                    <lightning-tab label="Nova mensagem" icon-name="utility:edit_form">
+                        <section class="composer" aria-label="Nova comunicação">
+                            <div class="columns"><lightning-combobox label="Publicar em" options={targetOptions} value={targetId} onchange={targetChanged} disabled={sending}></lightning-combobox><lightning-combobox label="Tipo" options={kinds} value={kind} onchange={kindChanged} disabled={sending}></lightning-combobox></div>
+                            <template lwc:if={taskSelected}><p class="hint">A mensagem da tarefa será publicada na Work vinculada, com identificação da tarefa.</p></template>
+                            <lightning-textarea label="Mensagem" value={body} onchange={bodyChanged} max-length="9000" disabled={sending} placeholder="Compartilhe uma atualização, dúvida, impedimento ou decisão."></lightning-textarea>
+                            <template lwc:if={hasUploadedFiles}>
+                                <div class="upload-strip" aria-label="Arquivos selecionados">
+                                    <template for:each={uploadedFiles} for:item="file">
+                                        <div class="pending-file" key={file.documentId}>
+                                            <lightning-icon icon-name={file.iconName} size="small"></lightning-icon>
+                                            <a href={file.openUrl} target="_blank" rel="noopener">{file.title}</a>
+                                            <lightning-button-icon icon-name="utility:close" variant="bare" alternative-text="Remover arquivo" title="Remover arquivo" data-id={file.documentId} onclick={removeUploadedFile}></lightning-button-icon>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <div class="composer-footer"><template lwc:if={destinationId}><lightning-file-upload label={uploadLabel} record-id={destinationId} multiple onuploadfinished={filesUploaded} disabled={sending}></lightning-file-upload></template><lightning-button label="Publicar" variant="brand" onclick={send} disabled={sendDisabled}></lightning-button></div>
+                            <div class="native-link"><a href={nativeUrl} target="_blank" rel="noopener">Abrir registro e Chatter</a></div>
+                        </section>
+                    </lightning-tab>
+                    <lightning-tab label="Todas mensagens" icon-name="standard:feed">
+                        <section class="conversation" aria-label="Publicações relacionadas">
+                            <div class="feed-heading"><span class="hint">Atualizado às {refreshedAt}</span></div>
+                            <lightning-combobox label="Filtrar por origem" options={filterOptions} value={filterId} onchange={filterChanged} disabled={busy}></lightning-combobox>
+                            <template lwc:if={empty}><p class="empty">Nenhuma publicação neste contexto. Inicie a conversa na aba Nova mensagem.</p></template>
+                            <template for:each={posts} for:item="post">
+                                <article class="post" key={post.id}>
+                                    <div class="avatar" aria-hidden="true">{post.author}</div>
+                                    <div class="post-body">
+                                        <div class="post-heading"><a href={post.originUrl}>{post.origin}</a><lightning-badge label={post.kind}></lightning-badge></div>
+                                        <p class="byline">{post.author} · <lightning-formatted-date-time value={post.createdAt} day="2-digit" month="2-digit" year="numeric" hour="2-digit" minute="2-digit"></lightning-formatted-date-time></p>
+                                        <div class="text"><template lwc:if={post.rich}><lightning-formatted-rich-text value={post.displayBody}></lightning-formatted-rich-text></template><template lwc:else><lightning-formatted-text value={post.displayBody} linkify></lightning-formatted-text></template></div>
+                                        <template lwc:if={post.hasAttachments}>
+                                            <div class="attachments">
+                                                <template for:each={post.attachments} for:item="file">
+                                                    <template lwc:if={file.isImage}>
+                                                        <a class="image-attachment" key={file.documentId} href={file.openUrl} target="_blank" rel="noopener">
+                                                            <img src={file.thumbnailUrl} alt={file.title} />
+                                                            <span>{file.title}</span>
+                                                        </a>
+                                                    </template>
+                                                    <template lwc:else>
+                                                        <div class="file-attachment" key={file.documentId}>
+                                                            <lightning-icon icon-name={file.iconName} size="medium"></lightning-icon>
+                                                            <div><a href={file.openUrl} target="_blank" rel="noopener">{file.title}</a><span>{file.extension} {file.sizeLabel}</span></div>
+                                                            <a class="open-file" href={file.openUrl} target="_blank" rel="noopener" title="Abrir arquivo"><lightning-icon icon-name="utility:new_window" size="x-small"></lightning-icon></a>
+                                                        </div>
+                                                    </template>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <div class="post-actions"><lightning-button variant="base" label={post.commentLabel} data-id={post.id} onclick={openComments} disabled={sending}></lightning-button><a href={post.url} target="_blank" rel="noopener">Abrir publicação no Chatter</a></div>
+                                        <template lwc:if={post.expanded}>
+                                            <div class="replies">
+                                                <template for:each={post.replies} for:item="reply">
+                                                    <div class="reply" key={reply.id}>
+                                                        <strong>{reply.author}</strong>
+                                                        <template lwc:if={reply.rich}><lightning-formatted-rich-text value={reply.body}></lightning-formatted-rich-text></template>
+                                                        <template lwc:else><lightning-formatted-text value={reply.body} linkify></lightning-formatted-text></template>
+                                                        <template lwc:if={reply.hasAttachments}>
+                                                            <div class="attachments reply-attachments">
+                                                                <template for:each={reply.attachments} for:item="file">
+                                                                    <template lwc:if={file.isImage}>
+                                                                        <a class="image-attachment" key={file.documentId} href={file.openUrl} target="_blank" rel="noopener">
+                                                                            <img src={file.thumbnailUrl} alt={file.title} />
+                                                                            <span>{file.title}</span>
+                                                                        </a>
+                                                                    </template>
+                                                                    <template lwc:else>
+                                                                        <div class="file-attachment" key={file.documentId}>
+                                                                            <lightning-icon icon-name={file.iconName} size="medium"></lightning-icon>
+                                                                            <div><a href={file.openUrl} target="_blank" rel="noopener">{file.title}</a><span>{file.extension} {file.sizeLabel}</span></div>
+                                                                            <a class="open-file" href={file.openUrl} target="_blank" rel="noopener" title="Abrir arquivo"><lightning-icon icon-name="utility:new_window" size="x-small"></lightning-icon></a>
+                                                                        </div>
+                                                                    </template>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                <lightning-textarea label="Responder" value={replyText} onchange={replyChanged} max-length="9000" disabled={sending}></lightning-textarea>
+                                                <template lwc:if={hasReplyFiles}>
+                                                    <div class="upload-strip reply-files" aria-label="Arquivos da resposta">
+                                                        <template for:each={replyFiles} for:item="file">
+                                                            <div class="pending-file" key={file.documentId}>
+                                                                <lightning-icon icon-name={file.iconName} size="small"></lightning-icon>
+                                                                <a href={file.openUrl} target="_blank" rel="noopener">{file.title}</a>
+                                                                <lightning-button-icon icon-name="utility:close" variant="bare" alternative-text="Remover arquivo" title="Remover arquivo" data-id={file.documentId} onclick={removeReplyFile}></lightning-button-icon>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                <div class="reply-actions"><template lwc:if={post.parentId}><lightning-file-upload label={replyUploadLabel} record-id={post.parentId} multiple onuploadfinished={replyFilesUploaded} disabled={sending}></lightning-file-upload></template><lightning-button label="Enviar comentário" onclick={sendReply} disabled={sending}></lightning-button></div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </article>
+                            </template>
+                            <template lwc:if={hasMore}><lightning-button label="Carregar mais publicações" onclick={more} disabled={busy}></lightning-button></template>
+                        </section>
+                    </lightning-tab>
+                    <lightning-tab label="Mensagens estruturadas" icon-name="utility:kanban">
+                        <section class="structured" aria-label="Mensagens estruturadas">
+                            <div class="feed-heading"><span class="hint">Atualizado às {refreshedAt}</span></div>
+                            <lightning-combobox label="Filtrar por origem" options={filterOptions} value={filterId} onchange={filterChanged} disabled={busy}></lightning-combobox>
+                            <div class="legend" aria-label="Legenda">
+                                <span class="legend-item origin-case">Case</span>
+                                <span class="legend-item origin-work">Work principal</span>
+                                <span class="legend-item origin-subwork">Subwork</span>
+                                <span class="legend-item origin-criterion">Critério</span>
+                                <span class="legend-item origin-scenario">Cenário</span>
+                                <span class="legend-item origin-task">Tarefa</span>
+                            </div>
+                            <template lwc:if={structuredEmpty}><p class="empty">Nenhuma publicação neste contexto. Inicie a conversa na aba Nova mensagem.</p></template>
+                            <div class="structured-list">
+                                <template for:each={structuredPosts} for:item="post">
+                                    <article class={post.structureClass} key={post.id}>
+                                        <div class="structured-top">
+                                            <div class="origin-chip">
+                                                <lightning-icon icon-name={post.originIcon} size="x-small"></lightning-icon>
+                                                <span>{post.originType}</span>
+                                            </div>
+                                            <lightning-badge label={post.kind}></lightning-badge>
+                                        </div>
+                                        <a class="structured-origin" href={post.originUrl}>{post.origin}</a>
+                                        <p class="byline">{post.author} · <lightning-formatted-date-time value={post.createdAt} day="2-digit" month="2-digit" year="numeric" hour="2-digit" minute="2-digit"></lightning-formatted-date-time></p>
+                                        <div class="structured-message">
+                                            <template lwc:if={post.rich}><lightning-formatted-rich-text value={post.displayBody}></lightning-formatted-rich-text></template>
+                                            <template lwc:else><lightning-formatted-text value={post.displayBody} linkify></lightning-formatted-text></template>
+                                        </div>
+                                        <template lwc:if={post.hasAttachments}>
+                                            <div class="structured-files">
+                                                <lightning-icon icon-name="utility:attach" size="x-small"></lightning-icon>
+                                                <span>{post.attachmentCount} arquivo(s)</span>
+                                            </div>
+                                            <div class="attachments compact">
+                                                <template for:each={post.attachments} for:item="file">
+                                                    <template lwc:if={file.isImage}>
+                                                        <a class="image-attachment" key={file.documentId} href={file.openUrl} target="_blank" rel="noopener">
+                                                            <img src={file.thumbnailUrl} alt={file.title} />
+                                                            <span>{file.title}</span>
+                                                        </a>
+                                                    </template>
+                                                    <template lwc:else>
+                                                        <div class="file-attachment" key={file.documentId}>
+                                                            <lightning-icon icon-name={file.iconName} size="medium"></lightning-icon>
+                                                            <div><a href={file.openUrl} target="_blank" rel="noopener">{file.title}</a><span>{file.extension} {file.sizeLabel}</span></div>
+                                                            <a class="open-file" href={file.openUrl} target="_blank" rel="noopener" title="Abrir arquivo"><lightning-icon icon-name="utility:new_window" size="x-small"></lightning-icon></a>
+                                                        </div>
+                                                    </template>
+                                                </template>
+                                            </div>
+                                        </template>
+                                        <div class="post-actions"><lightning-button variant="base" label={post.commentLabel} data-id={post.id} onclick={openComments} disabled={sending}></lightning-button><a href={post.url} target="_blank" rel="noopener">Abrir publicação</a></div>
+                                        <template lwc:if={post.expanded}>
+                                            <div class="replies structured-replies">
+                                                <template for:each={post.replies} for:item="reply">
+                                                    <div class="reply" key={reply.id}>
+                                                        <strong>{reply.author}</strong>
+                                                        <template lwc:if={reply.rich}><lightning-formatted-rich-text value={reply.body}></lightning-formatted-rich-text></template>
+                                                        <template lwc:else><lightning-formatted-text value={reply.body} linkify></lightning-formatted-text></template>
+                                                        <template lwc:if={reply.hasAttachments}>
+                                                            <div class="attachments reply-attachments">
+                                                                <template for:each={reply.attachments} for:item="file">
+                                                                    <template lwc:if={file.isImage}>
+                                                                        <a class="image-attachment" key={file.documentId} href={file.openUrl} target="_blank" rel="noopener">
+                                                                            <img src={file.thumbnailUrl} alt={file.title} />
+                                                                            <span>{file.title}</span>
+                                                                        </a>
+                                                                    </template>
+                                                                    <template lwc:else>
+                                                                        <div class="file-attachment" key={file.documentId}>
+                                                                            <lightning-icon icon-name={file.iconName} size="medium"></lightning-icon>
+                                                                            <div><a href={file.openUrl} target="_blank" rel="noopener">{file.title}</a><span>{file.extension} {file.sizeLabel}</span></div>
+                                                                            <a class="open-file" href={file.openUrl} target="_blank" rel="noopener" title="Abrir arquivo"><lightning-icon icon-name="utility:new_window" size="x-small"></lightning-icon></a>
+                                                                        </div>
+                                                                    </template>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                <lightning-textarea label="Responder" value={replyText} onchange={replyChanged} max-length="9000" disabled={sending}></lightning-textarea>
+                                                <template lwc:if={hasReplyFiles}>
+                                                    <div class="upload-strip reply-files" aria-label="Arquivos da resposta">
+                                                        <template for:each={replyFiles} for:item="file">
+                                                            <div class="pending-file" key={file.documentId}>
+                                                                <lightning-icon icon-name={file.iconName} size="small"></lightning-icon>
+                                                                <a href={file.openUrl} target="_blank" rel="noopener">{file.title}</a>
+                                                                <lightning-button-icon icon-name="utility:close" variant="bare" alternative-text="Remover arquivo" title="Remover arquivo" data-id={file.documentId} onclick={removeReplyFile}></lightning-button-icon>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                                <div class="reply-actions"><template lwc:if={post.parentId}><lightning-file-upload label={replyUploadLabel} record-id={post.parentId} multiple onuploadfinished={replyFilesUploaded} disabled={sending}></lightning-file-upload></template><lightning-button label="Enviar comentário" onclick={sendReply} disabled={sending}></lightning-button></div>
+                                            </div>
+                                        </template>
+                                    </article>
+                                </template>
+                            </div>
+                            <template lwc:if={hasMore}><lightning-button label="Carregar mais publicações" onclick={more} disabled={busy}></lightning-button></template>
+                        </section>
+                    </lightning-tab>
+                    <lightning-tab label="Informações úteis" icon-name="utility:info">
+                        <section class="info" aria-label="Informações úteis">
+                            <p class="hint">Totais da hierarquia acessível, incluindo a Work principal.</p>
+                            <div class="metrics"><template for:each={metrics} for:item="metric">
+                                <div class="metric" key={metric.label}><strong>{metric.value}</strong><span>{metric.label}</span></div>
+                            </template></div>
+                            <template lwc:if={context.limited}><p class="notice">Visão parcial: há registros sem acesso ou a hierarquia excede os limites de exibição (500 Works, 12 níveis). Os destinos também têm limites de exibição.</p></template>
+                            <template lwc:if={caseId}>
+                                <div class="sla"><div><span>SLA</span><strong>{slaStatus}</strong></div><div><span>Fase</span><strong>{slaPhase}</strong></div><div><span>Saldo útil em tempo real</span><strong>{slaBalance}</strong></div></div>
+                                <div class="deadlines"><span>Prazo de atendimento: <lightning-formatted-date-time value={attendanceDeadline} day="2-digit" month="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time></span><span>Prazo de trabalho: <lightning-formatted-date-time value={workDeadline} day="2-digit" month="2-digit" hour="2-digit" minute="2-digit"></lightning-formatted-date-time></span></div>
+                            </template>
+                            <template lwc:else><p class="hint">Esta Work não possui um Case de origem acessível para exibir o SLA.</p></template>
+                            <template lwc:if={hasWorks}>
+                                <lightning-combobox label="Work em acompanhamento" options={workOptions} value={selectedWorkId} onchange={workChanged}></lightning-combobox>
+                                <!-- <p class="stage">Etapa atual: <strong>{currentStage}</strong></p> -->
+                                <lightning-record-edit-form object-api-name="Work__c" record-id={selectedWorkId} onsuccess={stageSaved} onerror={stageError}>
+                                    <lightning-messages></lightning-messages>
+                                    <div class="stage-editor"><lightning-input-field field-name="Etapa__c"></lightning-input-field><lightning-button type="submit" label="Salvar etapa" disabled={busy}></lightning-button></div>
+                                </lightning-record-edit-form>
+                            </template>
+                        </section>
+                    </lightning-tab>
+                </lightning-tabset>
+            </template>
+        </div>
+    </lightning-card>
+</template>
