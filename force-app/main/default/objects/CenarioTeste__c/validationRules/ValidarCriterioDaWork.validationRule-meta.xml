@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ValidarCriterioDaWork</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(NOT(ISBLANK(CriterioAceite__c)), CriterioAceite__r.Work__c &lt;&gt; Work__c)</errorConditionFormula>
+    <errorDisplayField>CriterioAceite__c</errorDisplayField>
+    <errorMessage>O critério de aceite deve pertencer à mesma Work do cenário.</errorMessage>
+</ValidationRule>

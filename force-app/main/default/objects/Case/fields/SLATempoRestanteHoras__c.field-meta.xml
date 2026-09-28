@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SLATempoRestanteHoras__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+    OR(IsClosed, NOT(ISBLANK(FimTrabalhoSLA__c))),
+    0,
+    IF(
+        ISBLANK(PrimeiroAtendimentoEm__c),
+        IF(
+            ISBLANK(SLAAtendimentoPrazo__c),
+            NULL,
+            MAX(0, (SLAAtendimentoPrazo__c - NOW()) * 24)
+        ),
+        IF(
+            ISBLANK(SLATrabalhoPrazo__c),
+            NULL,
+            MAX(0, (SLATrabalhoPrazo__c - NOW()) * 24)
+        )
+    )
+)</formula>
+    <inlineHelpText>Tempo restante aproximado em horas corridas. Para SLA com Business Hours, use Tempo restante SLA útil (h).</inlineHelpText>
+    <label>Tempo restante SLA corrido (h)</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>2</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

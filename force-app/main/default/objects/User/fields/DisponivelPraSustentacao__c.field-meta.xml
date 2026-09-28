@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>DisponivelPraSustentacao__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Indica se o usuário está disponível para receber ou atuar em demandas de sustentação.</description>
+    <externalId>false</externalId>
+    <label>Disponível pra sustentação</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

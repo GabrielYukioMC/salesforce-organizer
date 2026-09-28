@@ -1,0 +1,142 @@
+<template>
+    <article class="sla-monitor">
+        <div class="sla-monitor__header">
+            <div class="sla-monitor__title-wrap">
+                <lightning-icon icon-name="standard:case" size="small"></lightning-icon>
+                <h2 class="sla-monitor__title">Controle de SLA</h2>
+            </div>
+            <lightning-helptext
+                content="Horário de trabalho considerado no SLA: segunda a sexta, das 09:00 às 18:00, timezone America/Sao_Paulo. Sábados, domingos e feriados cadastrados no Business Hours não consomem SLA."
+            ></lightning-helptext>
+        </div>
+
+        <template if:true={loading}>
+            <div class="sla-monitor__state">
+                <lightning-spinner alternative-text="Carregando SLA" size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={errorMessage}>
+            <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+                <div class="sla-monitor__error">{errorMessage}</div>
+            </div>
+        </template>
+
+        <template if:true={sla}>
+            <div class="sla-monitor__body">
+                <header class="sla-monitor__hero">
+                    <div class="sla-monitor__hero-copy">
+                        <p class="sla-monitor__eyebrow">Case {sla.caseNumber}</p>
+                        <p class="sla-monitor__remaining">{activeRemainingLabel}</p>
+                        <p class="sla-monitor__meta">{activePhaseLabel} · {sla.slaStatus}</p>
+                    </div>
+                    <span class={badgeClass}>{sla.priority}</span>
+                </header>
+
+                <div class={activeProgressClass}>
+                    <span style={activeProgressStyle}></span>
+                </div>
+
+                <div class="sla-monitor__facts">
+                    <div class="sla-monitor__fact">
+                        <span>Abertura</span>
+                        <p>
+                            <lightning-formatted-date-time
+                                value={sla.openedAt}
+                                year="numeric"
+                                month="2-digit"
+                                day="2-digit"
+                                hour="2-digit"
+                                minute="2-digit"
+                            ></lightning-formatted-date-time>
+                        </p>
+                    </div>
+                    <div class="sla-monitor__fact">
+                        <span>Fase</span>
+                        <p>{sla.phase}</p>
+                    </div>
+                    <div class="sla-monitor__fact">
+                        <span>Status</span>
+                        <p>{sla.status}</p>
+                    </div>
+                    <div class="sla-monitor__fact">
+                        <span>Atualizado</span>
+                        <p>
+                            <lightning-formatted-date-time
+                                value={sla.lastCalculatedAt}
+                                hour="2-digit"
+                                minute="2-digit"
+                                second="2-digit"
+                            ></lightning-formatted-date-time>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="sla-monitor__stages">
+                    <section class={attendanceClass}>
+                        <div class="sla-monitor__stage-header">
+                            <lightning-icon icon-name="utility:call" size="x-small"></lightning-icon>
+                            <p>Atendimento</p>
+                        </div>
+                        <div class="sla-monitor__stage-main">
+                            <span>{attendanceRemainingLabel}</span>
+                            <div class={attendanceProgressClass}>
+                                <span style={attendanceProgressStyle}></span>
+                            </div>
+                        </div>
+                        <div class="sla-monitor__details">
+                            <div class="sla-monitor__detail">
+                                <span>SLA</span>
+                                <p>{attendanceTotalLabel}</p>
+                            </div>
+                            <div class="sla-monitor__detail">
+                                <span>Prazo</span>
+                                <p>
+                                    <lightning-formatted-date-time
+                                        value={sla.attendanceDeadline}
+                                        year="numeric"
+                                        month="2-digit"
+                                        day="2-digit"
+                                        hour="2-digit"
+                                        minute="2-digit"
+                                    ></lightning-formatted-date-time>
+                                </p>
+                            </div>
+                            <div class="sla-monitor__detail">
+                                <span>Atendido em</span>
+                                <p>{firstResponseLabel}</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class={workClass}>
+                        <div class="sla-monitor__stage-header">
+                            <lightning-icon icon-name="utility:settings" size="x-small"></lightning-icon>
+                            <p>Trabalho</p>
+                        </div>
+                        <div class="sla-monitor__stage-main">
+                            <span>{workRemainingLabel}</span>
+                            <div class={workProgressClass}>
+                                <span style={workProgressStyle}></span>
+                            </div>
+                        </div>
+                        <div class="sla-monitor__details">
+                            <div class="sla-monitor__detail">
+                                <span>SLA</span>
+                                <p>{workTotalLabel}</p>
+                            </div>
+                            <div class="sla-monitor__detail">
+                                <span>Início</span>
+                                <p>{workStartedLabel}</p>
+                            </div>
+                            <div class="sla-monitor__detail">
+                                <span>Prazo</span>
+                                <p>{workDeadlineLabel}</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </template>
+    </article>
+</template>

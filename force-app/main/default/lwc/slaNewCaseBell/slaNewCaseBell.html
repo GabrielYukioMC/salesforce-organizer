@@ -1,0 +1,41 @@
+<template>
+    <section class="sla-bell">
+        <header class="sla-bell__header">
+            <div>
+                <p>SLA</p>
+                <h2>Sino de novos casos</h2>
+            </div>
+            <span class={statusClass}>{statusLabel}</span>
+        </header>
+
+        <div class="sla-bell__counter">
+            <span>Novos na fila</span>
+            <strong>{newCaseCount}</strong>
+        </div>
+
+        <template if:true={lastNewCaseMessage}>
+            <div class="sla-bell__notice">
+                <lightning-icon icon-name="utility:notification" size="x-small"></lightning-icon>
+                <p>{lastNewCaseMessage}</p>
+            </div>
+        </template>
+
+        <div class="sla-bell__actions">
+            <lightning-button
+                label={alarmButtonLabel}
+                variant={alarmButtonVariant}
+                icon-name="utility:announcement"
+                onclick={handleEnableAlarm}
+                stretch
+            ></lightning-button>
+            <lightning-button-icon
+                icon-name="utility:refresh"
+                alternative-text="Atualizar"
+                title="Atualizar"
+                onclick={loadNewCases}
+            ></lightning-button-icon>
+        </div>
+
+        <p class="sla-bell__hint">Atualiza a cada 30 segundos enquanto o app estiver aberto.</p>
+    </section>
+</template>

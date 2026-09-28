@@ -5,6 +5,10 @@
         <members>RegistroAnexoControllerTest</members>
         <members>RepositorioTecnicoController</members>
         <members>RepositorioTecnicoControllerTest</members>
+        <members>WorkRelationshipHandler</members>
+        <members>WorkCommunicationController</members>
+        <members>WorkCommunicationControllerTest</members>
+        <members>WorkRelationshipHandlerTest</members>
         <name>ApexClass</name>
     </types>
     <types>
@@ -19,7 +23,104 @@
         <members>repositorioRecordForm</members>
         <members>repositorioTabs</members>
         <members>repositorioTecnicoHome</members>
+        <members>workCommunicator</members>
         <name>LightningComponentBundle</name>
+    </types>
+    <types>
+        <members>WorkTrigger</members>
+        <name>ApexTrigger</name>
+    </types>
+    <types>
+        <members>Case.Work__c</members>
+        <members>CenarioTeste__c.CriterioAceite__c</members>
+        <members>CenarioTeste__c.DataExecucao__c</members>
+        <members>CenarioTeste__c.Descricao__c</members>
+        <members>CenarioTeste__c.Evidencias__c</members>
+        <members>CenarioTeste__c.Passos__c</members>
+        <members>CenarioTeste__c.PreCondicoes__c</members>
+        <members>CenarioTeste__c.Responsavel__c</members>
+        <members>CenarioTeste__c.ResultadoEsperado__c</members>
+        <members>CenarioTeste__c.ResultadoObtido__c</members>
+        <members>CenarioTeste__c.Status__c</members>
+        <members>CenarioTeste__c.Titulo__c</members>
+        <members>CenarioTeste__c.Work__c</members>
+        <members>CriterioAceite__c.Descricao__c</members>
+        <members>CriterioAceite__c.Observacoes__c</members>
+        <members>CriterioAceite__c.Responsavel__c</members>
+        <members>CriterioAceite__c.Status__c</members>
+        <members>CriterioAceite__c.Titulo__c</members>
+        <members>CriterioAceite__c.Work__c</members>
+        <members>Work__c.Case__c</members>
+        <members>Work__c.DataConclusao__c</members>
+        <members>Work__c.DataInicio__c</members>
+        <members>Work__c.DataPrevista__c</members>
+        <members>Work__c.Descricao__c</members>
+        <members>Work__c.Observacoes__c</members>
+        <members>Work__c.ParentWork__c</members>
+        <members>Work__c.Prioridade__c</members>
+        <members>Work__c.Project__c</members>
+        <members>Work__c.Responsavel__c</members>
+        <members>Work__c.Status__c</members>
+        <members>Work__c.Titulo__c</members>
+        <members>Work__c.Etapa__c</members>
+        <name>CustomField</name>
+    </types>
+    <types>
+        <members>CenarioTeste__c</members>
+        <members>CriterioAceite__c</members>
+        <members>Work__c</members>
+        <members>Projeto__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>CenarioTeste__c</members>
+        <members>CriterioAceite__c</members>
+        <members>Work__c</members>
+        <name>CustomTab</name>
+    </types>
+    <types>
+        <members>CenarioTeste_Record_Page</members>
+        <members>Work_Record_Page</members>
+        <members>Case_Record_Page</members>
+        <members>CriterioAceite_Record_Page</members>
+        <name>FlexiPage</name>
+    </types>
+    <types>
+        <members>Criar_Work_Principal</members>
+        <name>Flow</name>
+    </types>
+    <types>
+        <members>Case-Case %28Marketing%29 Layout</members>
+        <members>Case-Case %28Sales%29 Layout</members>
+        <members>Case-Case %28Support%29 Layout</members>
+        <members>Case-Case Layout</members>
+        <members>CenarioTeste__c-Cenário de teste Layout</members>
+        <members>CriterioAceite__c-Critério de aceite Layout</members>
+        <members>Projeto__c-Projeto Layout</members>
+        <members>Work__c-Work Layout</members>
+        <name>Layout</name>
+    </types>
+    <types>
+        <members>CenarioTeste__c.Todos</members>
+        <members>CriterioAceite__c.Todos</members>
+        <members>Work__c.Todos</members>
+        <name>ListView</name>
+    </types>
+    <types>
+        <members>Gestao_Works</members>
+        <name>PermissionSet</name>
+    </types>
+    <types>
+        <members>Case.CriarWorkPrincipal</members>
+        <name>QuickAction</name>
+    </types>
+    <types>
+        <members>Case.ValidarOrigemWork</members>
+        <members>Case.ValidarWorkPrincipal</members>
+        <members>CenarioTeste__c.ValidarCriterioDaWork</members>
+        <members>Work__c.ImpedirAutoRelacionamento</members>
+        <members>Work__c.ValidarDatas</members>
+        <name>ValidationRule</name>
     </types>
     <version>65.0</version>
 </Package>
