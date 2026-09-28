@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ValidarDatas</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(NOT(ISBLANK(DataInicio__c)), NOT(ISBLANK(DataConclusao__c)), DataConclusao__c &lt; DataInicio__c)</errorConditionFormula>
+    <errorDisplayField>DataConclusao__c</errorDisplayField>
+    <errorMessage>A conclusão não pode ser anterior ao início.</errorMessage>
+</ValidationRule>

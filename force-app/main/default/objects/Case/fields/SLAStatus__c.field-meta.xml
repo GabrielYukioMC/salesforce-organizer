@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>SLAStatus__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF(
+    AND(SLAAtendimentoViolado__c, SLATrabalhoViolado__c),
+    &quot;Vencido - Atendimento e Trabalho&quot;,
+    IF(
+        SLAAtendimentoViolado__c,
+        &quot;Vencido - Atendimento&quot;,
+        IF(
+            SLATrabalhoViolado__c,
+            &quot;Vencido - Trabalho&quot;,
+            IF(
+                IsClosed,
+                &quot;Concluído dentro do SLA&quot;,
+                IF(IsStopped, &quot;Pausado&quot;, &quot;Dentro do prazo&quot;)
+            )
+        )
+    )
+)</formula>
+    <label>Status do SLA</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

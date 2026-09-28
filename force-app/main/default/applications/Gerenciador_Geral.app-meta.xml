@@ -12,6 +12,7 @@
     <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
     <label>Gerenciador Geral</label>
     <navType>Standard</navType>
+    <tabs>Central_de_controle_de_Sustentacao</tabs>
     <tabs>Central_de_Tarefas</tabs>
     <tabs>Central_De_Conhecimento</tabs>
     <tabs>Central_Financeiro</tabs>

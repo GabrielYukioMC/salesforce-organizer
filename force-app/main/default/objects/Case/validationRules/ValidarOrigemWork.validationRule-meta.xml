@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>ValidarOrigemWork</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(NOT(ISBLANK(Work__c)), OR(ISBLANK(Work__r.Case__c), Work__r.Case__c &lt;&gt; Id))</errorConditionFormula>
+    <errorDisplayField>Work__c</errorDisplayField>
+    <errorMessage>Defina este Case como Case de origem da Work antes de associá-la como principal.</errorMessage>
+</ValidationRule>

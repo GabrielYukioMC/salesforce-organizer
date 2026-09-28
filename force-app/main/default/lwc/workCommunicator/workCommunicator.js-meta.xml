@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Comunicador da demanda</masterLabel>
+    <description>Chatter consolidado, SLA, etapas e indicadores de Case, Work, Critérios e Cenários relacionados.</description>
+    <targets><target>lightning__RecordPage</target></targets>
+    <targetConfigs><targetConfig targets="lightning__RecordPage"><objects><object>Case</object><object>Work__c</object><object>CriterioAceite__c</object><object>CenarioTeste__c</object></objects></targetConfig></targetConfigs>
+</LightningComponentBundle>

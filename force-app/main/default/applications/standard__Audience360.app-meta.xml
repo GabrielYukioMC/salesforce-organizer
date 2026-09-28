@@ -39,5 +39,6 @@
     <tabs>ApontamentoDeHoras__c</tabs>
     <tabs>Comprador__c</tabs>
     <tabs>standard-DataCleanRoom</tabs>
+    <tabs>standard-DataQuickAttribute</tabs>
     <uiType>Lightning</uiType>
 </CustomApplication>

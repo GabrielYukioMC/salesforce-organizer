@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>65.0</apiVersion>
+    <decisions>
+        <name>Verificar_Case</name>
+        <label>Verificar Case e Work existente</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Criar_Work</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Case disponível</defaultConnectorLabel>
+        <rules>
+            <name>Sem_Case</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Case.Id</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Case_Invalido</targetReference>
+            </connector>
+            <label>Case não encontrado</label>
+        </rules>
+        <rules>
+            <name>Com_Work</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Case.Work__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Work_Existente</targetReference>
+            </connector>
+            <label>Work já associada</label>
+        </rules>
+    </decisions>
+    <description>Cria uma Work principal e atualiza Case.Work__c, sob demanda e no contexto de acesso do usuário. Nenhuma migração automática de Cases.</description>
+    <environments>Default</environments>
+    <interviewLabel>Criar Work principal {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Criar Work principal</label>
+    <processType>Flow</processType>
+    <recordCreates>
+        <name>Criar_Work</name>
+        <label>Criar Work principal</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Associar_Work</targetReference>
+        </connector>
+        <inputAssignments>
+            <field>Titulo__c</field>
+            <value>
+                <elementReference>Titulo</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Case__c</field>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Responsavel__c</field>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Work__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <name>Buscar_Case</name>
+        <label>Consultar Case novamente antes de criar</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>true</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Verificar_Case</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Case</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordUpdates>
+        <name>Associar_Work</name>
+        <label>Associar Work ao Case</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Concluido</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <inputAssignments>
+            <field>Work__c</field>
+            <value>
+                <elementReference>Criar_Work</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Case</object>
+    </recordUpdates>
+    <screens>
+        <name>Informar_Work</name>
+        <label>Nova Work principal</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Buscar_Case</targetReference>
+        </connector>
+        <fields>
+            <name>Informar_Work_Mensagem</name>
+            <fieldText>&lt;p&gt;Informe o título do trabalho. Depois de criar, abra a Work para definir projeto, prioridade, datas, tarefas e critérios de aceite.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <fields>
+            <name>Titulo</name>
+            <dataType>String</dataType>
+            <fieldText>Título da Work</fieldText>
+            <fieldType>InputField</fieldType>
+            <isRequired>true</isRequired>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Case_Invalido</name>
+        <label>Case indisponível</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Case_Invalido_Mensagem</name>
+            <fieldText>&lt;p&gt;Abra esta ação em um Case ao qual você tenha acesso.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Work_Existente</name>
+        <label>Work principal já associada</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Work_Existente_Mensagem</name>
+            <fieldText>&lt;p&gt;Este Case já possui uma Work principal. Feche a ação e abra o campo Work principal no Case.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <screens>
+        <name>Concluido</name>
+        <label>Work principal criada</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Concluido_Mensagem</name>
+            <fieldText>&lt;p&gt;A Work foi criada e associada ao Case. &lt;a href="/{!Criar_Work}" target="_self"&gt;Abrir Work principal&lt;/a&gt;.&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+        </fields>
+        <showFooter>true</showFooter>
+        <showHeader>true</showHeader>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Informar_Work</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>
